@@ -58,4 +58,3 @@ fabric.properties
 ### frp
 figwheel_server.log
 dev-resources/public/js
-doc/auto
