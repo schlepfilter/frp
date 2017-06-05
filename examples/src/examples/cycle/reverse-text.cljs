@@ -13,20 +13,20 @@
        (frp/stepper "")))
 
 (def style
-  {:width "100%"
-   :height "40px"
-   :padding "10px 0"
-   :text-align "center"
-   :font-size "2em"
-   :font-family "Helvetica"})
+  {:width        "100%"
+   :height       "40px"
+   :padding      "10px 0"
+   :text-align   "center"
+   :font-size    "2em"
+   :font-family  "Helvetica"})
 
 (defn text-component
   [reversed-text*]
   [:div
-   [:input {:on-change #(-> % .-target .-value key-stroke)
-                  :type      "text"
-                  :placeholder "Text to reverse"
-                  :style style}]
+   [:input {:on-change   #(-> % .-target .-value key-stroke)
+            :type        "text"
+            :placeholder "Text to reverse"
+            :style       style}]
    [:p {:style style} reversed-text*]])
 
 (def reverse-text
