@@ -9,6 +9,7 @@
       <sourceFolder url="file://$MODULE_DIR$/resources" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/dist/js" />
       <excludeFolder url="file://$MODULE_DIR$/target/base+system+user+dev" />
     </content>
     <orderEntry type="inheritedJdk" />
@@ -91,7 +92,7 @@
     <orderEntry type="library" name="Leiningen: org.clojure/tools.analyzer:0.6.9" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.namespace:0.2.11" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.nrepl:0.2.12" level="project" />
-    <orderEntry type="library" name="Leiningen: org.clojure/tools.reader:0.10.0" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/tools.reader:1.0.0-beta3" level="project" />
     <orderEntry type="library" name="Leiningen: org.javassist/javassist:3.18.1-GA" level="project" />
     <orderEntry type="library" name="Leiningen: org.mozilla/rhino:1.7R5" level="project" />
     <orderEntry type="library" name="Leiningen: org.msgpack/msgpack:0.6.10" level="project" />
