@@ -55,6 +55,6 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-### frp
-figwheel_server.log
-dev-resources/public/js
+### examples
+resources/public/js
+dist/js

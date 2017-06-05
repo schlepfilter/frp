@@ -1,0 +1,74 @@
+\documentclass[fleqn]{amsart}
+\usepackage[margin={0.25in}]{geometry}
+\newcommand{\zeroarity}[1]{&\ \textit{#1*}\quad\text{-- where }\textit{#1*}\text{ is }(#1)}
+\newcommand{\positive}[1]{&\ \textit{#1}\ Int\quad\text{-- where }Int\text{ is positive}}
+\newcommand{\integer}[1]{&\ #1\ Int}
+\newcommand{\predicate}[2]{&\ \textit{#1}\ (#2 \rightarrow Boolean)}
+\newcommand{\nonnillable}[3]{&\ \textit{#1}\ (#2 \rightarrow #3)\quad\text{-- where }#3\text{ is not nil}}
+\newcommand{\any}[3]{&\ \textit{#1}\ (#2 \rightarrow #3)}
+\begin{document}
+\begin{align*}
+  occs\ (>>= e\ f) = foldr\ merge\ []\circ map\ delayOccs\circ map\ (\backslash(\hat{t}_a, a) \rightarrow (\hat{t}_a , f\ a))\ \$ \ occs\ e
+\end{align*}
+\begin{align*}
+  %mapcat is composed of map and cat
+  \mathbf{data}\ Xform{*}\ a\ b\ c\ d\ e\ f\ g\ h\ i\ j\ k\ l\ m\ n\ o =&\ cat\\
+  |\zeroarity{dedupe}\\
+  |\zeroarity{distinct}\\
+  |\positive{take-nth}\\
+  |\positive{partition-all}\\
+  |\integer{drop}\\
+  |\integer{take}\\
+  |&\ replace\ Map\ a\ b\\
+  |\predicate{drop-while}{c}\\
+  |\predicate{filter}{d}\\
+  |\predicate{remove}{e}\\
+  |\predicate{take-while}{f}\\
+  |\nonnillable{map-index}{g}{h}\\
+  |\nonnillable{partition-by}{i}{j}\\
+  |\any{keep}{k}{l}\\
+  |\any{keep-indexed}{m}{n}\\
+  |&\ interpose\ o
+\end{align*}
+\begin{align*}
+  data\ Xform = foldl\ comp\ [Xform*]
+\end{align*}
+\begin{align*}
+  %TODO add the 3 arity version of transduce
+  transduce : Xform \rightarrow (a \rightarrow b \rightarrow a) \rightarrow a \rightarrow Event\ b \rightarrow Event\ a
+\end{align*}
+\begin{align*}
+  &occs\ (transduce\ xform\ f\ a\ e)\\
+  &\quad= scanl\ (liftA2\ f)\ a\ \$\ mapMaybe\ (unreduced\ .\ (xform\ (\backslash\_\ x\rightarrow just\ x))\ nothing)\ \$\ occs\ e
+\end{align*}
+\begin{align*}
+  >>=\ : Behavior\ a \rightarrow f \rightarrow Behavior\ b
+\end{align*}
+\begin{align*}
+  at\ \$>>= b\ f =\backslash t \rightarrow f\ (b\ `at` \ t)\ `at` \ t
+\end{align*}
+%TODO add toTime and fromTime
+\begin{align*}
+  calculus : ((Real \rightarrow Real) \rightarrow Real \rightarrow Real \rightarrow Real) \rightarrow Time \rightarrow Behavior\ Real\rightarrow Behavior\ Real
+\end{align*}
+\begin{align*}
+  at\ \$\ calculus\ f\ x\ b = \backslash t\rightarrow f\ ((at\ b)\ .\ toTime)\ (fromTime\ x)\ \$\ fromTime\ t
+\end{align*}
+\begin{align*}
+  &\mathbf{class}\ Entity\ e\ \mathbf{where}\\
+  &\quad on : (a\rightarrow IO\ ())\rightarrow e \rightarrow IO\ ()
+\end{align*}
+\begin{align*}
+  &\mathbf{instance_{sem}}\ Entity\ (Event\ a)\ \mathbf{where}\\
+  &\quad occs\ \$\ on\ f\ e = map\ (fmap\ f)\ \$\ occs\ e
+\end{align*}
+\begin{align*}
+  biasedOccs\ e = foldl\ (\backslash xs\ x\rightarrow\ &\mathbf{if}\ fst\ (last\ xs) = fst\ x\ \mathbf{then}\ xs\ \mathbf{else}\ xs : x)\ [\ ]\ \$\ occs\ e
+\end{align*}
+\begin{align*}
+  &\mathbf{instance_{sem}}\ Entity\ (Behavior\ a)\ \mathbf{where}\\
+  &\quad occs\ \$\ on\ f\ b = map\ ((fmap\ f)\ .\ dedupe)\ \$\ (map\ (\backslash (t, x)\rightarrow(inc\ t, x))\ \$\ biasedOccs\ e)\\
+  &\qquad\oplus((\backslash t\rightarrow (t, (at\ b)\ t))\ {<}\${>}\ [time\ \$\ n * internal + error_n])\\
+  &\qquad\ \text{-- where }b = (a\ stepper\ e)\wedge (n\geq 0)\wedge (interval > 0)\wedge (n * internal + error_n) < ((n + 1) * internal + error_{n+1})
+\end{align*}
+\end{document}
