@@ -57,3 +57,4 @@ fabric.properties
 
 ### examples
 resources/public/js
+dist/js
