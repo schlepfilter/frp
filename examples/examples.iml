@@ -14,6 +14,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Leiningen: aid:0.1.1" level="project" />
     <orderEntry type="library" name="Leiningen: args4j:2.33" level="project" />
     <orderEntry type="library" name="Leiningen: aysylu/loom:1.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: bidi:2.1.0" level="project" />
@@ -59,10 +60,9 @@
     <orderEntry type="library" name="Leiningen: figwheel:0.5.9" level="project" />
     <orderEntry type="library" name="Leiningen: fipp:0.6.3" level="project" />
     <orderEntry type="library" name="Leiningen: frankiesardo/linked:1.2.9" level="project" />
-    <orderEntry type="library" name="Leiningen: frp:0.1.0" level="project" />
-    <orderEntry type="library" name="Leiningen: funcool/cats:2.0.0" level="project" />
+    <orderEntry type="library" name="Leiningen: frp:0.1.1" level="project" />
+    <orderEntry type="library" name="Leiningen: funcool/cats:2.1.0" level="project" />
     <orderEntry type="library" name="Leiningen: hawk:0.2.11" level="project" />
-    <orderEntry type="library" name="Leiningen: help:0.1.0" level="project" />
     <orderEntry type="library" name="Leiningen: http-kit:2.2.0" level="project" />
     <orderEntry type="library" name="Leiningen: jarohen/chime:0.2.1" level="project" />
     <orderEntry type="library" name="Leiningen: joda-time:2.9.7" level="project" />

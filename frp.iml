@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module cursive.leiningen.project.LeiningenProjectsManager.displayName="frp:0.1.0" cursive.leiningen.project.LeiningenProjectsManager.isLeinModule="true" type="JAVA_MODULE" version="4">
+<module cursive.leiningen.project.LeiningenProjectsManager.displayName="frp:0.1.1" cursive.leiningen.project.LeiningenProjectsManager.isLeinModule="true" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/classes" />
@@ -13,6 +13,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Leiningen: aid:0.1.1" level="project" />
     <orderEntry type="library" name="Leiningen: args4j:2.33" level="project" />
     <orderEntry type="library" name="Leiningen: aysylu/loom:1.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: binaryage/devtools:0.9.2" level="project" />
@@ -45,7 +46,6 @@
     <orderEntry type="library" name="Leiningen: frankiesardo/linked:1.2.9" level="project" />
     <orderEntry type="library" name="Leiningen: funcool/cats:2.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: hawk:0.2.11" level="project" />
-    <orderEntry type="library" name="Leiningen: help:0.1.0" level="project" />
     <orderEntry type="library" name="Leiningen: http-kit:2.2.0" level="project" />
     <orderEntry type="library" name="Leiningen: jarohen/chime:0.2.1" level="project" />
     <orderEntry type="library" name="Leiningen: joda-time:2.9.7" level="project" />

@@ -1,8 +1,8 @@
 (ns examples.index
-  (:require [bidi.bidi :as bidi]
+  (:require [aid.core :as aid]
+            [bidi.bidi :as bidi]
             [clojure.string :as str]
             [com.rpl.specter :as s]
-            [help.core :as help]
             [examples.cycle.autocomplete-search :as autocomplete-search]
             [examples.cycle.bmi-naive :as bmi-naive]
             [examples.cycle.checkbox :as checkbox]
@@ -35,7 +35,7 @@
 
 (def example-route
   (zipmap (map (comp unkebab
-                     (partial (help/flip subs) 1)
+                     (partial (aid/flip subs) 1)
                      str)
                route-keywords)
           route-keywords))

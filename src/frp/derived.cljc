@@ -1,7 +1,7 @@
 (ns frp.derived
-  (:require [cats.context :as ctx]
+  (:require [aid.core :as aid]
+            [cats.context :as ctx]
             [com.rpl.specter :as s]
-            [help.core :as help]
             [frp.helpers :as helpers]
             [frp.clojure.core :as core]
             [frp.primitives.behavior :as behavior]
@@ -12,31 +12,31 @@
 
 (defn event
   ([]
-   (->> (help/mempty)
+   (->> (aid/mempty)
         (ctx/with-context event/context)))
   ([a]
    (-> (event)
-       help/infer
-       (help/return a))))
+       aid/infer
+       (aid/return a))))
 
-(help/defcurried add-edges
-                 [parents child network]
-                 (helpers/call-functions (map ((help/flip event/add-edge)
+(aid/defcurried add-edges
+                [parents child network]
+                (helpers/call-functions (map ((aid/flip event/add-edge)
                                                 child)
                                               parents)
                                          network))
 
 (defn get-occs-or-latests-coll
   [initial ids network]
-  (map (partial (help/flip (event/make-get-occs-or-latests initial))
+  (map (partial (aid/flip (event/make-get-occs-or-latests initial))
                 network)
        ids))
 
 (defn make-combine-occs-or-latests
   [f]
-  (comp (help/build tuple/tuple
-                    (comp tuple/fst first)
-                    (comp (partial apply f)
+  (comp (aid/build tuple/tuple
+                   (comp tuple/fst first)
+                   (comp (partial apply f)
                           (partial map tuple/snd)))
         vector))
 
@@ -48,9 +48,9 @@
                                    parents
                                    network)))
 
-(help/defcurried modify-combine
-                 [f parents initial child network]
-                 (event/set-occs (get-combined-occs f
+(aid/defcurried modify-combine
+                [f parents initial child network]
+                (event/set-occs (get-combined-occs f
                                                     parents
                                                     initial
                                                     network)
@@ -59,10 +59,10 @@
 
 (defn combine
   [f & parent-events]
-  ((help/build (comp event/event*
-                     cons)
-               add-edges
-               (comp event/make-set-modify-modify
+  ((aid/build (comp event/event*
+                    cons)
+              add-edges
+              (comp event/make-set-modify-modify
                      (modify-combine f)))
     (map :id parent-events)))
 
@@ -80,7 +80,7 @@
 (defn behavior
   [a]
   (->> a
-       help/pure
+       aid/pure
        (ctx/with-context behavior/context)))
 
 (defn if-not-then-else
@@ -100,14 +100,14 @@
   (or (and p (not q))
       (and (not p) q)))
 
-(help/defcurried eventize
-                 [e a]
-                 ;TODO refactor
-                 ;TODO use casep
-                 (help/casep a
-                             event? a
-                             (help/<$> (constantly a)
-                                       e)))
+(aid/defcurried eventize
+                [e a]
+                ;TODO refactor
+                ;TODO use casep
+                (aid/casep a
+                           event? a
+                           (aid/<$> (constantly a)
+                                    e)))
 
 (def has-event?
   (partial some event?))
@@ -123,9 +123,9 @@
        arguments))
 
 (def has-argument?
-  (help/build and
-              seq?
-              (comp (partial not= 1)
+  (aid/build and
+             seq?
+             (comp (partial not= 1)
                     count)))
 
 #?(:clj
@@ -136,20 +136,20 @@
                      (some behavior? arguments#))
               (apply (if (has-event? arguments#)
                        (partial combine ~f)
-                       (help/lift-a ~f))
+                       (aid/lift-a ~f))
                      (entitize arguments#))
               (apply ~f arguments#))))
 
        (defmacro transparent
          [expr]
          (walk/postwalk (fn [x]
-                          (help/casep x
-                                      has-argument? `(transparent* ~x)
-                                      x))
+                          (aid/casep x
+                                     has-argument? `(transparent* ~x)
+                                     x))
                         (macroexpand expr)))))
 
 (def accum
-  (partial core/reduce (help/flip help/funcall)))
+  (partial core/reduce (aid/flip aid/funcall)))
 
 (defn buffer
   ;TODO accept different types of arguments like http://reactivex.io/documentation/operators/buffer.html
@@ -181,13 +181,13 @@
         ;                                  (partial + size)
         ;                                  -
         ;                                  first)))
-        (help/<$> second))))
+        (aid/<$> second))))
 
 (def mean
-  (help/build (partial combine /)
-              core/+
-              core/count))
+  (aid/build (partial combine /)
+             core/+
+             core/count))
 
 (def switcher
-  (comp help/join
+  (comp aid/join
         behavior/stepper))

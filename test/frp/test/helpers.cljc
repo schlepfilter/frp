@@ -1,10 +1,10 @@
 (ns frp.test.helpers
-  (:require [clojure.test.check.generators :as gen :include-macros true]
+  (:require [aid.core :as aid]
+            [aid.unit :as unit]
+            [clojure.test.check.generators :as gen :include-macros true]
             [clojure.test.check.properties :as prop]
             [clojure.test.check.random :as random]
             [clojure.test.check.rose-tree :as rose]
-            [help.core :as help]
-            [help.unit :as unit]
             [frp.core :as frp]
             [frp.primitives.event :as event]))
 
@@ -89,8 +89,8 @@
   ;=> (0.8163040448517938 0.8830449199816961)
   (gen/let [a any-equal]
            (gen/one-of [(gen/return (frp/event))
-                        (gen/return (help/pure
-                                      (help/infer (frp/event))
+                        (gen/return (aid/pure
+                                      (aid/infer (frp/event))
                                       a))])))
 
 (defn conj-event
@@ -123,7 +123,7 @@
             fs (gen/vector (function any-equal)
                            (count input-events))]
            (gen/tuple (gen/return input-events)
-                      (gen/return (doall (map help/<$> fs input-events))))))
+                      (gen/return (doall (map aid/<$> fs input-events))))))
 
 (def advance
   (gen/let [n gen/pos-int]

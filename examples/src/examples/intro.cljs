@@ -1,9 +1,9 @@
 (ns examples.intro
   (:require [clojure.walk :as walk]
+            [aid.core :as aid :include-macros true]
+            [aid.unit :as unit]
             [ajax.core :refer [GET POST]]
             [com.rpl.specter :as s]
-            [help.core :as help :include-macros true]
-            [help.unit :as unit]
             [frp.clojure.core :as core]
             [frp.core :as frp]))
 
@@ -16,9 +16,9 @@
   [:li {:style {:align-items "center"
                 :display     "flex"
                 :padding     "0.313em"
-                :visibility  (help/casep user*
-                                         empty? "hidden"
-                                         "visible")}}
+                :visibility  (aid/casep user*
+                                        empty? "hidden"
+                                        "visible")}}
    [:img {:src   (:avatar_url user*)
           :style {:border-radius "1.25em"
                   :height        "2.5em"
@@ -61,11 +61,11 @@
        (quot user-number)
        (range 0 user-number)
        (map (fn [click-count offset]
-              (help/<$> (partial + offset) click-count))
+              (aid/<$> (partial + offset) click-count))
             closing-counts)))
 
 (def users
-  (apply (help/lift-a (fn [response* & offset-counts*]
+  (apply (aid/lift-a (fn [response* & offset-counts*]
                         (map (partial nth (cycle response*))
                              offset-counts*)))
          (frp/stepper (repeat user-number {}) response)
@@ -97,16 +97,16 @@
                "refresh"]]]))
 
 (def intro
-  (help/<$> intro-component users))
+  (aid/<$> intro-component users))
 
 (def endpoint
   "https://api.github.com/users")
 
 (def option
-  (help/<$> (partial assoc-in
-                     {:handler (comp response
+  (aid/<$> (partial assoc-in
+                    {:handler (comp response
                                      walk/keywordize-keys)}
-                     [:params :since])
-            beginning))
+                    [:params :since])
+           beginning))
 
 (frp/on (partial GET endpoint) option)

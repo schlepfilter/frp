@@ -1,5 +1,5 @@
 (ns examples.rx.letter-count
-  (:require [help.core :as help]
+  (:require [aid.core :as aid]
             [frp.core :as frp]))
 
 (def length
@@ -20,6 +20,6 @@
 
 (def letter-count
   (->> length
-       (help/<$> (partial str "length: "))
+       (aid/<$> (partial str "length: "))
        (frp/stepper "Start Typing!")
-       (help/<$> letter-count-component)))
+       (aid/<$> letter-count-component)))

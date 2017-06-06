@@ -1,5 +1,6 @@
 (ns frp.test.derived
-  (:require [#?(:clj  clojure.test
+  (:require [aid.core :as aid :include-macros true]
+            [#?(:clj  clojure.test
                 :cljs cljs.test) :as test :include-macros true]
             [cats.monad.maybe :as maybe]
             [clojure.test.check]
@@ -7,7 +8,6 @@
              :as clojure-test
              :include-macros true]
             [clojure.test.check.generators :as gen]
-            [help.core :as help :include-macros true]
             [frp.core :as frp]
             [frp.tuple :as tuple]
             [frp.test.helpers :as helpers :include-macros true]))
@@ -44,20 +44,20 @@
                      stepper-inner-anys
                      fmapped-inner-events)))
             switching-event
-            (gen/return (help/<$>
+            (gen/return (aid/<$>
                           (helpers/make-iterate inner-behaviors)
                           fmapped-switching-event))
             input-event-anys (gen/vector helpers/any-equal
-                                         ((help/casep @switching-event
-                                                      empty? identity
-                                                      dec)
+                                         ((aid/casep @switching-event
+                                                     empty? identity
+                                                     dec)
                                            (count fmapped-inner-events)))
             input-events-anys (gen/vector helpers/any-equal
                                           (count input-event-anys))
             calls (->> (map (fn [input-event* a]
-                              (help/maybe-if-not (= input-event*
-                                                    input-event)
-                                                 (partial input-event* a)))
+                              (aid/maybe-if-not (= input-event*
+                                                   input-event)
+                                                (partial input-event* a)))
                             input-events
                             input-events-anys)
                        maybe/cat-maybes
@@ -69,7 +69,7 @@
                       (gen/return switching-event)
                       (gen/return (frp/switcher outer-behavior switching-event))
                       (->> calls
-                           (map help/funcall)
+                           (map aid/funcall)
                            (partial doall)
                            gen/return))))
 
