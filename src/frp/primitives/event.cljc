@@ -54,8 +54,8 @@
     [past (get-new-time past)]))
 
 (aid/defcurried set-occs
-                    [occs id network]
-                    (s/setval [:occs id s/END] occs network))
+                [occs id network]
+                (s/setval [:occs id s/END] occs network))
 
 (defn modify-network!
   [occ id network]
@@ -74,8 +74,8 @@
 
 (def run-effects!
   (aid/build helpers/call-functions
-                 :effects
-                 identity))
+             :effects
+             identity))
 
 (def run-network-state-effects!
   (partial swap! network-state run-effects!))
@@ -161,8 +161,7 @@
   (->> network
        (helpers/call-functions
          (concat [(set-occs [] id)]
-                 (map ((aid/curry 3 (aid/flip aid/funcall)) id)
-                      fs)))
+                 (map ((aid/curry 3 (aid/flip aid/funcall)) id) fs)))
        (reset! network-state))
   (Event. id))
 
@@ -174,11 +173,11 @@
   (partial tuple/tuple (time/time 0)))
 
 (aid/defcurried add-edge
-                    [parent-id child-id network]
-                    (s/transform :dependency
-                                 (partial (aid/flip graph/add-edges)
-                                          [parent-id child-id])
-                                 network))
+                [parent-id child-id network]
+                (s/transform :dependency
+                             (partial (aid/flip graph/add-edges)
+                                      [parent-id child-id])
+                             network))
 
 (defn get-latests
   [id network]
@@ -276,8 +275,7 @@
 
 (defn delay-time-occs
   [t occs]
-  (map (partial aid/<*>
-                (tuple/tuple t identity))
+  (map (partial aid/<*> (tuple/tuple t identity))
        occs))
 
 (aid/defcurried
@@ -347,15 +345,15 @@
   (partial merge-occs* []))
 
 (aid/defcurried modify-<>
-                    [left-id right-id initial child-id network]
-                    (set-occs (merge-occs ((make-get-occs-or-latests initial)
-                                            left-id
-                                            network)
-                                          ((make-get-occs-or-latests initial)
-                                            right-id
-                                            network))
-                              child-id
-                              network))
+                [left-id right-id initial child-id network]
+                (set-occs (merge-occs ((make-get-occs-or-latests initial)
+                                        left-id
+                                        network)
+                                      ((make-get-occs-or-latests initial)
+                                        right-id
+                                        network))
+                          child-id
+                          network))
 
 (def context
   (helpers/reify-monad
@@ -416,13 +414,13 @@
                            second
                            vector))]
     (aid/curriedfn [f init parent-id initial child-id network]
-                       (-> (get-accumulator f init child-id network)
-                           (reduce []
-                                   (get-elements step!
-                                                 parent-id
-                                                 initial
-                                                 network))
-                           (set-occs child-id network)))))
+                   (-> (get-accumulator f init child-id network)
+                       (reduce []
+                               (get-elements step!
+                                             parent-id
+                                             initial
+                                             network))
+                       (set-occs child-id network)))))
 
 (defn transduce
   ([xform f e]
@@ -437,8 +435,8 @@
 (defn snapshot
   [e b]
   (aid/<$> (fn [x]
-                 [x @b])
-               e))
+             [x @b])
+           e))
 
 #?(:clj (defn get-periods
           ;TODO extract a purely functional function
