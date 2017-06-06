@@ -1,6 +1,6 @@
 (ns frp.clojure.core
   (:refer-clojure :exclude [+ count drop filter max min reduce remove])
-  (:require [aid.core :as help]
+  (:require [aid.core :as aid]
             [aid.unit :as unit]
             [frp.primitives.event :as event]))
 
@@ -15,7 +15,7 @@
                             :start       false})
                          {:event-value unit/unit
                           :start       true})
-        (help/<$> :event-value)))
+        (aid/<$> :event-value)))
   ([f val e]
    (event/transduce (clojure.core/drop 0) f val e)))
 

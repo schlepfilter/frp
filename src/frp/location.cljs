@@ -1,5 +1,5 @@
 (ns frp.location
-  (:require [aid.core :as help]
+  (:require [aid.core :as aid]
             [frp.history :as history]
             [frp.primitives.behavior :as behavior :include-macros true]
             [frp.window :as window]))
@@ -9,7 +9,7 @@
 
 (behavior/register
   (behavior/redef pathname
-                  (->> (help/<> window/popstate history/pushstate)
-                       (help/<$> (comp :pathname
-                                       :location))
+                  (->> (aid/<> window/popstate history/pushstate)
+                       (aid/<$> (comp :pathname
+                                      :location))
                        (behavior/stepper js/location.pathname))))

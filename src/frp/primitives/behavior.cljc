@@ -1,11 +1,11 @@
 (ns frp.primitives.behavior
   (:refer-clojure :exclude [stepper time])
   (:require [clojure.set :as set]
+            [aid.core :as aid]
             [cats.builtin]
             [cats.protocols :as protocols]
             [cats.util :as util]
             [com.rpl.specter :as s]
-            [aid.core :as help]
             [frp.helpers :as helpers :include-macros true]
             [frp.primitives.event :as event]
             [frp.protocols :as entity-protocols]
@@ -26,7 +26,7 @@
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
-    ((help/<*> (comp id
+    ((aid/<*> (comp id
                         :function)
                   :time)
       @event/network-state))
@@ -71,11 +71,11 @@
   ((:cancel @event/network-state)))
 
 (def rename-id
-  (comp ((help/curry 3 s/transform*)
+  (comp ((aid/curry 3 s/transform*)
           (apply s/multi-path
                  (map s/must
                       [:dependency :function :modifies! :modified :occs])))
-        (help/flip (help/curry 2 set/rename-keys))
+        (aid/flip (aid/curry 2 set/rename-keys))
         (partial apply array-map)
         reverse
         vector))
@@ -99,7 +99,7 @@
         ;TODO fix m/curry
         ;((m/curry s/setval*) s/END)
         ; ^--- The given function doesn't have arity metadata, provide an arity for currying.
-        ((help/curry 3 s/setval*) s/END)
+        ((aid/curry 3 s/setval*) s/END)
         vector))
 
 #?(:clj (defmacro register
@@ -112,7 +112,7 @@
   (reset! event/network-state (event/get-initial-network))
   (redef time
          (behavior* identity))
-  (run! help/funcall @registry))
+  (run! aid/funcall @registry))
 
 (def restart
   (juxt stop

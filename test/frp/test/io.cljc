@@ -1,5 +1,6 @@
 (ns frp.test.io
-  (:require [clojure.test.check]
+  (:require [aid.core :as aid]
+            [clojure.test.check]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop :include-macros true]
             [clojure.test.check.clojure-test
@@ -8,7 +9,6 @@
             [#?(:clj  clojure.test
                 :cljs cljs.test) :as test :include-macros true]
             [com.rpl.specter :as s]
-            [aid.core :as help]
             [frp.core :as frp]
             [frp.tuple :as tuple]
             [frp.test.helpers :as helpers :include-macros true]
@@ -26,7 +26,7 @@
                   (partial = exit-name)
                   (fn [_#]
                     `(comp (partial swap! exits-state##)
-                           (help/curry 2 (help/flip conj))))
+                           (aid/curry 2 (aid/flip conj))))
                   (cons `do body))
                @exits-state##))))
 

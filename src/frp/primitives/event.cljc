@@ -1,11 +1,11 @@
                                                             ;event and behavior namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
 (ns frp.primitives.event
   (:refer-clojure :exclude [transduce])
-  (:require [cats.monad.maybe :as maybe]
+  (:require [aid.core :as aid]
+            [cats.monad.maybe :as maybe]
             [cats.protocols :as protocols]
             [cats.util :as util]
             [com.rpl.specter :as s]
-            [aid.core :as help]
             [linked.core :as linked]
             [loom.alg :as alg]
             [loom.graph :as graph]
@@ -25,7 +25,7 @@
 
 (defn get-initial-network
   []
-  {:cancel     help/nop
+  {:cancel     aid/nop
    :dependency (graph/digraph)
    :effects    []
    :function   (linked/map)
@@ -53,7 +53,7 @@
   (let [past (time/now)]
     [past (get-new-time past)]))
 
-(help/defcurried set-occs
+(aid/defcurried set-occs
                     [occs id network]
                     (s/setval [:occs id s/END] occs network))
 
@@ -73,7 +73,7 @@
     network))
 
 (def run-effects!
-  (help/build helpers/call-functions
+  (aid/build helpers/call-functions
                  :effects
                  identity))
 
@@ -117,7 +117,7 @@
 (def parse-keyword
   (comp #?(:clj  read-string
            :cljs reader/read-string)
-        (partial (help/flip subs) 1)
+        (partial (aid/flip subs) 1)
         str))
 
 (def get-last-key
@@ -130,7 +130,7 @@
 
 (defn get-id-number*
   [ordered-map]
-  (help/casep ordered-map
+  (aid/casep ordered-map
                  empty? 0
                  (comp number?
                        parse-last-key)
@@ -142,14 +142,14 @@
                       (dissoc ordered-map)
                       recur)))
 
-(help/defcurried get-id-number
+(aid/defcurried get-id-number
                     [k network]
                     (-> network
                         k
                         get-id-number*))
 
 (def get-id
-  (help/build (comp keyword
+  (aid/build (comp keyword
                        str
                        max)
                  (get-id-number :occs)
@@ -161,7 +161,7 @@
   (->> network
        (helpers/call-functions
          (concat [(set-occs [] id)]
-                 (map ((help/curry 3 (help/flip help/funcall)) id)
+                 (map ((aid/curry 3 (aid/flip aid/funcall)) id)
                       fs)))
        (reset! network-state))
   (Event. id))
@@ -173,10 +173,10 @@
 (def get-unit
   (partial tuple/tuple (time/time 0)))
 
-(help/defcurried add-edge
+(aid/defcurried add-edge
                     [parent-id child-id network]
                     (s/transform :dependency
-                                 (partial (help/flip graph/add-edges)
+                                 (partial (aid/flip graph/add-edges)
                                           [parent-id child-id])
                                  network))
 
@@ -227,7 +227,7 @@
   [id network]
   (helpers/call-functions (get-parent-ancestor-modifies id network) network))
 
-(help/defcurried modify-event!
+(aid/defcurried modify-event!
                     [id network]
                     (-> network
                         :modifies!
@@ -264,7 +264,7 @@
             [(make-call-once id modify!)]
             network))
 
-(help/defcurried
+(aid/defcurried
   insert-merge-sync
   [parent-id child-id network]
   (insert-modify (fn [network*]
@@ -276,18 +276,18 @@
 
 (defn delay-time-occs
   [t occs]
-  (map (partial help/<*>
+  (map (partial aid/<*>
                 (tuple/tuple t identity))
        occs))
 
-(help/defcurried
+(aid/defcurried
   delay-sync
   [parent-id child-id network]
   (set-occs (delay-time-occs (:time network) (get-occs parent-id network))
             child-id
             network))
 
-(help/defcurried modify->>=
+(aid/defcurried modify->>=
                     [parent-id f initial child-id network]
                     (do
                       (reset! network-state network)
@@ -346,7 +346,7 @@
 (def merge-occs
   (partial merge-occs* []))
 
-(help/defcurried modify-<>
+(aid/defcurried modify-<>
                     [left-id right-id initial child-id network]
                     (set-occs (merge-occs ((make-get-occs-or-latests initial)
                                             left-id
@@ -387,10 +387,10 @@
   (->> network
        ((make-get-occs-or-latests initial) id)
        (map (partial s/transform* :snd (comp unreduced
-                                             (partial step! help/nothing))))
+                                             (partial step! aid/nothing))))
        (filter (comp maybe/just?
                      tuple/snd))
-       (map (partial help/<$> deref))))
+       (map (partial aid/<$> deref))))
 
 (defn get-transduction
   [init occs reduction]
@@ -399,11 +399,11 @@
       (concat occs reduction)
       last))
 
-(help/defcurried get-accumulator
+(aid/defcurried get-accumulator
                     [f init id network reduction element]
                     (s/setval s/END
                               reduction
-                              [((help/lift-a f)
+                              [((aid/lift-a f)
                                  (get-transduction init
                                                    (get-occs id network)
                                                    reduction)
@@ -415,7 +415,7 @@
   (let [step! (xform (comp maybe/just
                            second
                            vector))]
-    (help/curriedfn [f init parent-id initial child-id network]
+    (aid/curriedfn [f init parent-id initial child-id network]
                        (-> (get-accumulator f init child-id network)
                            (reduce []
                                    (get-elements step!
@@ -436,7 +436,7 @@
 
 (defn snapshot
   [e b]
-  (help/<$> (fn [x]
+  (aid/<$> (fn [x]
                  [x @b])
                e))
 
@@ -467,7 +467,7 @@
                    :cancel
                    (if (= rate #?(:clj  Double/POSITIVE_INFINITY
                                   :cljs js/Number.POSITIVE_INFINITY))
-                     help/nop
+                     aid/nop
                      #?(:clj  (chime/chime-at (get-periods rate) handle)
                         :cljs (->> (js/setInterval handle rate)
                                    (partial js/clearInterval))))))

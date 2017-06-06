@@ -1,26 +1,26 @@
 (ns frp.test.tuple
-  (:require [cats.builtin]
-            [cats.monad.maybe :as maybe]
+  (:require [aid.core :as aid]
+            [aid.unit :as unit]
     ;clojure.test.check is required to avoid the following warning.
     ;Figwheel: Watching build - test
     ;Figwheel: Cleaning build - test
     ;Compiling "resources/public/test/js/main.js" from ["src" "test"]...
     ;WARNING: Use of undeclared Var clojure.test.check/quick-check
+            [cats.builtin]
+            [cats.monad.maybe :as maybe]
             [clojure.test.check]
             [clojure.test.check.clojure-test
              :as clojure-test
              :include-macros true]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop :include-macros true]
-            [aid.core :as help]
-            [aid.unit :as unit]
             [frp.tuple :as tuple]
             [frp.test.helpers :as helpers]))
 
 (def maybe
-  (partial (help/flip gen/bind)
+  (partial (aid/flip gen/bind)
            (comp gen/elements
-                 (partial vector help/nothing)
+                 (partial vector aid/nothing)
                  maybe/just)))
 
 (def scalar-monoids
@@ -39,12 +39,12 @@
                (gen/recursive-gen maybe scalar-monoid)]))
 
 (def mempty
-  (gen/fmap (comp help/mempty help/infer)
+  (gen/fmap (comp aid/mempty aid/infer)
             monoid))
 
 (defn scalar-monoid-vector
   [n]
-  (gen/one-of (map (partial (help/flip gen/vector) n)
+  (gen/one-of (map (partial (aid/flip gen/vector) n)
                    scalar-monoids)))
 
 (clojure-test/defspec
@@ -52,7 +52,7 @@
   helpers/cljc-num-tests
   (prop/for-all [a helpers/any-equal
                  mempty* mempty]
-                (= (help/>>= (tuple/tuple mempty* a) help/return)
+                (= (aid/>>= (tuple/tuple mempty* a) aid/return)
                    (tuple/tuple mempty* a))))
 
 (clojure-test/defspec
@@ -63,11 +63,11 @@
                  monoid* monoid]
                 (let [f (comp (partial tuple/tuple monoid*)
                               f*)]
-                  (= (help/>>= (tuple/tuple (-> monoid*
-                                                help/infer
-                                                help/mempty)
-                                            a)
-                               f)
+                  (= (aid/>>= (tuple/tuple (-> monoid*
+                                               aid/infer
+                                               aid/mempty)
+                                           a)
+                              f)
                      (f a)))))
 
 (clojure-test/defspec
@@ -82,6 +82,6 @@
                       g (comp (partial tuple/tuple (last monoids))
                               g*)
                       ma (tuple/tuple (first monoids) a)]
-                  (= (help/->= ma f g)
-                     (help/>>= ma (comp (partial help/=<< g)
-                                        f))))))
+                  (= (aid/->= ma f g)
+                     (aid/>>= ma (comp (partial aid/=<< g)
+                                       f))))))
