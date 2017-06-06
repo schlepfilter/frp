@@ -97,7 +97,6 @@
 (aid/defcurried eventize
                 [e a]
                 ;TODO refactor
-                ;TODO use casep
                 (aid/casep a
                            event? a
                            (aid/<$> (constantly a)
