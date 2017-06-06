@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [defcurried])
   (:require [cats.protocols :as p]
             [com.rpl.specter :as s]
-            [help.core :as help]))
+            [aid.core :as help]))
 
 (defn if-then-else
   [if-function then-function else]

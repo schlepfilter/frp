@@ -1,7 +1,7 @@
 (ns frp.derived
   (:require [cats.context :as ctx]
             [com.rpl.specter :as s]
-            [help.core :as help]
+            [aid.core :as help]
             [frp.helpers :as helpers]
             [frp.clojure.core :as core]
             [frp.primitives.behavior :as behavior]

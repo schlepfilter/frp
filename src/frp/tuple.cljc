@@ -1,7 +1,7 @@
 (ns frp.tuple
   (:require [cats.protocols :as p]
             [cats.util :as util]
-            [help.core :as help]
+            [aid.core :as help]
             [frp.helpers :as helpers :include-macros true]))
 
 (declare ->Tuple)

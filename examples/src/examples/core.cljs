@@ -1,7 +1,7 @@
 (ns examples.core
   (:require [bidi.bidi :as bidi]
             [com.rpl.specter :as s]
-            [help.core :as help]
+            [aid.core :as help]
             [reagent.core :as r]
             [examples.index :as index]
             [frp.core :as frp]

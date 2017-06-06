@@ -1,6 +1,6 @@
 (ns examples.cycle.counter
-  (:require [help.core :as help]
-            [help.unit :as unit]
+  (:require [aid.core :as help]
+            [aid.unit :as unit]
             [frp.clojure.core :as core]
             [frp.core :as frp]))
 

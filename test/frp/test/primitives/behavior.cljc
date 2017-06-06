@@ -6,8 +6,8 @@
              :as clojure-test
              :include-macros true]
             [clojure.test.check.generators :as gen]
-            [help.core :as help :include-macros true]
-            [help.unit :as unit]
+            [aid.core :as help :include-macros true]
+            [aid.unit :as unit]
             [frp.core :as frp]
             [frp.tuple :as tuple]
             [frp.test.helpers :as helpers :include-macros true]))

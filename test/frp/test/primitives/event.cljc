@@ -8,8 +8,8 @@
              :as clojure-test
              :include-macros true]
             [clojure.test.check.generators :as gen]
-            [help.core :as help]
-            [help.unit :as unit]
+            [aid.core :as help]
+            [aid.unit :as unit]
             [frp.core :as frp]
             [frp.primitives.event :as event]
             [frp.time :as time]

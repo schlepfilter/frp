@@ -3,8 +3,8 @@
             [clojure.test.check.properties :as prop]
             [clojure.test.check.random :as random]
             [clojure.test.check.rose-tree :as rose]
-            [help.core :as help]
-            [help.unit :as unit]
+            [aid.core :as help]
+            [aid.unit :as unit]
             [frp.core :as frp]
             [frp.primitives.event :as event]))
 

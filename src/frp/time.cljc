@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [time])
   (:require [cats.protocols :as p]
             [cats.util :as util]
-            [help.core :as help]
+            [aid.core :as help]
     #?@(:clj  [
             [clj-time.coerce :as c]
             [clj-time.core :as t]]

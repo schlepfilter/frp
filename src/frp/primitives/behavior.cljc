@@ -5,7 +5,7 @@
             [cats.protocols :as protocols]
             [cats.util :as util]
             [com.rpl.specter :as s]
-            [help.core :as help]
+            [aid.core :as help]
             [frp.helpers :as helpers :include-macros true]
             [frp.primitives.event :as event]
             [frp.protocols :as entity-protocols]

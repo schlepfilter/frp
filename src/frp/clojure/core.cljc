@@ -1,7 +1,7 @@
 (ns frp.clojure.core
   (:refer-clojure :exclude [+ count drop filter max min reduce remove])
-  (:require [help.core :as help]
-            [help.unit :as unit]
+  (:require [aid.core :as help]
+            [aid.unit :as unit]
             [frp.primitives.event :as event]))
 
 (defn reduce

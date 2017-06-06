@@ -2,7 +2,7 @@
 (ns frp.io
   (:require [cats.monad.maybe :as maybe]
             [com.rpl.specter :as s]
-            [help.core :as help]
+            [aid.core :as help]
             [frp.derived :as derived]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]

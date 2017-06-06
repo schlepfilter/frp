@@ -5,7 +5,7 @@
             [cats.protocols :as protocols]
             [cats.util :as util]
             [com.rpl.specter :as s]
-            [help.core :as help]
+            [aid.core :as help]
             [linked.core :as linked]
             [loom.alg :as alg]
             [loom.graph :as graph]

@@ -1,7 +1,7 @@
 (ns examples.cycle.autocomplete-search
   (:require [ajax.core :refer [GET]]
             [com.rpl.specter :as s]
-            [help.core :as help]
+            [aid.core :as help]
             [frp.core :as frp]
             [frp.clojure.core :as core]))
 

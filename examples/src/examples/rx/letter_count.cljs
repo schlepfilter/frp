@@ -1,5 +1,5 @@
 (ns examples.rx.letter-count
-  (:require [help.core :as help]
+  (:require [aid.core :as help]
             [frp.core :as frp]))
 
 (def length

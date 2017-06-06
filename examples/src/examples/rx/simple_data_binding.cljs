@@ -1,5 +1,5 @@
 (ns examples.rx.simple-data-binding
-  (:require [help.core :as help]
+  (:require [aid.core :as help]
             [frp.core :as frp]))
 
 (defn partial-name

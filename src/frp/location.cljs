@@ -1,5 +1,5 @@
 (ns frp.location
-  (:require [help.core :as help]
+  (:require [aid.core :as help]
             [frp.history :as history]
             [frp.primitives.behavior :as behavior :include-macros true]
             [frp.window :as window]))

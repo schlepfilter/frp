@@ -2,8 +2,8 @@
   (:require [clojure.walk :as walk]
             [ajax.core :refer [GET POST]]
             [com.rpl.specter :as s]
-            [help.core :as help :include-macros true]
-            [help.unit :as unit]
+            [aid.core :as help :include-macros true]
+            [aid.unit :as unit]
             [frp.clojure.core :as core]
             [frp.core :as frp]))
 

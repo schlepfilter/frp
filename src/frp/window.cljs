@@ -1,6 +1,6 @@
 (ns frp.window
   (:require [com.rpl.specter :as s]
-            [help.core :as help]
+            [aid.core :as help]
             [frp.io :as io]
             [frp.primitives.behavior :as behavior :include-macros true]
             [frp.primitives.event :as event]))
