@@ -1,11 +1,11 @@
                                                             ;event and behavior namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
 (ns frp.primitives.event
   (:refer-clojure :exclude [transduce])
-  (:require [aid.core :as aid]
+  (:require [aid.core :as aid :include-macros true]
             [cats.monad.maybe :as maybe]
             [cats.protocols :as protocols]
             [cats.util :as util]
-            [com.rpl.specter :as s]
+            [com.rpl.specter :as s :include-macros true]
             [linked.core :as linked]
             [loom.alg :as alg]
             [loom.graph :as graph]

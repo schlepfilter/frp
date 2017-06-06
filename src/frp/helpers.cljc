@@ -1,6 +1,6 @@
 (ns frp.helpers
   (:refer-clojure :exclude [defcurried])
-  (:require [aid.core :as aid]
+  (:require [aid.core :as aid :include-macros true]
             [cats.protocols :as p]
             [com.rpl.specter :as s]))
 

@@ -27,8 +27,8 @@
   (#?(:clj  deref
       :cljs -deref) [_]
     ((aid/<*> (comp id
-                        :function)
-                  :time)
+                    :function)
+                    :time)
       @event/network-state))
   protocols/Printable
   (-repr [_]
@@ -61,7 +61,8 @@
           constantly)
     (fn [ma f]
       (behavior* (fn [t]
-                   (-> (get-value ma t @event/network-state)
+                   (-> ma
+                       (get-value t @event/network-state)
                        f
                        (get-value t @event/network-state)))))))
 
