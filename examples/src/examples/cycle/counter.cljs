@@ -1,5 +1,5 @@
 (ns examples.cycle.counter
-  (:require [aid.core :as help]
+  (:require [aid.core :as aid]
             [aid.unit :as unit]
             [frp.clojure.core :as core]
             [frp.core :as frp]))
@@ -20,8 +20,8 @@
    [:p (str "Counter: " total)]])
 
 (def counter
-  (->> (help/<> (help/<$> (constantly 1) increment)
-                (help/<$> (constantly -1) decrement))
+  (->> (aid/<> (aid/<$> (constantly 1) increment)
+               (aid/<$> (constantly -1) decrement))
        core/+
        (frp/stepper 0)
-       (help/<$> counter-component)))
+       (aid/<$> counter-component)))

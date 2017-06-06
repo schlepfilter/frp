@@ -1,7 +1,7 @@
 (ns examples.cycle.http-search-github
   (:require [clojure.walk :as walk]
+            [aid.core :as aid]
             [ajax.core :refer [GET]]
-            [aid.core :as help]
             [frp.clojure.core :as core]
             [frp.core :as frp]))
 
@@ -13,7 +13,7 @@
 
 (def users
   (->> response
-       (help/<$> :items)
+       (aid/<$> :items)
        (frp/stepper [])))
 
 (defn http-search-github-component
@@ -34,7 +34,7 @@
         vec)])
 
 (def http-search-github
-  (help/<$> http-search-github-component users))
+  (aid/<$> http-search-github-component users))
 
 (def endpoint
   "https://api.github.com/search/repositories")
@@ -42,9 +42,9 @@
 (def option
   (->> term
        (core/remove empty?)
-       (help/<$> (partial assoc-in
-                          {:handler (comp response
+       (aid/<$> (partial assoc-in
+                         {:handler (comp response
                                           walk/keywordize-keys)}
-                          [:params :q]))))
+                         [:params :q]))))
 
 (frp/on (partial GET endpoint) option)
