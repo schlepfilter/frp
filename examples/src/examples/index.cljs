@@ -8,6 +8,7 @@
             [examples.cycle.checkbox :as checkbox]
             [examples.cycle.counter :as counter]
             [examples.cycle.http-search-github :as http-search-github]
+            [examples.cycle.reverse-text :as reverse-text]
             [examples.intro :as intro]
             [examples.rx.drag-n-drop :as drag-n-drop]
             [examples.rx.letter-count :as letter-count]
@@ -24,7 +25,8 @@
    :http-search-github  http-search-github/http-search-github
    :intro               intro/intro
    :letter-count        letter-count/letter-count
-   :simple-data-binding simple-data-binding/simple-data-binding})
+   :simple-data-binding simple-data-binding/simple-data-binding
+   :reverse-text        reverse-text/reverse-text})
 
 (def route-keywords
   (keys route-function))
