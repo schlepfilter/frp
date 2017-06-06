@@ -5,10 +5,10 @@
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.494"]
+                 [aid "0.1.1"]
                  [bidi "2.1.0"]
                  [cljs-ajax "0.6.0"]
-                 [frp "0.1.0"]
-                 [help "0.1.0"]
+                 [frp "0.1.1"]
                  [reagent "0.6.1"]]
   :main ^:skip-aot examples.core
   :target-path "target/%s"

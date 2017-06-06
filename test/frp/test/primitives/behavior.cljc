@@ -1,13 +1,13 @@
 (ns frp.test.primitives.behavior
-  (:require [#?(:clj  clojure.test
+  (:require [aid.core :as aid :include-macros true]
+            [clojure.test.check.generators :as gen]
+            [#?(:clj  clojure.test
                 :cljs cljs.test) :as test :include-macros true]
             [clojure.test.check]
             [clojure.test.check.clojure-test
              :as clojure-test
              :include-macros true]
-            [clojure.test.check.generators :as gen]
-            [help.core :as help :include-macros true]
-            [help.unit :as unit]
+            [aid.unit :as unit]
             [frp.core :as frp]
             [frp.tuple :as tuple]
             [frp.test.helpers :as helpers :include-macros true]))
@@ -19,9 +19,9 @@
   helpers/cljc-num-tests
   (helpers/restart-for-all [a helpers/any-equal]
                            (= @(-> unit/unit
-                                        frp/behavior
-                                        help/infer
-                                        (help/return a))
+                                   frp/behavior
+                                   aid/infer
+                                   (aid/return a))
                                    a)))
 
 (clojure-test/defspec
@@ -86,7 +86,7 @@
   helpers/cljc-num-tests
   (helpers/restart-for-all
     [[outer-behavior get-behavior call] behavior->>=]
-    (let [bound-behavior (help/>>= outer-behavior get-behavior)]
+    (let [bound-behavior (aid/>>= outer-behavior get-behavior)]
       (frp/activate)
       (call)
       (= @bound-behavior @(get-behavior @outer-behavior)))))

@@ -1,7 +1,7 @@
 (ns frp.tuple
-  (:require [cats.protocols :as p]
+  (:require [aid.core :as aid]
+            [cats.protocols :as p]
             [cats.util :as util]
-            [help.core :as help]
             [frp.helpers :as helpers :include-macros true]))
 
 (declare ->Tuple)
@@ -14,13 +14,13 @@
   (-get-context [_]
     (helpers/reify-monad
       (partial ->Tuple (-> fst
-                           help/infer
-                           help/mempty))
+                           aid/infer
+                           aid/mempty))
       (fn [_ f]
         (Tuple. (->> snd
                      f
                      :fst
-                     (help/<> fst))
+                     (aid/<> fst))
                 (-> snd
                     f
                     :snd)))))
