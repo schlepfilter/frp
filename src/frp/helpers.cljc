@@ -33,4 +33,7 @@
              ~@more)))
 
 (def call-functions
-  (aid/flip (partial reduce (aid/flip aid/funcall))))
+  (->> aid/funcall
+       aid/flip
+       (partial reduce)
+       aid/flip))
