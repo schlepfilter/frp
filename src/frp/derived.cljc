@@ -21,15 +21,13 @@
 
 (aid/defcurried add-edges
                 [parents child network]
-                (helpers/call-functions (map ((aid/flip event/add-edge)
-                                               child)
+                (helpers/call-functions (map ((aid/flip event/add-edge) child)
                                              parents)
                                         network))
 
 (defn get-occs-or-latests-coll
   [initial ids network]
-  (map (partial (aid/flip (event/make-get-occs-or-latests initial))
-                network)
+  (map (partial (aid/flip (event/make-get-occs-or-latests initial)) network)
        ids))
 
 (defn make-combine-occs-or-latests
