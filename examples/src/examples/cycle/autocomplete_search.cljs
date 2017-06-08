@@ -36,9 +36,9 @@
 
 (def valid-number
   ((aid/lift-a (fn [relative-number* total-number]
-                  (if (zero? total-number)
-                    0
-                    (mod relative-number* total-number))))
+                 (if (zero? total-number)
+                   0
+                   (mod relative-number* total-number))))
     (frp/stepper 0 relative-number)
     (aid/<$> count suggestions)))
 
@@ -150,10 +150,10 @@
        (core/remove empty?)
        (aid/<$> (partial assoc-in
                          {:handler response
-                           :params  {:action "opensearch"
-                                     ;https://www.mediawiki.org/wiki/Manual:CORS#Description
-                                     ;For anonymous requests, origin query string parameter can be set to * which will allow requests from anywhere.
-                                     :origin "*"}}
+                          :params  {:action "opensearch"
+                                    ;https://www.mediawiki.org/wiki/Manual:CORS#Description
+                                    ;For anonymous requests, origin query string parameter can be set to * which will allow requests from anywhere.
+                                    :origin "*"}}
                          [:params :search]))))
 
 (frp/on (partial GET endpoint) option)
