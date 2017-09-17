@@ -56,7 +56,6 @@
   ((get-function b network) t))
 
 (def context
-  ;TODO don't use reify-monad
   (helpers/reify-monad
     (comp behavior*
           constantly)
