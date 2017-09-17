@@ -2,6 +2,7 @@
 (ns frp.primitives.event
   (:refer-clojure :exclude [transduce])
   (:require [aid.core :as aid :include-macros true]
+            [cats.context :as ctx]
             [cats.monad.maybe :as maybe]
             [cats.protocols :as protocols]
             [cats.util :as util]
@@ -194,6 +195,38 @@
     get-occs
     get-latests))
 
+(aid/defcurried modify-<$>
+                [f parent-id initial child-id network]
+                ;TODO refactor
+                (set-occs (mapv (partial aid/<$> f)
+                                ((make-get-occs-or-latests initial)
+                                  parent-id
+                                  network))
+                          child-id
+                          network))
+
+(defn make-call-once
+  [id modify!]
+  (fn [network]
+    (if (-> network
+            :modified
+            id)
+      network
+      (modify! network))))
+
+(defn set-modify
+  [id modify! network]
+  (s/setval [:modifies! id]
+            [(make-call-once id modify!)
+             (partial s/setval* [:modified id] true)]
+            network))
+
+(defn make-set-modify-modify
+  [modify*]
+  [(fn [id network]
+     (set-modify id (modify* false id) network))
+   (modify* true)])
+
 (defn effect-swap!
   [state f]
   (->> @state
@@ -238,15 +271,6 @@
   (run! (fn [f]
           (effect-swap! network-state (partial f id)))
         [modify-parent-ancestor! modify-event!]))
-
-(defn make-call-once
-  [id modify!]
-  (fn [network]
-    (if (-> network
-            :modified
-            id)
-      network
-      (modify! network))))
 
 (def snth
   (comp (partial apply s/srange)
@@ -310,19 +334,6 @@
                                parent-events)
                           @network-state))))
 
-(defn set-modify
-  [id modify! network]
-  (s/setval [:modifies! id]
-            [(make-call-once id modify!)
-             (partial s/setval* [:modified id] true)]
-            network))
-
-(defn make-set-modify-modify
-  [modify*]
-  [(fn [id network]
-     (set-modify id (modify* false id) network))
-   (modify* true)])
-
 (defn merge-one
   [parent merged]
   (s/setval s/END [(first parent)] merged))
@@ -356,29 +367,47 @@
                           network))
 
 (def context
-  (helpers/reify-monad
-    (comp event*
+  (reify
+    protocols/Context
+    protocols/Functor
+    (-fmap [_ f fa]
+      ;Implementing -fmap with aid/lift-m is visibly slower.
+      (->> fa
+           :id
+           (modify-<$> f)
+           make-set-modify-modify
+           (cons (add-edge (:id fa)))
+           event*))
+    protocols/Applicative
+    (-pure [_ v]
+      (-> v
+          get-unit
           vector
           set-occs
           vector
-          get-unit)
-    (fn [ma f]
+          event*))
+    (-fapply [_ fab fa]
+      (aid/ap fab fa))
+    protocols/Monad
+    (-mreturn [_ a]
+      (ctx/with-context context (aid/pure a)))
+    (-mbind [_ ma f]
       (->> (modify->>= (:id ma) f)
            make-set-modify-modify
            (cons (add-edge (:id ma)))
            event*))
     protocols/Semigroup
     (-mappend [_ left-event right-event]
-              (-> (modify-<> (:id left-event)
-                             (:id right-event))
-                  make-set-modify-modify
-                  (concat (map (comp add-edge
-                                     :id)
-                               [left-event right-event]))
-                  event*))
+      (-> (modify-<> (:id left-event)
+                     (:id right-event))
+          make-set-modify-modify
+          (concat (map (comp add-edge
+                             :id)
+                       [left-event right-event]))
+          event*))
     protocols/Monoid
     (-mempty [_]
-             (event* []))))
+      (event* []))))
 
 (defn get-elements
   [step! id initial network]
