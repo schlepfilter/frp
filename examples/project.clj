@@ -8,7 +8,7 @@
                  [aid "0.1.1"]
                  [bidi "2.1.0"]
                  [cljs-ajax "0.6.0"]
-                 [frp "0.1.1"]
+                 [frp "0.1.2"]
                  [reagent "0.6.1"]]
   :main ^:skip-aot examples.core
   :target-path "target/%s"
