@@ -40,10 +40,10 @@
                                       :cljs js/Number.POSITIVE_INFINITY)))
 
 (def +
-  (partial reduce clojure.core/+ 0))
+  (partial reduce clojure.core/+))
 
 (def count
-  (partial event/transduce (map (constantly 1)) clojure.core/+ 0))
+  (partial event/transduce (map (constantly 1)) clojure.core/+))
 
 (defn drop
   [n e]

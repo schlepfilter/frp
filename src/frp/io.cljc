@@ -1,8 +1,8 @@
 ;primitives.event and io namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
 (ns frp.io
-  (:require [aid.core :as aid]
+  (:require [aid.core :as aid :include-macros true]
             [cats.monad.maybe :as maybe]
-            [com.rpl.specter :as s]
+            [com.rpl.specter :as s :include-macros true]
             [frp.derived :as derived]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]
@@ -26,7 +26,7 @@
           `(aid/defpfmethod ~multifn ~dispatch-val
                             (aid/curry ~(count bindings)
                                        (fn ~bindings
-                                           ~@body)))))
+                                         ~@body)))))
 
 (defcurriedmethod get-effect! :event
                   [f! e network]
