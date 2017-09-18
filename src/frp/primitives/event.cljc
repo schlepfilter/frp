@@ -1,11 +1,12 @@
                                                             ;event and behavior namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
 (ns frp.primitives.event
   (:refer-clojure :exclude [transduce])
-  (:require [aid.core :as aid]
+  (:require [aid.core :as aid :include-macros true]
+            [cats.context :as ctx]
             [cats.monad.maybe :as maybe]
             [cats.protocols :as protocols]
             [cats.util :as util]
-            [com.rpl.specter :as s]
+            [com.rpl.specter :as s :include-macros true]
             [linked.core :as linked]
             [loom.alg :as alg]
             [loom.graph :as graph]
@@ -54,8 +55,8 @@
     [past (get-new-time past)]))
 
 (aid/defcurried set-occs
-                    [occs id network]
-                    (s/setval [:occs id s/END] occs network))
+                [occs id network]
+                (s/setval [:occs id s/END] occs network))
 
 (defn modify-network!
   [occ id network]
@@ -74,8 +75,8 @@
 
 (def run-effects!
   (aid/build helpers/call-functions
-                 :effects
-                 identity))
+             :effects
+             identity))
 
 (def run-network-state-effects!
   (partial swap! network-state run-effects!))
@@ -161,8 +162,7 @@
   (->> network
        (helpers/call-functions
          (concat [(set-occs [] id)]
-                 (map ((aid/curry 3 (aid/flip aid/funcall)) id)
-                      fs)))
+                 (map ((aid/curry 3 (aid/flip aid/funcall)) id) fs)))
        (reset! network-state))
   (Event. id))
 
@@ -174,11 +174,11 @@
   (partial tuple/tuple (time/time 0)))
 
 (aid/defcurried add-edge
-                    [parent-id child-id network]
-                    (s/transform :dependency
-                                 (partial (aid/flip graph/add-edges)
-                                          [parent-id child-id])
-                                 network))
+                [parent-id child-id network]
+                (s/transform :dependency
+                             (partial (aid/flip graph/add-edges)
+                                      [parent-id child-id])
+                             network))
 
 (defn get-latests
   [id network]
@@ -194,6 +194,38 @@
   (if initial
     get-occs
     get-latests))
+
+(aid/defcurried modify-<$>
+                [f parent-id initial child-id network]
+                ;TODO refactor
+                (set-occs (mapv (partial aid/<$> f)
+                                ((make-get-occs-or-latests initial)
+                                  parent-id
+                                  network))
+                          child-id
+                          network))
+
+(defn make-call-once
+  [id modify!]
+  (fn [network]
+    (if (-> network
+            :modified
+            id)
+      network
+      (modify! network))))
+
+(defn set-modify
+  [id modify! network]
+  (s/setval [:modifies! id]
+            [(make-call-once id modify!)
+             (partial s/setval* [:modified id] true)]
+            network))
+
+(defn make-set-modify-modify
+  [modify*]
+  [(fn [id network]
+     (set-modify id (modify* false id) network))
+   (modify* true)])
 
 (defn effect-swap!
   [state f]
@@ -240,15 +272,6 @@
           (effect-swap! network-state (partial f id)))
         [modify-parent-ancestor! modify-event!]))
 
-(defn make-call-once
-  [id modify!]
-  (fn [network]
-    (if (-> network
-            :modified
-            id)
-      network
-      (modify! network))))
-
 (def snth
   (comp (partial apply s/srange)
         (partial repeat 2)))
@@ -276,8 +299,7 @@
 
 (defn delay-time-occs
   [t occs]
-  (map (partial aid/<*>
-                (tuple/tuple t identity))
+  (map (partial aid/<*> (tuple/tuple t identity))
        occs))
 
 (aid/defcurried
@@ -312,19 +334,6 @@
                                parent-events)
                           @network-state))))
 
-(defn set-modify
-  [id modify! network]
-  (s/setval [:modifies! id]
-            [(make-call-once id modify!)
-             (partial s/setval* [:modified id] true)]
-            network))
-
-(defn make-set-modify-modify
-  [modify*]
-  [(fn [id network]
-     (set-modify id (modify* false id) network))
-   (modify* true)])
-
 (defn merge-one
   [parent merged]
   (s/setval s/END [(first parent)] merged))
@@ -347,40 +356,58 @@
   (partial merge-occs* []))
 
 (aid/defcurried modify-<>
-                    [left-id right-id initial child-id network]
-                    (set-occs (merge-occs ((make-get-occs-or-latests initial)
-                                            left-id
-                                            network)
-                                          ((make-get-occs-or-latests initial)
-                                            right-id
-                                            network))
-                              child-id
-                              network))
+                [left-id right-id initial child-id network]
+                (set-occs (merge-occs ((make-get-occs-or-latests initial)
+                                        left-id
+                                        network)
+                                      ((make-get-occs-or-latests initial)
+                                        right-id
+                                        network))
+                          child-id
+                          network))
 
 (def context
-  (helpers/reify-monad
-    (comp event*
+  (reify
+    protocols/Context
+    protocols/Functor
+    (-fmap [_ f fa]
+      ;Implementing -fmap with aid/lift-m is visibly slower.
+      (->> fa
+           :id
+           (modify-<$> f)
+           make-set-modify-modify
+           (cons (add-edge (:id fa)))
+           event*))
+    protocols/Applicative
+    (-pure [_ v]
+      (-> v
+          get-unit
           vector
           set-occs
           vector
-          get-unit)
-    (fn [ma f]
+          event*))
+    (-fapply [_ fab fa]
+      (aid/ap fab fa))
+    protocols/Monad
+    (-mreturn [_ a]
+      (ctx/with-context context (aid/pure a)))
+    (-mbind [_ ma f]
       (->> (modify->>= (:id ma) f)
            make-set-modify-modify
            (cons (add-edge (:id ma)))
            event*))
     protocols/Semigroup
     (-mappend [_ left-event right-event]
-              (-> (modify-<> (:id left-event)
-                             (:id right-event))
-                  make-set-modify-modify
-                  (concat (map (comp add-edge
-                                     :id)
-                               [left-event right-event]))
-                  event*))
+      (-> (modify-<> (:id left-event)
+                     (:id right-event))
+          make-set-modify-modify
+          (concat (map (comp add-edge
+                             :id)
+                       [left-event right-event]))
+          event*))
     protocols/Monoid
     (-mempty [_]
-             (event* []))))
+      (event* []))))
 
 (defn get-elements
   [step! id initial network]
@@ -416,13 +443,13 @@
                            second
                            vector))]
     (aid/curriedfn [f init parent-id initial child-id network]
-                       (-> (get-accumulator f init child-id network)
-                           (reduce []
-                                   (get-elements step!
-                                                 parent-id
-                                                 initial
-                                                 network))
-                           (set-occs child-id network)))))
+                   (-> (get-accumulator f init child-id network)
+                       (reduce []
+                               (get-elements step!
+                                             parent-id
+                                             initial
+                                             network))
+                       (set-occs child-id network)))))
 
 (defn transduce
   ([xform f e]
@@ -437,8 +464,8 @@
 (defn snapshot
   [e b]
   (aid/<$> (fn [x]
-                 [x @b])
-               e))
+             [x @b])
+           e))
 
 #?(:clj (defn get-periods
           ;TODO extract a purely functional function

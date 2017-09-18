@@ -60,7 +60,7 @@
     <orderEntry type="library" name="Leiningen: figwheel:0.5.9" level="project" />
     <orderEntry type="library" name="Leiningen: fipp:0.6.3" level="project" />
     <orderEntry type="library" name="Leiningen: frankiesardo/linked:1.2.9" level="project" />
-    <orderEntry type="library" name="Leiningen: frp:0.1.1" level="project" />
+    <orderEntry type="library" name="Leiningen: frp:0.1.2" level="project" />
     <orderEntry type="library" name="Leiningen: funcool/cats:2.1.0" level="project" />
     <orderEntry type="library" name="Leiningen: hawk:0.2.11" level="project" />
     <orderEntry type="library" name="Leiningen: http-kit:2.2.0" level="project" />

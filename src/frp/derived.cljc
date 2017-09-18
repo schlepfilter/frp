@@ -1,8 +1,8 @@
 (ns frp.derived
-  (:require [aid.core :as aid]
+  (:require [aid.core :as aid :include-macros true]
             [cats.context :as ctx]
-            [com.rpl.specter :as s]
-            [frp.helpers :as helpers]
+            [com.rpl.specter :as s :include-macros true]
+            [frp.helpers :as helpers :include-macros true]
             [frp.clojure.core :as core]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]
@@ -21,15 +21,13 @@
 
 (aid/defcurried add-edges
                 [parents child network]
-                (helpers/call-functions (map ((aid/flip event/add-edge)
-                                                child)
-                                              parents)
-                                         network))
+                (helpers/call-functions (map ((aid/flip event/add-edge) child)
+                                             parents)
+                                        network))
 
 (defn get-occs-or-latests-coll
   [initial ids network]
-  (map (partial (aid/flip (event/make-get-occs-or-latests initial))
-                network)
+  (map (partial (aid/flip (event/make-get-occs-or-latests initial)) network)
        ids))
 
 (defn make-combine-occs-or-latests
@@ -37,25 +35,19 @@
   (comp (aid/build tuple/tuple
                    (comp tuple/fst first)
                    (comp (partial apply f)
-                          (partial map tuple/snd)))
+                         (partial map tuple/snd)))
         vector))
 
 (defn get-combined-occs
   [f parents initial network]
-  (apply (partial map
-                  (make-combine-occs-or-latests f))
-         (get-occs-or-latests-coll initial
-                                   parents
-                                   network)))
+  (apply (partial map (make-combine-occs-or-latests f))
+         (get-occs-or-latests-coll initial parents network)))
 
 (aid/defcurried modify-combine
                 [f parents initial child network]
-                (event/set-occs (get-combined-occs f
-                                                    parents
-                                                    initial
-                                                    network)
-                                 child
-                                 network))
+                (event/set-occs (get-combined-occs f parents initial network)
+                                child
+                                network))
 
 (defn combine
   [f & parent-events]
@@ -63,7 +55,7 @@
                     cons)
               add-edges
               (comp event/make-set-modify-modify
-                     (modify-combine f)))
+                    (modify-combine f)))
     (map :id parent-events)))
 
 (defn make-entity?
@@ -103,7 +95,6 @@
 (aid/defcurried eventize
                 [e a]
                 ;TODO refactor
-                ;TODO use casep
                 (aid/casep a
                            event? a
                            (aid/<$> (constantly a)
@@ -126,7 +117,7 @@
   (aid/build and
              seq?
              (comp (partial not= 1)
-                    count)))
+                   count)))
 
 #?(:clj
    (do (defmacro transparent*
@@ -161,8 +152,7 @@
         (core/reduce (fn [accumulation element]
                        (s/setval s/END
                                  [element]
-                                 (helpers/if-then-else (comp (partial =
-                                                                      size)
+                                 (helpers/if-then-else (comp (partial = size)
                                                              count)
                                                        rest
                                                        accumulation)))
@@ -171,16 +161,16 @@
         (core/filter (fn [[n xs]]
                        (and (= (count xs) size)
                             (= (rem (- n size) start) 0))))
-        ;this is harder to read.
-        ;(core/filter (helpers/build and
-        ;                            (comp (partial = size)
-        ;                                  count
-        ;                                  last)
-        ;                            (comp (partial = 0)
-        ;                                  (partial (helpers/flip rem) start)
-        ;                                  (partial + size)
-        ;                                  -
-        ;                                  first)))
+        ;This is harder to read.
+        ;(core/filter (aid/build and
+        ;                        (comp (partial = size)
+        ;                              count
+        ;                              last)
+        ;                        (comp (partial = 0)
+        ;                              (partial (aid/flip rem) start)
+        ;                              (partial + size)
+        ;                              -
+        ;                              first)))
         (aid/<$> second))))
 
 (def mean

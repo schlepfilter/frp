@@ -1,6 +1,6 @@
 (ns frp.helpers
   (:refer-clojure :exclude [defcurried])
-  (:require [aid.core :as aid]
+  (:require [aid.core :as aid :include-macros true]
             [cats.protocols :as p]
             [com.rpl.specter :as s]))
 
@@ -33,4 +33,7 @@
              ~@more)))
 
 (def call-functions
-  (aid/flip (partial reduce (aid/flip aid/funcall))))
+  (->> aid/funcall
+       aid/flip
+       (partial reduce)
+       aid/flip))
