@@ -78,6 +78,22 @@
                       (gen/return (partial doall (map aid/funcall
                                                       calls))))))
 
+(defn take-last-while
+  [pred coll]
+  (->> coll
+       reverse
+       (take-while pred)
+       reverse))
+
+(def lasts-=
+  (comp (partial apply =)
+        (partial map #(take-last-while (comp (partial = (-> %
+                                                            last
+                                                            tuple/fst))
+                                             tuple/fst)
+                                       %))
+        vector))
+
 (clojure-test/defspec
   event-join-identity
   test-helpers/cljc-num-tests
@@ -86,10 +102,10 @@
     (let [joined-event (event/join outer-event)]
       (frp/activate)
       (call)
-      (last-= (->> inner-events
-                   (map deref)
-                   (reduce event/merge-occs []))
-              @joined-event))))
+      (lasts-= (->> inner-events
+                    (map deref)
+                    (reduce event/merge-occs []))
+               @joined-event))))
 
 (def <>
   ;TODO refactor
