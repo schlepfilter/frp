@@ -15,9 +15,7 @@
    (->> (aid/mempty)
         (ctx/with-context event/context)))
   ([a]
-   (-> (event)
-       aid/infer
-       (aid/return a))))
+   (event/pure a)))
 
 (aid/defcurried add-edges
                 [parents child network]

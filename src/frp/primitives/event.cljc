@@ -1,4 +1,4 @@
-                                                            ;event and behavior namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
+;event and behavior namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
 (ns frp.primitives.event
   (:refer-clojure :exclude [transduce])
   (:require [aid.core :as aid :include-macros true]
@@ -338,6 +338,13 @@
                           child-id
                           network))
 
+(def pure
+  (comp event*
+        vector
+        set-occs
+        vector
+        get-unit))
+
 (def context
   (reify
     protocols/Context
@@ -351,12 +358,7 @@
            event*))
     protocols/Applicative
     (-pure [_ v]
-      (-> v
-          get-unit
-          vector
-          set-occs
-          vector
-          event*))
+      (pure v))
     (-fapply [_ fab fa]
       (aid/ap fab fa))
     protocols/Monad
