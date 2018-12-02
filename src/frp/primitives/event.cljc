@@ -112,6 +112,7 @@
                                  id
                                  @network-state))
         (run-network-state-effects!)
+        ;Not doing garbage collection is visibly slower.
         (garbage-collect!)
         (->> (partial s/setval* :time current)
              (swap! network-state))
@@ -336,7 +337,6 @@
     protocols/Context
     protocols/Functor
     (-fmap [_ f fa]
-      ;Implementing -fmap with aid/lift-m is visibly slower.
       (->> fa
            :id
            (modify-<$> f)
