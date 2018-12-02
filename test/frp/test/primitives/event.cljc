@@ -27,6 +27,11 @@
                                   (run! e as)
                                   (= @e []))))
 
+(def last-=
+  (comp (partial apply =)
+        (partial map last)
+        vector))
+
 (clojure-test/defspec
   call-active
   test-helpers/cljc-num-tests
@@ -34,9 +39,7 @@
                                 (let [e (frp/event)]
                                   (frp/activate)
                                   (run! e as)
-                                  (->> [(map tuple/snd @e) as]
-                                       (map last)
-                                       (apply =)))))
+                                  (last-= (map tuple/snd @e) as))))
 
 (clojure-test/defspec
   event-pure
@@ -49,7 +52,44 @@
                                        time/time
                                        (tuple/tuple a)))))
 
-;TODO test monad laws with join
+(def event
+  (gen/fmap (fn [_]
+              (frp/event))
+            (gen/return unit/unit)))
+
+(def event-join
+  ;TODO refactor
+  (gen/let [outer-input-event event
+            probabilities* (test-helpers/probabilities 2)
+            inner-input-events
+            (gen/return (test-helpers/get-events probabilities*))
+            ;;TODO generalize gen/uuid
+            input-event-anys (gen/vector gen/uuid
+                                         (count inner-input-events))
+            outer-calls (gen/shuffle (map #(partial outer-input-event %)
+                                          inner-input-events))
+            inner-calls (gen/shuffle (map partial
+                                          inner-input-events
+                                          input-event-anys))
+            calls (gen/return (concat outer-calls
+                                      inner-calls))]
+           (gen/tuple (gen/return outer-input-event)
+                      (gen/return inner-input-events)
+                      (gen/return (partial doall (map aid/funcall
+                                                      calls))))))
+
+(clojure-test/defspec
+  event-join-identity
+  test-helpers/cljc-num-tests
+  (test-helpers/restart-for-all
+    [[outer-event inner-events call] (gen/no-shrink event-join)]
+    (let [joined-event (event/join outer-event)]
+      (frp/activate)
+      (call)
+      (last-= (->> inner-events
+                   (map deref)
+                   (reduce event/merge-occs []))
+              @joined-event))))
 
 (def <>
   ;TODO refactor
@@ -160,9 +200,7 @@
   ;TODO refactor
   (test-helpers/restart-for-all
     ;TODO generate an event with pure
-    [input-event (gen/fmap (fn [_]
-                             (frp/event))
-                           (gen/return unit/unit))
+    [input-event event
      f (test-helpers/function test-helpers/any-equal)
      init test-helpers/any-equal
      ;TODO generate list
