@@ -38,12 +38,12 @@
                                   (apply =)))))
 
 (clojure-test/defspec
-  event-return
+  event-pure
   helpers/cljc-num-tests
   (helpers/restart-for-all [a helpers/any-equal]
                            (= (last @(-> (frp/event)
                                          aid/infer
-                                         (aid/return a)))
+                                         (aid/pure a)))
                               (-> 0
                                   time/time
                                   (tuple/tuple a)))))
