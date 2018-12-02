@@ -5,6 +5,9 @@
             [com.rpl.specter :as s]))
 
 (defn if-then-else
+  ;TODO move this function to aid
+  ;TODO rename this function as if-then
+  ;TODO use defcurried
   [if-function then-function else]
   ((aid/build if
               if-function
@@ -18,7 +21,7 @@
              p/Context
              p/Functor
              (~'-fmap [_# f# fa#]
-               ;TODO remove 1
+               ;TODO define mbind in terms of <$> and join
                ((aid/lift-m 1 f#) fa#))
              p/Applicative
              (~'-pure [_# v#]

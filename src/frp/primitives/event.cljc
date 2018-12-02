@@ -89,6 +89,7 @@
     ;java.lang.LinkageError: loader (instance of clojure/lang/DynamicClassLoader): attempted duplicate class definition for name: "nodp/helpers/primitives/event/Event"
     context)
   IFn
+  ;TODO implement applyTo
   (#?(:clj  invoke
       :cljs -invoke) [_ a]
     ;e stands for an event, and a stands for any as in Push-Pull Functional Reactive Programming.
@@ -405,6 +406,7 @@
                              :id)
                        [left-event right-event]))
           event*))
+    ;TODO delete Monoid
     protocols/Monoid
     (-mempty [_]
       (event* []))))

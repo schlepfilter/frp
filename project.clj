@@ -1,4 +1,5 @@
 (defproject frp "0.1.2"
+  ;TODO delete unused keys
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
