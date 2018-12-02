@@ -89,9 +89,7 @@
   ;=> (0.8163040448517938 0.8830449199816961)
   (gen/let [a any-equal]
            (gen/one-of [(gen/return (frp/event))
-                        (gen/return (aid/pure
-                                      (aid/infer (frp/event))
-                                      a))])))
+                        (gen/return (frp/event a))])))
 
 (defn conj-event
   [coll probability*]
