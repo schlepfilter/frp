@@ -359,6 +359,7 @@
     (-mbind [_ ma f]
       (->> ma
            (aid/<$> f)
+           ;TODO throw an error if there is an occurrence with 0 < t < current time
            join))
     protocols/Semigroup
     (-mappend [_ left-event right-event]
