@@ -1,4 +1,4 @@
-                                                            ;event and behavior namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
+;event and behavior namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
 (ns frp.primitives.event
   (:refer-clojure :exclude [transduce])
   (:require [aid.core :as aid :include-macros true]
@@ -133,29 +133,29 @@
 (defn get-id-number*
   [ordered-map]
   (aid/casep ordered-map
-                 empty? 0
-                 (comp number?
-                       parse-last-key)
-                 (-> ordered-map
-                     parse-last-key
-                     inc)
-                 (->> ordered-map
-                      get-last-key
-                      (dissoc ordered-map)
-                      recur)))
+             empty? 0
+             (comp number?
+                   parse-last-key)
+             (-> ordered-map
+                 parse-last-key
+                 inc)
+             (->> ordered-map
+                  get-last-key
+                  (dissoc ordered-map)
+                  recur)))
 
 (aid/defcurried get-id-number
-                    [k network]
-                    (-> network
-                        k
-                        get-id-number*))
+                [k network]
+                (-> network
+                    k
+                    get-id-number*))
 
 (def get-id
   (aid/build (comp keyword
-                       str
-                       max)
-                 (get-id-number :occs)
-                 (get-id-number :function)))
+                   str
+                   max)
+             (get-id-number :occs)
+             (get-id-number :function)))
 
 (defn event**
   [id fs network]
@@ -261,11 +261,11 @@
   (helpers/call-functions (get-parent-ancestor-modifies id network) network))
 
 (aid/defcurried modify-event!
-                    [id network]
-                    (-> network
-                        :modifies!
-                        id
-                        (helpers/call-functions network)))
+                [id network]
+                (-> network
+                    :modifies!
+                    id
+                    (helpers/call-functions network)))
 
 (defn effect-swap-event!
   [id]
@@ -311,29 +311,29 @@
             network))
 
 (aid/defcurried modify->>=
-                    [parent-id f initial child-id network]
-                    (do
-                      (reset! network-state network)
-                      (let [parent-events
-                            (->> network
-                                 ((make-get-occs-or-latests initial) parent-id)
-                                 (map (comp f
-                                            tuple/snd))
-                                 doall)]
-                        (run! (comp effect-swap-event!
-                                    :id)
-                              parent-events)
-                        (helpers/call-functions
-                          (map (comp (fn [parent-id*]
-                                       (partial helpers/call-functions
-                                                ((juxt add-edge
-                                                       insert-merge-sync
-                                                       delay-sync)
-                                                  parent-id*
-                                                  child-id)))
-                                     :id)
-                               parent-events)
-                          @network-state))))
+                [parent-id f initial child-id network]
+                (do
+                  (reset! network-state network)
+                  (let [parent-events
+                        (->> network
+                             ((make-get-occs-or-latests initial) parent-id)
+                             (map (comp f
+                                        tuple/snd))
+                             doall)]
+                    (run! (comp effect-swap-event!
+                                :id)
+                          parent-events)
+                    (helpers/call-functions
+                      (map (comp (fn [parent-id*]
+                                   (partial helpers/call-functions
+                                            ((juxt add-edge
+                                                   insert-merge-sync
+                                                   delay-sync)
+                                              parent-id*
+                                              child-id)))
+                                 :id)
+                           parent-events)
+                      @network-state))))
 
 (defn merge-one
   [parent merged]
@@ -429,14 +429,14 @@
       last))
 
 (aid/defcurried get-accumulator
-                    [f init id network reduction element]
-                    (s/setval s/END
-                              reduction
-                              [((aid/lift-a f)
-                                 (get-transduction init
-                                                   (get-occs id network)
-                                                   reduction)
-                                 element)]))
+                [f init id network reduction element]
+                (s/setval s/END
+                          reduction
+                          [((aid/lift-a f)
+                             (get-transduction init
+                                               (get-occs id network)
+                                               reduction)
+                             element)]))
 
 (defn make-modify-transduce
   [xform]
