@@ -1,3 +1,4 @@
+;TODO use cats.data
 (ns frp.tuple
   (:require [aid.core :as aid]
             [cats.protocols :as p]

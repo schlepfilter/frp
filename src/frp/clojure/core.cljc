@@ -1,5 +1,6 @@
 (ns frp.clojure.core
   (:refer-clojure :exclude [+ count drop filter max min reduce remove])
+  ;TODO require clojure.core to alias it
   (:require [aid.core :as aid]
             [aid.unit :as unit]
             [frp.primitives.event :as event]))

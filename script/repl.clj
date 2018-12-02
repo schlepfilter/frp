@@ -1,4 +1,5 @@
 (ns repl
+  ;TODO delete unused dependencies
   (:require [com.rpl.specter :as s]
             [figwheel-sidecar.repl-api :as repl-api]
             [taoensso.encore :as encore]))
@@ -7,6 +8,7 @@
   {:id           "test"
    :source-paths ["src" "test"]
    :compiler     {:output-to            "dev-resources/public/js/main.js"
+                  ;TODO delete output-dir
                   :output-dir           "dev-resources/public/js/out"
                   :main                 "frp.test.core"
                   :asset-path           "/js/out"
@@ -19,4 +21,5 @@
   {:build-ids  ["test"]
    :all-builds [build]})
 
+;TODO delete the id
 (repl-api/cljs-repl "test")

@@ -9,6 +9,7 @@
   (frp/event))
 
 (def response
+  ;TODO use >>= and ajax event
   (frp/event))
 
 (def users
