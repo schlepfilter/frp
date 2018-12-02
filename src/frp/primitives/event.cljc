@@ -323,30 +323,26 @@
             child-id
             network))
 
-(aid/defcurried modify->>=
-                [parent-id f initial child-id network]
-                (do
-                  (reset! network-state network)
-                  (let [parent-events
-                        (->> network
-                             ((make-get-occs-or-latests initial) parent-id)
-                             (map (comp f
-                                        tuple/snd))
-                             doall)]
-                    (run! (comp effect-swap-event!
-                                :id)
-                          parent-events)
-                    (helpers/call-functions
-                      (map (comp (fn [parent-id*]
-                                   (partial helpers/call-functions
-                                            ((juxt add-edge
-                                                   insert-merge-sync
-                                                   delay-sync)
-                                              parent-id*
-                                              child-id)))
-                                 :id)
-                           parent-events)
-                      @network-state))))
+(aid/defcurried modify-join
+                [parent-id initial child-id network]
+                (helpers/call-functions
+                  (map (comp (fn [parent-id*]
+                               (partial helpers/call-functions
+                                        ((juxt add-edge
+                                               insert-merge-sync
+                                               delay-sync)
+                                          parent-id*
+                                          child-id)))
+                             :id
+                             tuple/snd)
+                       ((make-get-occs-or-latests initial) parent-id network))
+                  network))
+
+(def join
+  #(->> (modify-join (:id %))
+       make-set-modify-modify
+       (cons (add-edge (:id %)))
+       event*))
 
 (defn merge-one
   [parent merged]
@@ -406,10 +402,9 @@
     (-mreturn [_ a]
       (ctx/with-context context (aid/pure a)))
     (-mbind [_ ma f]
-      (->> (modify->>= (:id ma) f)
-           make-set-modify-modify
-           (cons (add-edge (:id ma)))
-           event*))
+      (->> ma
+           (aid/<$> f)
+           join))
     protocols/Semigroup
     (-mappend [_ left-event right-event]
       (-> (modify-<> (:id left-event)
