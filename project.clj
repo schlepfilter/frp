@@ -1,4 +1,4 @@
-(defproject frp "0.1.2"
+(defproject frp "0.1.3"
   ;TODO delete unused keys
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
