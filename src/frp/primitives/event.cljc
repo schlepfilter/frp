@@ -85,7 +85,8 @@
   [network-state*]
   (s/transform [:occs s/MAP-VALS]
                (comp vec
-                     (partial filter (comp (partial = (:time network-state*))
+                     (partial filter (comp (partial #{(time/time 0)
+                                                      (:time network-state*)})
                                            tuple/fst)))
                network-state*))
 
