@@ -33,7 +33,9 @@
                            (let [e (frp/event)]
                              (frp/activate)
                              (run! e as)
-                             (= (map tuple/snd @e) as))))
+                             (->> [(map tuple/snd @e) as]
+                                  (map last)
+                                  (apply =)))))
 
 (clojure-test/defspec
   event-return
@@ -46,56 +48,7 @@
                                   time/time
                                   (tuple/tuple a)))))
 
-(def event->>=
-  ;TODO refactor
-  (gen/let [probabilities* (helpers/probabilities 3)
-            [outer-input-event & inner-input-events :as input-events]
-            (gen/return (helpers/get-events probabilities*))
-            ;TODO generalize gen/uuid
-            fs (gen/vector (helpers/function gen/uuid)
-                           (count input-events))
-            input-event-anys (gen/vector gen/uuid
-                                         ((aid/casep @outer-input-event
-                                                     empty? identity
-                                                     dec)
-                                           (dec (count input-events))))
-            calls (gen/shuffle
-                    (concat (map (aid/curry 2 outer-input-event)
-                                 input-event-anys)
-                            (map (fn [inner-input-event as]
-                                   #(if (not= inner-input-event
-                                              outer-input-event)
-                                      (run! inner-input-event as)))
-                                 inner-input-events
-                                 (gen/vector (gen/vector helpers/any-equal)
-                                             (count inner-input-events)))))]
-           (gen/tuple (gen/return (doall (map aid/<$>
-                                              fs
-                                              input-events)))
-                      (gen/return (partial doall (map aid/funcall
-                                                      calls))))))
-
-(defn delay-inner-occs
-  [outer-occ inner-occs]
-  (event/delay-time-occs (tuple/fst outer-occ) inner-occs))
-
-(def delay-inner-occs-coll
-  (partial map delay-inner-occs))
-
-(clojure-test/defspec
-  event->>=-identity
-  helpers/cljc-num-tests
-  (helpers/restart-for-all
-    [[[outer-event & inner-events] call] (gen/no-shrink event->>=)]
-    (let [bound-event (aid/>>= outer-event
-                               (helpers/make-iterate inner-events))]
-      (frp/activate)
-      (call)
-      (->> inner-events
-           (map deref)
-           (delay-inner-occs-coll @outer-event)
-           (reduce event/merge-occs [])
-           (= @bound-event)))))
+;TODO test monad laws with join
 
 (def <>
   ;TODO refactor
@@ -182,11 +135,12 @@
           earliests @input-event]
       (frp/activate)
       (run! input-event as)
-      (->> as
-           (get-elements xf (map tuple/snd earliests))
-           (reductions f init)
-           rest
-           (= (map tuple/snd @transduced-event))))))
+      (or (empty? @transduced-event)
+          (->> as
+               (get-elements xf (map tuple/snd earliests))
+               (reductions f init)
+               (take-last (count @transduced-event))
+               (map tuple/snd @transduced-event))))))
 
 (clojure-test/defspec
   cat-identity
