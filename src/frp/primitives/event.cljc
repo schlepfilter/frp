@@ -241,51 +241,6 @@
      (set-modify id (modify* false id) network))
    (modify* true)])
 
-(defn effect-swap!
-  [state f]
-  (->> @state
-       f
-       (reset! state)))
-
-(defn get-reachable-subgraph
-  [g n]
-  (->> n
-       (alg/bf-traverse g)
-       (graph/subgraph g)))
-
-(defn get-ancestor-subgraph
-  [id network]
-  (-> network
-      :dependency
-      graph/transpose
-      (get-reachable-subgraph id)
-      (graph/remove-nodes id)
-      graph/transpose))
-
-(defn get-parent-ancestor-modifies
-  [id network]
-  (->> network
-       (get-ancestor-subgraph id)
-       alg/topsort
-       (mapcat (:modifies! network))))
-
-(defn modify-parent-ancestor!
-  [id network]
-  (helpers/call-functions (get-parent-ancestor-modifies id network) network))
-
-(aid/defcurried modify-event!
-                [id network]
-                (-> network
-                    :modifies!
-                    id
-                    (helpers/call-functions network)))
-
-(defn effect-swap-event!
-  [id]
-  (run! (fn [f]
-          (effect-swap! network-state (partial f id)))
-        [modify-parent-ancestor! modify-event!]))
-
 (def snth
   (comp (partial apply s/srange)
         (partial repeat 2)))
