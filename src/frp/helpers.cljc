@@ -4,16 +4,24 @@
             [cats.protocols :as p]
             [com.rpl.specter :as s]))
 
-(defn if-then-else
-  ;TODO move this function to aid
-  ;TODO rename this function as if-then
-  ;TODO use defcurried
-  [if-function then-function else]
-  ((aid/build if
-              if-function
-              then-function
-              identity)
-    else))
+(aid/defcurried if-then-else
+                ;TODO move this function to aid
+                [if-function then-function else-function x]
+                ((aid/build if
+                            if-function
+                            then-function
+                            else-function)
+                  x))
+
+(aid/defcurried if-then
+                ;TODO move this function to aid
+                [if-function then-function else]
+                (if-then-else if-function then-function identity else))
+
+(aid/defcurried if-else
+                ;TODO move this function to aid
+                [if-function else-function then]
+                (if-then-else if-function identity else-function then))
 
 #?(:clj (defmacro reify-monad
           [pure mbind & more]

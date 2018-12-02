@@ -84,10 +84,16 @@
 (defn garbage-collect
   [network-state*]
   (s/transform [:occs s/MAP-VALS]
-               (comp vec
-                     (partial filter (comp (partial #{(time/time 0)
-                                                      (:time network-state*)})
-                                           tuple/fst)))
+               (helpers/if-else
+                 empty?
+                 (aid/build conj
+                            (comp vec
+                                  (partial filter
+                                           (comp #{(time/time 0)
+                                                   (:time network-state*)}
+                                                 tuple/fst))
+                                  drop-last)
+                            last))
                network-state*))
 
 (def garbage-collect!
@@ -296,9 +302,9 @@
 
 (def join
   #(->> (modify-join (:id %))
-       make-set-modify-modify
-       (cons (add-edge (:id %)))
-       event*))
+        make-set-modify-modify
+        (cons (add-edge (:id %)))
+        event*))
 
 (defn merge-one
   [parent merged]

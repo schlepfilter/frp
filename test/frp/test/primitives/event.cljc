@@ -11,50 +11,51 @@
              :include-macros true]
             [clojure.test.check.generators :as gen]
             [frp.core :as frp]
+            [frp.helpers :as helpers]
             [frp.primitives.event :as event]
             [frp.time :as time]
             [frp.tuple :as tuple]
-            [frp.test.helpers :as helpers :include-macros true]))
+            [frp.test.helpers :as test-helpers :include-macros true]))
 
-(test/use-fixtures :each helpers/fixture)
+(test/use-fixtures :each test-helpers/fixture)
 
 (clojure-test/defspec
   call-inactive
-  helpers/cljc-num-tests
-  (helpers/restart-for-all [as (gen/vector helpers/any-equal)]
-                           (let [e (frp/event)]
-                             (run! e as)
-                             (= @e []))))
+  test-helpers/cljc-num-tests
+  (test-helpers/restart-for-all [as (gen/vector test-helpers/any-equal)]
+                                (let [e (frp/event)]
+                                  (run! e as)
+                                  (= @e []))))
 
 (clojure-test/defspec
   call-active
-  helpers/cljc-num-tests
-  (helpers/restart-for-all [as (gen/vector helpers/any-equal)]
-                           (let [e (frp/event)]
-                             (frp/activate)
-                             (run! e as)
-                             (->> [(map tuple/snd @e) as]
-                                  (map last)
-                                  (apply =)))))
+  test-helpers/cljc-num-tests
+  (test-helpers/restart-for-all [as (gen/vector test-helpers/any-equal)]
+                                (let [e (frp/event)]
+                                  (frp/activate)
+                                  (run! e as)
+                                  (->> [(map tuple/snd @e) as]
+                                       (map last)
+                                       (apply =)))))
 
 (clojure-test/defspec
   event-pure
-  helpers/cljc-num-tests
-  (helpers/restart-for-all [a helpers/any-equal]
-                           (= (last @(-> (frp/event)
-                                         aid/infer
-                                         (aid/pure a)))
-                              (-> 0
-                                  time/time
-                                  (tuple/tuple a)))))
+  test-helpers/cljc-num-tests
+  (test-helpers/restart-for-all [a test-helpers/any-equal]
+                                (= (last @(-> (frp/event)
+                                              aid/infer
+                                              (aid/pure a)))
+                                   (-> 0
+                                       time/time
+                                       (tuple/tuple a)))))
 
 ;TODO test monad laws with join
 
 (def <>
   ;TODO refactor
-  (gen/let [probabilities (gen/vector helpers/probability 2)
+  (gen/let [probabilities (gen/vector test-helpers/probability 2)
             [input-events fmapped-events]
-            (helpers/events-tuple probabilities)
+            (test-helpers/events-tuple probabilities)
             ns (gen/vector (gen/sized (partial gen/choose 0))
                            (count input-events))
             calls (gen/shuffle (mapcat (fn [n e]
@@ -68,23 +69,34 @@
                                            aid/funcall
                                            calls)))))
 
+(def get-last-occs
+  (helpers/if-else
+    empty?
+    #(filter (comp (partial =
+                            (-> %
+                                last
+                                tuple/fst))
+                   tuple/fst)
+             %)))
+
 (clojure-test/defspec
   event-<>
-  helpers/cljc-num-tests
-  (helpers/restart-for-all [[fmapped-events mappended-event call] <>]
-                           (frp/activate)
-                           (call)
-                           (->> fmapped-events
-                                (map deref)
-                                (apply event/merge-occs)
-                                (= @mappended-event))))
+  test-helpers/cljc-num-tests
+  (test-helpers/restart-for-all [[fmapped-events mappended-event call] <>]
+                                (frp/activate)
+                                (call)
+                                (->> fmapped-events
+                                     (map deref)
+                                     (apply event/merge-occs)
+                                     get-last-occs
+                                     (= (get-last-occs @mappended-event)))))
 
 (defn get-generators
   [generator xforms**]
   (map (partial (aid/flip gen/fmap) generator) xforms**))
 
 (def any-nilable-equal
-  (gen/one-of [helpers/any-equal (gen/return nil)]))
+  (gen/one-of [test-helpers/any-equal (gen/return nil)]))
 
 (def xform*
   (gen/one-of
@@ -93,15 +105,15 @@
                  [dedupe distinct])
             (get-generators gen/s-pos-int [take-nth partition-all])
             (get-generators gen/int [drop take])
-            (get-generators (helpers/function gen/boolean)
+            (get-generators (test-helpers/function gen/boolean)
                             [drop-while filter remove take-while])
-            (get-generators (helpers/function helpers/any-equal)
+            (get-generators (test-helpers/function test-helpers/any-equal)
                             [map map-indexed partition-by])
-            (get-generators (helpers/function any-nilable-equal)
+            (get-generators (test-helpers/function any-nilable-equal)
                             [keep keep-indexed])
-            [(gen/fmap replace (gen/map helpers/any-equal
-                                        helpers/any-equal))
-             (gen/fmap interpose helpers/any-equal)]
+            [(gen/fmap replace (gen/map test-helpers/any-equal
+                                        test-helpers/any-equal))
+             (gen/fmap interpose test-helpers/any-equal)]
             ;Composing mapcat more than once seems to make the test to run longer than 10 seconds.
             ;[(gen/fmap mapcat (test-helpers/function (gen/vector test-helpers/any-equal)))]
             )))
@@ -123,14 +135,14 @@
 
 (clojure-test/defspec
   transduce-identity
-  helpers/cljc-num-tests
+  test-helpers/cljc-num-tests
   ;TODO refactor
-  (helpers/restart-for-all
-    [input-event helpers/event
+  (test-helpers/restart-for-all
+    [input-event test-helpers/event
      xf xform
-     f (helpers/function helpers/any-equal)
-     init helpers/any-equal
-     as (gen/vector helpers/any-equal)]
+     f (test-helpers/function test-helpers/any-equal)
+     init test-helpers/any-equal
+     as (gen/vector test-helpers/any-equal)]
     (let [transduced-event (frp/transduce xf f init input-event)
           earliests @input-event]
       (frp/activate)
@@ -144,17 +156,17 @@
 
 (clojure-test/defspec
   cat-identity
-  helpers/cljc-num-tests
+  test-helpers/cljc-num-tests
   ;TODO refactor
-  (helpers/restart-for-all
+  (test-helpers/restart-for-all
     ;TODO generate an event with pure
     [input-event (gen/fmap (fn [_]
                              (frp/event))
                            (gen/return unit/unit))
-     f (helpers/function helpers/any-equal)
-     init helpers/any-equal
+     f (test-helpers/function test-helpers/any-equal)
+     init test-helpers/any-equal
      ;TODO generate list
-     as (gen/vector (gen/vector helpers/any-equal))]
+     as (gen/vector (gen/vector test-helpers/any-equal))]
     ;TODO compose xforms
     (let [cat-event (frp/transduce cat f init input-event)
           map-event (frp/transduce (comp (remove empty?)

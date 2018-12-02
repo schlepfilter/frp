@@ -77,9 +77,9 @@
 
 (defn if-not-then-else
   [if-function then-function else]
-  (helpers/if-then-else (complement if-function)
-                        then-function
-                        else))
+  (helpers/if-then (complement if-function)
+                   then-function
+                   else))
 
 (def behaviorize
   (partial if-not-then-else
@@ -152,10 +152,10 @@
         (core/reduce (fn [accumulation element]
                        (s/setval s/END
                                  [element]
-                                 (helpers/if-then-else (comp (partial = size)
-                                                             count)
-                                                       rest
-                                                       accumulation)))
+                                 (helpers/if-then (comp (partial = size)
+                                                        count)
+                                                  rest
+                                                  accumulation)))
                      (rest []))
         (combine vector (core/count e))
         (core/filter (fn [[n xs]]
