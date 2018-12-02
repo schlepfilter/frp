@@ -59,6 +59,7 @@
   (helpers/reify-monad
     (comp behavior*
           constantly)
+    ;TODO use <$> and join to define >>=
     (fn [ma f]
       (behavior* (fn [t]
                    (-> ma
