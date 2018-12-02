@@ -345,6 +345,9 @@
         vector
         get-unit))
 
+(def mempty
+  #(event* []))
+
 (def context
   (reify
     protocols/Context
@@ -381,7 +384,7 @@
     ;TODO delete Monoid
     protocols/Monoid
     (-mempty [_]
-      (event* []))))
+      (mempty))))
 
 (defn get-elements
   [step! id initial network]

@@ -12,8 +12,7 @@
 
 (defn event
   ([]
-   (->> (aid/mempty)
-        (ctx/with-context event/context)))
+   (event/mempty))
   ([a]
    (event/pure a)))
 
