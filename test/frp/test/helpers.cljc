@@ -109,6 +109,7 @@
 (def get-events
   (partial reduce conj-event []))
 
+;TODO move this function to behavior
 (defn make-iterate
   [coll]
   (let [state (atom coll)]
