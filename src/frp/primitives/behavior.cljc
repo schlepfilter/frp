@@ -161,6 +161,7 @@
         (get-function time-behavior network)))
 
 (defn time-transform
+  ;TODO throw an error if any-behavior is created directly or indirectly by stepper
   ;TODO refactor
   [any-behavior time-behavior]
   (behavior* (get-time-transform-function any-behavior
