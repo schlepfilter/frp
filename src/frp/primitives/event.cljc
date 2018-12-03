@@ -295,6 +295,16 @@
 (aid/defcurried
   delay-sync
   [parent-id child-id network]
+  (assert (or (->> network
+                   (get-last-occs parent-id)
+                   empty?)
+              ((aid/build or
+                          zero?
+                          (partial = @(:time network)))
+                @(->> network
+                      (get-last-occs parent-id)
+                      last
+                      tuple/fst))))
   (set-occs (delay-time-occs (:time network) (get-occs parent-id network))
             child-id
             network))
@@ -311,7 +321,6 @@
                                           child-id)))
                              :id
                              tuple/snd)
-                       ;TODO throw an error if last-occs of parent contain an occurrence whose time is greater than 0 and less than the current time
                        ((make-get-occs-or-latests initial) parent-id network))
                   network))
 
