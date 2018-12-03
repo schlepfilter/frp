@@ -200,10 +200,8 @@
   [id network]
   (->> network
        (get-occs id)
-       rseq
-       (take-while (comp (partial = (:time network))
-                         tuple/fst))
-       reverse))
+       (filter (comp (partial = (:time network))
+                     tuple/fst))))
 
 (defn make-get-occs-or-latests
   [initial]
