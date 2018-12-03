@@ -90,20 +90,20 @@
 (def run-network-state-effects!
   (partial swap! network-state run-effects!))
 
-(defn garbage-collect
-  [network]
-  (->> network
-       (s/transform [:occs s/MAP-VALS]
-                    (comp vec
-                          (partial filter (comp (partial = time/epoch)
-                                                tuple/fst))))
-       (s/transform [:lasts s/MAP-VALS]
-                    (comp vec
-                          reverse
-                          (partial apply concat)
-                          (partial take 2)
-                          (partial partition-by tuple/fst)
-                          reverse))))
+(def garbage-collect
+  (comp (partial s/transform*
+                 [:lasts s/MAP-VALS]
+                 (comp vec
+                       reverse
+                       (partial apply concat)
+                       (partial take 2)
+                       (partial partition-by tuple/fst)
+                       reverse))
+        (partial s/transform*
+                 [:occs s/MAP-VALS]
+                 (comp vec
+                       (partial filter (comp (partial = time/epoch)
+                                             tuple/fst))))))
 
 (def garbage-collect!
   (partial swap! network-state garbage-collect))
