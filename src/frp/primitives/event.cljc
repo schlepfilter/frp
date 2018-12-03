@@ -1,4 +1,4 @@
-                                                            ;event and behavior namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
+;event and behavior namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
 (ns frp.primitives.event
   (:refer-clojure :exclude [transduce])
   (:require [aid.core :as aid :include-macros true]
@@ -31,16 +31,23 @@
    :effects    []
    :function   (linked/map)
    :occs       (linked/map)
+   :last-occs  (linked/map)
    :time       time/epoch})
 
 (def network-state
   (atom (get-initial-network)))
 
-(defn get-occs
-  [id network]
-  (-> network
-      :occs
-      id))
+(def make-get-occs*
+  #(fn [id network]
+     (-> network
+         %
+         id)))
+
+(def get-occs
+  (make-get-occs* :occs))
+
+(def get-last-occs
+  (make-get-occs* :last-occs))
 
 (defn get-new-time
   [past]
@@ -56,7 +63,9 @@
 
 (aid/defcurried set-occs
                 [occs id network]
-                (s/setval [:occs id s/END] occs network))
+                (->> network
+                     (s/setval [:occs id s/END] occs)
+                     (s/setval [:last-occs id s/END] occs)))
 
 (defn modify-network!
   [occ id network]
@@ -82,14 +91,25 @@
   (partial swap! network-state run-effects!))
 
 (defn garbage-collect
-  [network-state*]
-  (s/transform [:occs s/MAP-VALS]
-               (comp vec
-                     (partial filter
-                              (comp #{time/epoch
-                                      (:time network-state*)}
-                                    tuple/fst)) )
-               network-state*))
+  [network]
+  (->> network
+       (s/transform [:occs s/MAP-VALS]
+                    (comp vec
+                          (partial filter
+                                   (comp #{time/epoch
+                                           (:time network)}
+                                         tuple/fst))))
+       (s/transform
+         [:last-occs s/MAP-VALS]
+         (helpers/if-else
+           empty?
+           (aid/build conj
+                      (comp vec
+                            (partial filter (comp (partial =
+                                                           (:time network))
+                                                  tuple/fst))
+                            drop-last)
+                      last)))))
 
 (def garbage-collect!
   (partial swap! network-state garbage-collect))
@@ -125,7 +145,7 @@
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
-    (get-occs id @network-state))
+    (get-last-occs id @network-state))
   protocols/Printable
   (-repr [_]
     (str "#[event " id "]")))
