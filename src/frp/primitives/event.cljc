@@ -415,9 +415,7 @@
 (defn get-elements
   [step! id initial network]
   (->> network
-       ((if initial
-          get-occs
-          get-last-occs) id)
+       ((make-get-occs-or-latests initial) id)
        (map (partial s/transform* :snd (comp unreduced
                                              (partial step! aid/nothing))))
        (filter (comp maybe/just?
@@ -437,7 +435,7 @@
                           reduction
                           [((aid/lift-a f)
                              (get-transduction init
-                                               (get-occs id network)
+                                               (get-last-occs id network)
                                                reduction)
                              element)]))
 
