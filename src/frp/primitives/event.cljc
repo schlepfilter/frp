@@ -1,4 +1,4 @@
-;event and behavior namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
+                                                            ;event and behavior namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
 (ns frp.primitives.event
   (:refer-clojure :exclude [transduce])
   (:require [aid.core :as aid :include-macros true]
@@ -93,8 +93,7 @@
 (def make-filter-occs
   #(comp vec
          (partial filter (comp (partial = %)
-                               tuple/fst))
-         drop-last))
+                               tuple/fst))))
 
 (defn garbage-collect
   [network]
