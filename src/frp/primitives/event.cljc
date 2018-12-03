@@ -128,6 +128,7 @@
     ;e stands for an event, and a stands for any as in Push-Pull Functional Reactive Programming.
     (when (:active @network-state)
       (let [[past current] (get-times)]
+        (garbage-collect!)
         (reset! network-state
                 (modify-network! (tuple/tuple past a)
                                  id
@@ -135,7 +136,6 @@
         (run-network-state-effects!)
         ;Not doing garbage collection is visibly slower.
         ;TODO fix stepper for cases where the last occurrence is garbage collected
-        (garbage-collect!)
         (->> (partial s/setval* :time current)
              (swap! network-state))
         (run-network-state-effects!))))
@@ -403,7 +403,9 @@
 (defn get-elements
   [step! id initial network]
   (->> network
-       ((make-get-occs-or-latests initial) id)
+       ((if initial
+          get-occs
+          get-last-occs) id)
        (map (partial s/transform* :snd (comp unreduced
                                              (partial step! aid/nothing))))
        (filter (comp maybe/just?
