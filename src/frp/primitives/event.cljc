@@ -31,7 +31,7 @@
    :effects    []
    :function   (linked/map)
    :occs       (linked/map)
-   :time       (time/time 0)})
+   :time       time/epoch})
 
 (def network-state
   (atom (get-initial-network)))
@@ -89,7 +89,7 @@
                  (aid/build conj
                             (comp vec
                                   (partial filter
-                                           (comp #{(time/time 0)
+                                           (comp #{time/epoch
                                                    (:time network-state*)}
                                                  tuple/fst))
                                   drop-last)
@@ -192,7 +192,7 @@
   (event** (get-id @network-state) fs @network-state))
 
 (def get-unit
-  (partial tuple/tuple (time/time 0)))
+  (partial tuple/tuple time/epoch))
 
 (aid/defcurried add-edge
                 [parent-id child-id network]

@@ -71,3 +71,6 @@
   [t]
   (aid/<$> (partial + @epoch-state)
            t))
+
+(def epoch
+  (time 0))
