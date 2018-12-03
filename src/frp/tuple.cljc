@@ -1,4 +1,4 @@
-;TODO use cats.data
+;TODO use cats.data when pair implements monad
 (ns frp.tuple
   (:require [aid.core :as aid]
             [cats.protocols :as p]
