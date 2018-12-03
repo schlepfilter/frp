@@ -7,8 +7,7 @@
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]
             [frp.tuple :as tuple]
-    #?(:clj
-            [clojure.walk :as walk])))
+            #?(:clj [clojure.walk :as walk])))
 
 (defn event
   ([]

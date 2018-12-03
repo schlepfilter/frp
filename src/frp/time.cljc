@@ -3,13 +3,11 @@
   (:require [aid.core :as aid]
             [cats.protocols :as p]
             [cats.util :as util]
-    #?@(:clj  [
-            [clj-time.coerce :as c]
-            [clj-time.core :as t]]
-        :cljs [[cljs-time.coerce :as c]
-               [cljs-time.core :as t]]))
-  #?(:clj
-     (:import (clojure.lang IDeref))))
+            #?@(:clj  [[clj-time.coerce :as c]
+                       [clj-time.core :as t]]
+                :cljs [[cljs-time.coerce :as c]
+                       [cljs-time.core :as t]]))
+  #?(:clj (:import (clojure.lang IDeref))))
 
 (defrecord Time
   [x]

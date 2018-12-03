@@ -10,8 +10,7 @@
             [frp.primitives.event :as event]
             [frp.protocols :as entity-protocols]
             [frp.tuple :as tuple])
-  #?(:clj
-     (:import [clojure.lang IDeref])))
+  #?(:clj (:import [clojure.lang IDeref])))
 
 (declare context)
 
@@ -28,7 +27,7 @@
       :cljs -deref) [_]
     ((aid/<*> (comp id
                     :function)
-                    :time)
+              :time)
       @event/network-state))
   protocols/Printable
   (-repr [_]

@@ -10,17 +10,15 @@
             [linked.core :as linked]
             [loom.alg :as alg]
             [loom.graph :as graph]
-    #?@(:clj [
-            [chime :as chime]
-            [clj-time.core :as t]
-            [clj-time.periodic :as periodic]])
-    #?(:cljs [cljs.reader :as reader])
+            #?@(:clj [[chime :as chime]
+                      [clj-time.core :as t]
+                      [clj-time.periodic :as periodic]])
+            #?(:cljs [cljs.reader :as reader])
             [frp.helpers :as helpers :include-macros true]
             [frp.protocols :as entity-protocols]
             [frp.time :as time]
             [frp.tuple :as tuple])
-  #?(:clj
-     (:import [clojure.lang IDeref IFn])))
+  #?(:clj (:import [clojure.lang IDeref IFn])))
 
 (declare context)
 

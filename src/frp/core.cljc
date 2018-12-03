@@ -4,7 +4,7 @@
             [frp.io :as io]
             [frp.primitives.behavior :as behavior :include-macros true]
             [frp.primitives.event :as event]
-    #?(:cljs [frp.location])))
+            #?(:cljs [frp.location])))
 
 (def restart
   behavior/restart)
