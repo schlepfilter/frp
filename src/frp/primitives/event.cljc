@@ -305,7 +305,9 @@
                       (get-last-occs parent-id)
                       last
                       tuple/fst))))
-  (set-occs (delay-time-occs (:time network) (get-occs parent-id network))
+  (set-occs (->> network
+                 (get-occs parent-id)
+                 (delay-time-occs (:time network)))
             child-id
             network))
 
