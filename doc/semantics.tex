@@ -8,7 +8,10 @@
 \newcommand{\any}[3]{&\ \textit{#1}\ (#2 \rightarrow #3)}
 \begin{document}
 \begin{align*}
-  delayOccs(\hat{t}_e, e) = [(\hat{t}_e 'max' (\hat{t}_a, a) \leftarrow occs\ e \land (\hat{t}_a = 0 \lor \hat{t}_e < \hat{t}_a)]
+  \mathbf{type}\ E_a = [(\hat{T}, a)] \text{ -- for non-decreasing times where a is not } E_a
+\end{align*}
+\begin{align*}
+  \mathbf{type}\ E_{E_a} = [(\hat{T_{outer}}, [\hat{T_{inner}}, a])] \text{ -- for non-decreasing times where } \hat{T_{outer}} \leq \hat{T_{inner}}
 \end{align*}
 \begin{align*}
   %mapcat is composed of map and cat
@@ -31,7 +34,7 @@
   |&\ interpose\ o
 \end{align*}
 \begin{align*}
-  data\ Xform = foldl\ comp\ [Xform*]
+  \mathbf{data}\ Xform = foldl\ comp\ [Xform*]
 \end{align*}
 \begin{align*}
   %TODO add the 3 arity version of transduce
@@ -69,6 +72,6 @@
   &\mathbf{instance_{sem}}\ Entity\ (Behavior\ a)\ \mathbf{where}\\
   &\quad occs\ \$\ on\ f\ b = map\ ((fmap\ f)\ .\ dedupe)\ \$\ (map\ (\backslash (t, x)\rightarrow(inc\ t, x))\ \$\ biasedOccs\ e)\\
   &\qquad\oplus((\backslash t\rightarrow (t, (at\ b)\ t))\ {<}\${>}\ [time\ \$\ n * internal + error_n])\\
-  &\qquad\ \text{-- where }b = (a\ stepper\ e)\wedge (n\geq 0)\wedge (interval > 0)\wedge (n * internal + error_n) < ((n + 1) * internal + error_{n+1})
+  &\qquad\text{ -- where }b = (a\ stepper\ e)\wedge (n\geq 0)\wedge (interval > 0)\wedge (n * internal + error_n) < ((n + 1) * internal + error_{n+1})
 \end{align*}
 \end{document}
