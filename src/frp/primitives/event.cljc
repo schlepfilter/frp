@@ -31,7 +31,7 @@
    :effects    []
    :function   (linked/map)
    :occs       (linked/map)
-   :last-occs  (linked/map)
+   :last-occs  {}
    :time       time/epoch})
 
 (def network-state
