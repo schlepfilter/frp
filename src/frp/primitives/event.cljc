@@ -311,6 +311,7 @@
                                           child-id)))
                              :id
                              tuple/snd)
+                       ;TODO throw an error if last-occs of parent contain an occurrence whose time is greater than 0 and less than the current time
                        ((make-get-occs-or-latests initial) parent-id network))
                   network))
 
