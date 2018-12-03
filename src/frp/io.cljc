@@ -41,6 +41,7 @@
 
 (defcurriedmethod get-effect! :behavior
                   [f! b network]
+                  ;TODO don't use maybe
                   (if (= (maybe/just (get-network-value b network))
                          ((:id b) (:cache network)))
                     network
