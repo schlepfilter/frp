@@ -142,7 +142,7 @@
 (defn get-stepper-value
   [a e t network]
   (->> network
-       (event/get-last-occs (:id e))
+       (event/get-occs (:id e))
        (last-pred (event/get-unit a) (comp (partial > @t)
                                            deref
                                            tuple/fst))

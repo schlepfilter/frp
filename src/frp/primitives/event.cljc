@@ -29,23 +29,16 @@
    :effects    []
    :function   (linked/map)
    :occs       (linked/map)
-   :lasts      {}
    :time       time/epoch})
 
 (def network-state
   (atom (get-initial-network)))
 
-(def make-get-val
-  #(fn [id network]
-     (-> network
-         %
-         id)))
-
-(def get-occs
-  (make-get-val :occs))
-
-(def get-last-occs
-  (make-get-val :lasts))
+(defn get-occs
+  [id network]
+  (-> network
+      :occs
+      id))
 
 (defn get-new-time
   [past]
@@ -61,9 +54,7 @@
 
 (aid/defcurried set-occs
                 [occs id network]
-                (->> network
-                     (s/setval [:occs id s/END] occs)
-                     (s/setval [:lasts id s/END] occs)))
+                (s/setval [:occs id s/END] occs network))
 
 (defn modify-network!
   [occ id network]
@@ -89,19 +80,17 @@
   (partial swap! network-state run-effects!))
 
 (def garbage-collect
-  (comp (partial s/transform*
-                 [:lasts s/MAP-VALS]
-                 (comp vec
-                       reverse
-                       (partial apply concat)
-                       (partial take 2)
-                       (partial partition-by tuple/fst)
-                       reverse))
-        (partial s/transform*
-                 [:occs s/MAP-VALS]
-                 (comp vec
-                       (partial filter (comp (partial = time/epoch)
-                                             tuple/fst))))))
+  (partial s/transform*
+           [:occs s/MAP-VALS]
+           #(->> %
+                 (filter (comp (conj (->> %
+                                          reverse
+                                          (partition-by tuple/fst)
+                                          (take 2)
+                                          set)
+                                     time/epoch)
+                               tuple/fst))
+                 vec)))
 
 (def garbage-collect!
   (partial swap! network-state garbage-collect))
@@ -120,7 +109,7 @@
     ;e stands for an event, and a stands for any as in Push-Pull Functional Reactive Programming.
     (when (:active @network-state)
       (let [[past current] (get-times)]
-        (garbage-collect!)
+        ;(garbage-collect!)
         (reset! network-state
                 (modify-network! (tuple/tuple past a)
                                  id
@@ -137,7 +126,7 @@
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
-    (get-last-occs id @network-state))
+    (get-occs id @network-state))
   protocols/Printable
   (-repr [_]
     (str "#[event " id "]")))
@@ -288,15 +277,14 @@
   delay-sync
   [parent-id child-id network]
   (assert (or (->> network
-                   (get-last-occs parent-id)
+                   (get-occs parent-id)
                    empty?)
-              ((aid/build or
-                          zero?
-                          (partial = @(:time network)))
-                @(->> network
-                      (get-last-occs parent-id)
-                      last
-                      tuple/fst))))
+              (every? (comp (aid/build or
+                                       zero?
+                                       (partial = @(:time network)))
+                            deref
+                            tuple/fst)
+                      (get-occs parent-id network))))
   (set-occs (->> network
                  (get-occs parent-id)
                  (delay-time-occs (:time network)))
@@ -426,7 +414,7 @@
                           reduction
                           [((aid/lift-a f)
                              (get-transduction init
-                                               (get-last-occs id network)
+                                               (get-occs id network)
                                                reduction)
                              element)]))
 
