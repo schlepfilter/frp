@@ -31,7 +31,7 @@
    :effects    []
    :function   (linked/map)
    :occs       (linked/map)
-   :last-occs  {}
+   :lasts      {}
    :time       time/epoch})
 
 (def network-state
@@ -47,7 +47,7 @@
   (make-get-occs* :occs))
 
 (def get-last-occs
-  (make-get-occs* :last-occs))
+  (make-get-occs* :lasts))
 
 (defn get-new-time
   [past]
@@ -65,7 +65,7 @@
                 [occs id network]
                 (->> network
                      (s/setval [:occs id s/END] occs)
-                     (s/setval [:last-occs id s/END] occs)))
+                     (s/setval [:lasts id s/END] occs)))
 
 (defn modify-network!
   [occ id network]
@@ -97,7 +97,7 @@
                     (comp vec
                           (partial filter (comp (partial = time/epoch)
                                                 tuple/fst))))
-       (s/transform [:last-occs s/MAP-VALS]
+       (s/transform [:lasts s/MAP-VALS]
                     (comp vec
                           reverse
                           (partial apply concat)

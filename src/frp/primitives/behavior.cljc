@@ -76,7 +76,7 @@
   (comp ((aid/curry 3 s/transform*)
           (apply s/multi-path
                  (map s/must
-                      [:dependency :function :modifies! :modified :occs :last-occs])))
+                      [:dependency :function :modifies! :modified :occs :lasts])))
         (aid/flip (aid/curry 2 set/rename-keys))
         (partial apply array-map)
         reverse
