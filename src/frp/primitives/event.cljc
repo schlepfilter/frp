@@ -37,17 +37,17 @@
 (def network-state
   (atom (get-initial-network)))
 
-(def make-get-occs*
+(def make-get-val
   #(fn [id network]
      (-> network
          %
          id)))
 
 (def get-occs
-  (make-get-occs* :occs))
+  (make-get-val :occs))
 
 (def get-last-occs
-  (make-get-occs* :lasts))
+  (make-get-val :lasts))
 
 (defn get-new-time
   [past]
