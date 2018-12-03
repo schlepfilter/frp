@@ -12,8 +12,8 @@
             [frp.core :as frp]
             [frp.tuple :as tuple]
             [frp.test.helpers :as helpers :include-macros true]
-    #?(:clj
-            [riddley.walk :as walk]))
+            #?(:clj
+               [riddley.walk :as walk]))
   #?(:cljs (:require-macros [frp.test.io :refer [with-exitv]])))
 
 (test/use-fixtures :each helpers/fixture)

@@ -22,7 +22,7 @@
                                    frp/behavior
                                    aid/infer
                                    (aid/return a))
-                                   a)))
+                              a)))
 
 (clojure-test/defspec
   time-increasing
