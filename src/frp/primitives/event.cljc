@@ -99,8 +99,7 @@
 (defn garbage-collect
   [network]
   (->> network
-       (s/transform [:occs s/MAP-VALS]
-                    (make-filter-occs time/epoch))
+       (s/transform [:occs s/MAP-VALS] (make-filter-occs time/epoch))
        (s/transform
          [:last-occs s/MAP-VALS]
          (helpers/if-else
