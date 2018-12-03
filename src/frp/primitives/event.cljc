@@ -90,24 +90,25 @@
 (def run-network-state-effects!
   (partial swap! network-state run-effects!))
 
+(def make-filter-occs
+  #(comp vec
+         (partial filter (comp (partial = %)
+                               tuple/fst))
+         drop-last))
+
 (defn garbage-collect
   [network]
   (->> network
        (s/transform [:occs s/MAP-VALS]
-                    (comp vec
-                          (partial filter
-                                   (comp #{time/epoch
-                                           (:time network)}
-                                         tuple/fst))))
+                    (make-filter-occs time/epoch))
        (s/transform
          [:last-occs s/MAP-VALS]
          (helpers/if-else
            empty?
            (aid/build conj
-                      (comp vec
-                            (partial filter (comp (partial =
-                                                           (:time network))
-                                                  tuple/fst))
+                      (comp (-> network
+                                :time
+                                make-filter-occs)
                             drop-last)
                       last)))))
 
