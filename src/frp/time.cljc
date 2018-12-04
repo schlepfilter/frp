@@ -44,7 +44,7 @@
 (def time
   ->Time)
 
-(def epoch-state
+(def real-epoch-state
   (atom 0))
 
 (defn now-long
@@ -57,17 +57,17 @@
   (->> (now-long)
        ;dec ensures times for events are strictly increasing.
        dec
-       (reset! epoch-state)))
+       (reset! real-epoch-state)))
 
 (defn now
   []
   (-> (now-long)
-      (- @epoch-state)
+      (- @real-epoch-state)
       time))
 
 (defn to-real-time
   [t]
-  (aid/<$> (partial + @epoch-state)
+  (aid/<$> (partial + @real-epoch-state)
            t))
 
 (def epoch
