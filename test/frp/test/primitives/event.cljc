@@ -104,12 +104,14 @@
 (def <>
   ;TODO refactor
   (gen/let [probabilities (gen/vector test-helpers/probability 2)
-            input-events (gen/return (test-helpers/get-events probabilities))
-            ns (gen/vector (gen/sized (partial gen/choose 0))
-                           (count input-events))
+            input-events (-> probabilities
+                             test-helpers/get-events
+                             gen/return)
+            ns (->> input-events
+                    count
+                    (gen/vector (gen/sized (partial gen/choose 0))))
             calls (gen/shuffle (mapcat (fn [n e]
-                                         (repeat n
-                                                 (partial e unit/unit)))
+                                         (repeat n (partial e unit/unit)))
                                        ns
                                        input-events))]
     (gen/tuple (gen/return input-events)
