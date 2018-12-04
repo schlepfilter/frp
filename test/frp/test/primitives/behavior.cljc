@@ -1,5 +1,6 @@
 (ns frp.test.primitives.behavior
   (:require [aid.core :as aid :include-macros true]
+            [aid.unit :as unit]
             [clojure.test.check.generators :as gen]
             [#?(:clj  clojure.test
                 :cljs cljs.test) :as test :include-macros true]
@@ -7,7 +8,6 @@
             [clojure.test.check.clojure-test
              :as clojure-test
              :include-macros true]
-            [aid.unit :as unit]
             [frp.core :as frp]
             [frp.helpers :as helpers]
             [frp.tuple :as tuple]
