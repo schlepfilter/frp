@@ -54,7 +54,7 @@
   helpers/cljc-num-tests
   (prop/for-all [a helpers/any-equal
                  mempty* mempty]
-    (= (aid/>>= (tuple/tuple mempty* a) aid/return)
+    (= (m/>>= (tuple/tuple mempty* a) m/return)
        (tuple/tuple mempty* a))))
 
 (clojure-test/defspec
@@ -65,11 +65,11 @@
                  monoid* monoid]
     (let [f (comp (partial tuple/tuple monoid*)
                   f*)]
-      (= (aid/>>= (tuple/tuple (-> monoid*
-                                   ctx/infer
-                                   m/mempty)
-                               a)
-                  f)
+      (= (m/>>= (tuple/tuple (-> monoid*
+                                 ctx/infer
+                                 m/mempty)
+                             a)
+                f)
          (f a)))))
 
 (clojure-test/defspec
@@ -84,6 +84,6 @@
           g (comp (partial tuple/tuple (last monoids))
                   g*)
           ma (tuple/tuple (first monoids) a)]
-      (= (aid/->= ma f g)
-         (aid/>>= ma (comp (partial aid/=<< g)
-                           f))))))
+      (= (m/->= ma f g)
+         (m/>>= ma (comp (partial m/=<< g)
+                         f))))))

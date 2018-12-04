@@ -165,5 +165,5 @@
              core/count))
 
 (def switcher
-  (comp aid/join
+  (comp m/join
         behavior/stepper))
