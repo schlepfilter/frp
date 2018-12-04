@@ -38,7 +38,7 @@
                  (gen/return (frp/stepper a e))])))
 
 (clojure-test/defspec
-  behavior-<$>
+  <$>-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all
     ;TODO generate a behavior by stepper and call the event
@@ -50,7 +50,7 @@
       (= @fmapped-behavior (f @input-behavior)))))
 
 (clojure-test/defspec
-  behavior-pure
+  pure-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all [a test-helpers/any-equal]
                                 (= @(-> unit/unit
@@ -65,7 +65,7 @@
             as (gen/vector test-helpers/any-equal (count es))]
     (gen/shuffle (concat bs (map frp/stepper as es)))))
 
-(def behavior-join
+(def join-generator
   (gen/let [probabilities* (test-helpers/probabilities 1)
             inner-events (gen/return (test-helpers/get-events probabilities*))
             as (gen/vector test-helpers/any-equal (count inner-events))
@@ -84,10 +84,10 @@
                (gen/return calls))))
 
 (clojure-test/defspec
-  behavior-join-identity
+  join-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all
-    [[inner-behaviors outer-behavior calls] (gen/no-shrink behavior-join)]
+    [[inner-behaviors outer-behavior calls] (gen/no-shrink join-generator)]
     (let [joined-behavior (m/join outer-behavior)]
       (frp/activate)
       (test-helpers/run-calls! calls)

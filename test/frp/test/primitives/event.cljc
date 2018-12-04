@@ -44,7 +44,7 @@
                                   (last-= (map tuple/snd @e) as))))
 
 (clojure-test/defspec
-  event-<$>
+  <$>-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all
     [input-event test-helpers/any-event
@@ -57,7 +57,7 @@
               (map f (concat (map tuple/snd @input-event) as))))))
 
 (clojure-test/defspec
-  event-pure
+  pure-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all [a test-helpers/any-equal]
                                 (= (last @(-> (frp/event)
@@ -65,7 +65,7 @@
                                               (m/pure a)))
                                    (tuple/tuple time/epoch a))))
 
-(def event-join
+(def join-generator
   ;TODO refactor
   ;TODO generate an event with pure
   (gen/let [outer-event test-helpers/mempty-event
@@ -88,10 +88,10 @@
                (gen/return calls))))
 
 (clojure-test/defspec
-  event-join-identity
+  join-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all
-    [[outer-event inner-events calls] event-join]
+    [[outer-event inner-events calls] join-generator]
     (let [joined-event (m/join outer-event)]
       (frp/activate)
       (test-helpers/run-calls! calls)
@@ -100,7 +100,7 @@
                    (reduce event/merge-occs []))
               @joined-event))))
 
-(def <>
+(def <>-generator
   ;TODO refactor
   (gen/let [probabilities (gen/vector test-helpers/probability 2)
             input-events (-> probabilities
@@ -118,9 +118,10 @@
                (gen/return calls))))
 
 (clojure-test/defspec
-  event-<>
+  <>-identity
   test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all [[input-events mappended-event calls] <>]
+  (test-helpers/restart-for-all [[input-events mappended-event calls]
+                                 <>-generator]
                                 (frp/activate)
                                 (test-helpers/run-calls! calls)
                                 (->> input-events
