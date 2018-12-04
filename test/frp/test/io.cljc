@@ -46,7 +46,7 @@
   event-on
   helpers/cljc-num-tests
   (helpers/restart-for-all
-    [e helpers/event
+    [e helpers/any-event
      as (gen/vector helpers/any-equal)]
     (= (vec (concat (map tuple/snd @e)
                     as))
@@ -59,7 +59,7 @@
   behavior-on
   helpers/cljc-num-tests
   (helpers/restart-for-all
-    [e helpers/event
+    [e helpers/any-event
      a helpers/any-equal
      as (gen/vector helpers/any-equal)]
     (let [b (frp/stepper a e)]

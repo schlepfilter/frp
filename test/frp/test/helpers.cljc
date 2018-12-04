@@ -33,7 +33,7 @@
           ;TODO generate times and redefine get-new-time
           `(prop/for-all ~(concat `[_# restart]
                                   bindings)
-                         ~@body)))
+             ~@body)))
 
 (defn generate
   ([generator {:keys [seed size]
@@ -79,7 +79,12 @@
                             n)
                    (partial + n))))
 
-(def event
+(def mempty-event
+  (gen/fmap (fn [_]
+              (frp/event))
+            (gen/return unit/unit)))
+
+(def any-event
   ;gen/fmap ensures a new event is returned
   ;(gen/sample (gen/return (rand)) 2)
   ;=> (0.7306051862977597 0.7306051862977597)
@@ -88,7 +93,7 @@
   ;            2)
   ;=> (0.8163040448517938 0.8830449199816961)
   (gen/let [a any-equal]
-    (gen/one-of [(gen/return (frp/event))
+    (gen/one-of [mempty-event
                  (gen/return (frp/event a))])))
 
 (defn conj-event
@@ -101,7 +106,7 @@
        (if (= 1.0 probability*)
          0)
        (nth (conj coll
-                  (generate event {:seed (hash probability*)})))
+                  (generate any-event {:seed (hash probability*)})))
        (conj coll)))
 
 (def get-events

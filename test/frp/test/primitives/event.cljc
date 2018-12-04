@@ -47,7 +47,7 @@
   event-<$>
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all
-    [input-event test-helpers/event
+    [input-event test-helpers/any-event
      f (test-helpers/function test-helpers/any-equal)
      as (gen/vector test-helpers/any-equal)]
     (let [fmapped-event (m/<$> f input-event)]
@@ -65,14 +65,9 @@
                                               (m/pure a)))
                                    (tuple/tuple time/epoch a))))
 
-(def event
-  (gen/fmap (fn [_]
-              (frp/event))
-            (gen/return unit/unit)))
-
 (def event-join
   ;TODO refactor
-  (gen/let [outer-input-event event
+  (gen/let [outer-input-event test-helpers/mempty-event
             probabilities* (test-helpers/probabilities 2)
             inner-input-events
             (gen/return (test-helpers/get-events probabilities*))
@@ -186,7 +181,7 @@
   test-helpers/cljc-num-tests
   ;TODO refactor
   (test-helpers/restart-for-all
-    [input-event test-helpers/event
+    [input-event test-helpers/any-event
      xf xform
      f (test-helpers/function test-helpers/any-equal)
      init test-helpers/any-equal
@@ -207,7 +202,7 @@
   ;TODO refactor
   (test-helpers/restart-for-all
     ;TODO generate an event with pure
-    [input-event event
+    [input-event test-helpers/mempty-event
      f (test-helpers/function test-helpers/any-equal)
      init test-helpers/any-equal
      ;TODO generate list

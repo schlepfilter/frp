@@ -45,7 +45,7 @@
   (test-helpers/restart-for-all
     [a test-helpers/any-equal
      as (gen/vector test-helpers/any-equal)
-     e test-helpers/event]
+     e test-helpers/any-event]
     (let [b (frp/stepper a e)
           occurrences (concat [a] (map tuple/snd @e) as)]
       (frp/activate)
