@@ -128,6 +128,8 @@
                                      (apply event/merge-occs)
                                      (last-= @mappended-event))))
 
+;TODO test mempty
+
 (defn get-generators
   [generator xforms**]
   (map (partial (aid/flip gen/fmap) generator) xforms**))

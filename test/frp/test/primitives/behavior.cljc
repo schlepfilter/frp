@@ -28,6 +28,8 @@
                                   (advance2)
                                   (helpers/<= t @frp/time))))
 
+;TODO test <$>
+
 (clojure-test/defspec
   behavior-pure
   test-helpers/cljc-num-tests
@@ -37,29 +39,6 @@
                                         ctx/infer
                                         (m/pure a))
                                    a)))
-
-(clojure-test/defspec
-  stepper-identity
-  test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all [a test-helpers/any-equal
-                                 as (gen/vector test-helpers/any-equal)
-                                 e test-helpers/any-event]
-                                (let [b (frp/stepper a e)
-                                      occurrences (concat [a]
-                                                          (map tuple/snd @e)
-                                                          as)]
-                                  (frp/activate)
-                                  (run! e as)
-                                  (= @b (last occurrences)))))
-
-(def any-behavior
-  (gen/let [a test-helpers/any-equal
-            e test-helpers/any-event]
-    (gen/one-of [(gen/return frp/time)
-                 (-> a
-                     frp/behavior
-                     gen/return)
-                 (gen/return (frp/stepper a e))])))
 
 (defn get-behaviors
   [es]
@@ -94,5 +73,29 @@
       (frp/activate)
       (test-helpers/run-calls! calls)
       (= @joined-behavior @(last inner-behaviors)))))
+
+
+(clojure-test/defspec
+  stepper-identity
+  test-helpers/cljc-num-tests
+  (test-helpers/restart-for-all [a test-helpers/any-equal
+                                 as (gen/vector test-helpers/any-equal)
+                                 e test-helpers/any-event]
+                                (let [b (frp/stepper a e)
+                                      occurrences (concat [a]
+                                                          (map tuple/snd @e)
+                                                          as)]
+                                  (frp/activate)
+                                  (run! e as)
+                                  (= @b (last occurrences)))))
+
+(def any-behavior
+  (gen/let [a test-helpers/any-equal
+            e test-helpers/any-event]
+    (gen/one-of [(gen/return frp/time)
+                 (-> a
+                     frp/behavior
+                     gen/return)
+                 (gen/return (frp/stepper a e))])))
 
 ;TODO test time-transform
