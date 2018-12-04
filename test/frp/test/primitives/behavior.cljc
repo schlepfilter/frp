@@ -43,8 +43,7 @@
   (test-helpers/restart-for-all
     ;TODO generate a behavior by stepper and call the event
     [input-behavior any-behavior
-     f (test-helpers/function test-helpers/any-equal)
-     as (gen/vector test-helpers/any-equal)]
+     f (test-helpers/function test-helpers/any-equal)]
     (let [fmapped-behavior (m/<$> f input-behavior)]
       (frp/activate)
       (= @fmapped-behavior (f @input-behavior)))))
