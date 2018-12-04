@@ -70,7 +70,7 @@
 
 (def event-join
   ;TODO refactor
-  ;TODO consider the possibilities of outer-event having an initial event
+  ;TODO generate an event with pure
   (gen/let [outer-event test-helpers/mempty-event
             probabilities* (test-helpers/probabilities 2)
             inner-events (-> probabilities*
@@ -79,9 +79,11 @@
             as (->> inner-events
                     count
                     (gen/vector test-helpers/any-equal))
+            ;TODO interleave outer-calls and inner-calls without violating the constraint of E_{E_a}
             outer-calls (->> inner-events
                              (map #(partial outer-event %))
                              gen/shuffle)
+            ;TODO call inner-event multiple times
             inner-calls (gen/shuffle (map partial inner-events as))
             calls (gen/return (concat outer-calls inner-calls))]
     (gen/tuple (gen/return outer-event)

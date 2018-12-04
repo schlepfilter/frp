@@ -30,27 +30,27 @@
 (clojure-test/defspec
   time-increasing
   test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all
-    [advance1 test-helpers/advance
-     advance2 test-helpers/advance]
-    (frp/activate)
-    (advance1)
-    (let [t @frp/time]
-      (advance2)
-      (helpers/<= t @frp/time))))
+  (test-helpers/restart-for-all [advance1 test-helpers/advance
+                                 advance2 test-helpers/advance]
+                                (frp/activate)
+                                (advance1)
+                                (let [t @frp/time]
+                                  (advance2)
+                                  (helpers/<= t @frp/time))))
 
 (clojure-test/defspec
   stepper-identity
   test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all
-    [a test-helpers/any-equal
-     as (gen/vector test-helpers/any-equal)
-     e test-helpers/any-event]
-    (let [b (frp/stepper a e)
-          occurrences (concat [a] (map tuple/snd @e) as)]
-      (frp/activate)
-      (run! e as)
-      (= @b (last occurrences)))))
+  (test-helpers/restart-for-all [a test-helpers/any-equal
+                                 as (gen/vector test-helpers/any-equal)
+                                 e test-helpers/any-event]
+                                (let [b (frp/stepper a e)
+                                      occurrences (concat [a]
+                                                          (map tuple/snd @e)
+                                                          as)]
+                                  (frp/activate)
+                                  (run! e as)
+                                  (= @b (last occurrences)))))
 
 (def behavior->>=
   ;TODO refactor
