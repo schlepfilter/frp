@@ -102,9 +102,6 @@
 
 (def register*
   (comp (partial swap! registry)
-        ;TODO fix m/curry
-        ;((m/curry s/setval*) s/END)
-        ; ^--- The given function doesn't have arity metadata, provide an arity for currying.
         ((aid/curry 3 s/setval*) s/END)
         vector))
 
