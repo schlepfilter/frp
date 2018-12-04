@@ -28,7 +28,26 @@
                                   (advance2)
                                   (helpers/<= t @frp/time))))
 
-;TODO test <$>
+(def any-behavior
+  (gen/let [a test-helpers/any-equal
+            e test-helpers/any-event]
+    (gen/one-of [(gen/return frp/time)
+                 (-> a
+                     frp/behavior
+                     gen/return)
+                 (gen/return (frp/stepper a e))])))
+
+(clojure-test/defspec
+  behavior-<$>
+  test-helpers/cljc-num-tests
+  (test-helpers/restart-for-all
+    ;TODO generate a behavior by stepper and call the event
+    [input-behavior any-behavior
+     f (test-helpers/function test-helpers/any-equal)
+     as (gen/vector test-helpers/any-equal)]
+    (let [fmapped-behavior (m/<$> f input-behavior)]
+      (frp/activate)
+      (= @fmapped-behavior (f @input-behavior)))))
 
 (clojure-test/defspec
   behavior-pure
@@ -39,15 +58,6 @@
                                         ctx/infer
                                         (m/pure a))
                                    a)))
-
-(def any-behavior
-  (gen/let [a test-helpers/any-equal
-            e test-helpers/any-event]
-    (gen/one-of [(gen/return frp/time)
-                 (-> a
-                     frp/behavior
-                     gen/return)
-                 (gen/return (frp/stepper a e))])))
 
 (defn get-behaviors
   [es]
