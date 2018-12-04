@@ -120,25 +120,34 @@
   (juxt stop
         start))
 
-(defn get-middle
-  [left right]
-  (+ left (quot (- right left) 2)))
-
-(defn first-pred-index
-  [pred left right coll]
-  (if (= left right)
-    left
-    (if (->> (get-middle left right)
-             (get coll)
-             pred)
-      (recur pred left (get-middle left right) coll)
-      (recur pred (inc (get-middle left right)) right coll))))
-
 (defn last-pred
   [default pred coll]
-  (nth coll
-       (dec (first-pred-index (complement pred) 0 (count coll) coll))
-       default))
+  (->> coll
+       reverse
+       (drop-while (complement pred))
+       (take 1)
+       (cons default)
+       last))
+;last-pred can be O(log(n))
+;(defn get-middle
+;  [left right]
+;  (+ left (quot (- right left) 2)))
+;
+;(defn first-pred-index
+;  [pred left right coll]
+;  (if (= left right)
+;    left
+;    (if (->> (get-middle left right)
+;             (get coll)
+;             pred)
+;      (recur pred left (get-middle left right) coll)
+;      (recur pred (inc (get-middle left right)) right coll))))
+;
+;(defn last-pred
+;  [default pred coll]
+;  (nth coll
+;       (dec (first-pred-index (complement pred) 0 (count coll) coll))
+;       default))
 
 (defn get-stepper-value
   [a e t network]
