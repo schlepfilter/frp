@@ -128,7 +128,11 @@
                                      (apply event/merge-occs)
                                      (last-= @mappended-event))))
 
-;TODO test mempty
+(test/deftest event-mempty
+  (= @(-> (frp/event)
+          ctx/infer
+          m/mempty)
+     []))
 
 (defn get-generators
   [generator xforms**]
