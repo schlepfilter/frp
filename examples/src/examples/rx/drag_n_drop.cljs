@@ -37,8 +37,8 @@
 (def origin
   ;TODO infer the number of arguments from fn
   ((aid/lift-a (fn [left* top*]
-                  {:left left*
-                   :top  top*}))
+                 {:left left*
+                  :top  top*}))
     left
     top))
 

@@ -66,8 +66,8 @@
 
 (def users
   (apply (aid/lift-a (fn [response* & offset-counts*]
-                        (map (partial nth (cycle response*))
-                             offset-counts*)))
+                       (map (partial nth (cycle response*))
+                            offset-counts*)))
          (frp/stepper (repeat user-number {}) response)
          offset-counts))
 
@@ -105,7 +105,7 @@
 (def option
   (aid/<$> (partial assoc-in
                     {:handler (comp response
-                                     walk/keywordize-keys)}
+                                    walk/keywordize-keys)}
                     [:params :since])
            beginning))
 
