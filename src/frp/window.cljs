@@ -1,5 +1,5 @@
 (ns frp.window
-  (:require [aid.core :as aid]
+  (:require [cats.core :as m]
             [com.rpl.specter :as s]
             [frp.io :as io]
             [frp.primitives.behavior :as behavior :include-macros true]
@@ -34,7 +34,7 @@
 
   (behavior/redef inner-height
                   (->> resize
-                       (aid/<$> :inner-height)
+                       (m/<$> :inner-height)
                        (behavior/stepper js/innerHeight)))
 
   ;TODO define a macro to define behaviors and add and remove event listeners

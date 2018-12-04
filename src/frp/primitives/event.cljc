@@ -3,6 +3,7 @@
   (:refer-clojure :exclude [transduce])
   (:require [aid.core :as aid :include-macros true]
             [cats.context :as ctx]
+            [cats.core :as m]
             [cats.monad.maybe :as maybe]
             [cats.protocols :as protocols]
             [cats.util :as util]
@@ -228,7 +229,7 @@
 (aid/defcurried modify-<$>
                 [f parent-id initial child-id network]
                 ;TODO refactor
-                (set-occs (mapv (partial aid/<$> f)
+                (set-occs (mapv (partial m/<$> f)
                                 ((make-get-occs-or-latests initial)
                                   parent-id
                                   network))
@@ -284,7 +285,7 @@
 
 (defn delay-time-occs
   [t occs]
-  (map (partial aid/<*> (tuple/tuple t identity))
+  (map (partial m/<*> (tuple/tuple t identity))
        occs))
 
 (aid/defcurried
@@ -380,10 +381,10 @@
       (aid/ap fab fa))
     protocols/Monad
     (-mreturn [_ a]
-      (ctx/with-context context (aid/pure a)))
+      (ctx/with-context context (m/pure a)))
     (-mbind [_ ma f]
       (->> ma
-           (aid/<$> f)
+           (m/<$> f)
            join))
     protocols/Semigroup
     (-mappend [_ left-event right-event]
@@ -407,7 +408,7 @@
                                              (partial step! aid/nothing))))
        (filter (comp maybe/just?
                      tuple/snd))
-       (map (partial aid/<$> deref))))
+       (map (partial m/<$> deref))))
 
 (defn get-transduction
   [init occs reduction]
@@ -453,9 +454,9 @@
 
 (defn snapshot
   [e b]
-  (aid/<$> (fn [x]
-             [x @b])
-           e))
+  (m/<$> (fn [x]
+           [x @b])
+         e))
 
 #?(:clj (defn get-periods
           ;TODO extract a purely functional function

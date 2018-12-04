@@ -3,6 +3,7 @@
   (:require [clojure.set :as set]
             [aid.core :as aid]
             [cats.builtin]
+            [cats.core :as m]
             [cats.protocols :as protocols]
             [cats.util :as util]
             [com.rpl.specter :as s]
@@ -25,9 +26,9 @@
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
-    ((aid/<*> (comp id
-                    :function)
-              :time)
+    ((m/<*> (comp id
+                  :function)
+            :time)
       @event/network-state))
   protocols/Printable
   (-repr [_]

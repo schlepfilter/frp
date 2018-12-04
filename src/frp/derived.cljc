@@ -1,6 +1,7 @@
 (ns frp.derived
   (:require [aid.core :as aid :include-macros true]
             [cats.context :as ctx]
+            [cats.core :as m]
             [com.rpl.specter :as s :include-macros true]
             [frp.helpers :as helpers :include-macros true]
             [frp.clojure.core :as core]
@@ -68,7 +69,7 @@
 (defn behavior
   [a]
   (->> a
-       aid/pure
+       m/pure
        (ctx/with-context behavior/context)))
 
 (defn if-not-then-else
@@ -93,8 +94,8 @@
                 ;TODO refactor
                 (aid/casep a
                            event? a
-                           (aid/<$> (constantly a)
-                                    e)))
+                           (m/<$> (constantly a)
+                                  e)))
 
 (def has-event?
   (partial some event?))
@@ -167,7 +168,7 @@
         ;                              (partial + size)
         ;                              -
         ;                              first)))
-        (aid/<$> second))))
+        (m/<$> second))))
 
 (def mean
   (aid/build (partial combine /)

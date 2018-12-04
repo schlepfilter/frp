@@ -1,6 +1,6 @@
 (ns frp.time
   (:refer-clojure :exclude [time])
-  (:require [aid.core :as aid]
+  (:require [cats.core :as m]
             [cats.protocols :as p]
             [cats.util :as util]
             #?@(:clj  [[clj-time.coerce :as c]
@@ -67,8 +67,8 @@
 
 (defn to-real-time
   [t]
-  (aid/<$> (partial + @real-epoch-state)
-           t))
+  (m/<$> (partial + @real-epoch-state)
+         t))
 
 (def epoch
   (time 0))

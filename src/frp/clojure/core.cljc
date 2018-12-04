@@ -1,8 +1,8 @@
 (ns frp.clojure.core
   (:refer-clojure :exclude [+ count drop filter max min reduce remove])
   ;TODO require clojure.core to alias it
-  (:require [aid.core :as aid]
-            [aid.unit :as unit]
+  (:require [aid.unit :as unit]
+            [cats.core :as m]
             [frp.primitives.event :as event]))
 
 (defn reduce
@@ -16,7 +16,7 @@
                             :start       false})
                          {:event-value unit/unit
                           :start       true})
-        (aid/<$> :event-value)))
+        (m/<$> :event-value)))
   ([f val e]
    (event/transduce (clojure.core/drop 0) f val e)))
 

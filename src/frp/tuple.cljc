@@ -1,6 +1,7 @@
 ;TODO use cats.data when pair implements monad
 (ns frp.tuple
-  (:require [aid.core :as aid]
+  (:require [cats.context :as ctx]
+            [cats.core :as m]
             [cats.protocols :as p]
             [cats.util :as util]
             [frp.helpers :as helpers :include-macros true]))
@@ -15,13 +16,13 @@
   (-get-context [_]
     (helpers/reify-monad
       (partial ->Tuple (-> fst
-                           aid/infer
-                           aid/mempty))
+                           ctx/infer
+                           m/mempty))
       (fn [_ f]
         (Tuple. (->> snd
                      f
                      :fst
-                     (aid/<> fst))
+                     (m/<> fst))
                 (-> snd
                     f
                     :snd)))))
