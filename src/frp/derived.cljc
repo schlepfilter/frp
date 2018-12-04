@@ -83,8 +83,7 @@
                 ;TODO refactor
                 (aid/casep a
                            event/event? a
-                           (m/<$> (constantly a)
-                                  e)))
+                           (aid/<$ a e)))
 
 (def has-event?
   (partial some event/event?))
