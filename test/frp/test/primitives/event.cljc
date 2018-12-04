@@ -85,13 +85,6 @@
                (gen/return (partial doall (map aid/funcall
                                                calls))))))
 
-(defn take-last-while
-  [pred coll]
-  (->> coll
-       reverse
-       (take-while pred)
-       reverse))
-
 (clojure-test/defspec
   event-join-identity
   test-helpers/cljc-num-tests
