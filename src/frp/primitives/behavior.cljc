@@ -57,16 +57,18 @@
 
 (def context
   (helpers/reify-monad
+    (fn [f fa]
+      (behavior* (fn [t]
+                   (-> fa
+                       (get-value t @event/network-state)
+                       f))))
     (comp behavior*
           constantly)
-    ;TODO use <$> and join to define >>=
-    (fn [ma f]
+    (fn [ma]
       (behavior* (fn [t]
                    (-> ma
                        (get-value t @event/network-state)
-                       f
                        (get-value t @event/network-state)))))))
-
 
 (defn stop
   []

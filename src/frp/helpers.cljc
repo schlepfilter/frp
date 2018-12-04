@@ -1,6 +1,7 @@
 (ns frp.helpers
   (:refer-clojure :exclude [defcurried <=])
   (:require [aid.core :as aid :include-macros true]
+            [cats.core :as m]
             [cats.protocols :as p]
             [com.rpl.specter :as s]))
 
@@ -24,13 +25,12 @@
                 (if-then-else if-function identity else-function then))
 
 #?(:clj (defmacro reify-monad
-          [pure mbind & more]
+          [fmap pure join & more]
           `(reify
              p/Context
              p/Functor
              (~'-fmap [_# f# fa#]
-               ;TODO define mbind in terms of <$> and join
-               ((aid/lift-m 1 f#) fa#))
+               (~fmap f# fa#))
              p/Applicative
              (~'-pure [_# v#]
                (~pure v#))
@@ -40,7 +40,7 @@
              (~'-mreturn [_# a#]
                (~pure a#))
              (~'-mbind [_# ma# f#]
-               (~mbind ma# f#))
+               (~join (m/<$> f# ma#)))
              ~@more)))
 
 (def call-functions

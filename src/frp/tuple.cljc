@@ -15,18 +15,18 @@
   p/Contextual
   (-get-context [_]
     (helpers/reify-monad
+      (fn [f _]
+        (Tuple. fst (f snd)))
       (partial ->Tuple (-> fst
                            ctx/infer
                            m/mempty))
-      (fn [_ f]
-        (Tuple. (->> snd
-                     f
-                     :fst
-                     (m/<> fst))
-                (-> snd
-                    f
+      (fn [ma]
+        (Tuple. (m/<> fst (-> ma
+                              :snd
+                              :fst))
+                (-> ma
+                    :snd
                     :snd)))))
-
   p/Printable
   (-repr [_]
     (str "#[tuple " (pr-str fst) " " (pr-str snd) "]")))
