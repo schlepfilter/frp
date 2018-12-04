@@ -83,7 +83,7 @@
             calls (gen/return (concat outer-calls inner-calls))]
     (gen/tuple (gen/return outer-event)
                (gen/return inner-events)
-               (gen/return (partial doall (map aid/funcall calls))))))
+               (gen/return (partial run! aid/funcall calls)))))
 
 (clojure-test/defspec
   event-join-identity
