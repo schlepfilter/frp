@@ -13,7 +13,6 @@
 (defmulti get-effect! (comp protocols/-get-keyword
                             second
                             vector))
-
 ;This definition of get-effect! produces the following failure in :advanced.
 ;Reloading Clojure file "/nodp/hfdp/observer/synchronization.clj" failed.
 ;clojure.lang.Compiler$CompilerException: java.lang.IllegalArgumentException: No method in multimethod 'get-effect!' for dispatch value
