@@ -18,16 +18,6 @@
 (test/use-fixtures :each test-helpers/fixture)
 
 (clojure-test/defspec
-  behavior-pure
-  test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all [a test-helpers/any-equal]
-                                (= @(-> unit/unit
-                                        frp/behavior
-                                        ctx/infer
-                                        (m/pure a))
-                                   a)))
-
-(clojure-test/defspec
   time-increasing
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all [advance1 test-helpers/advance
@@ -37,6 +27,16 @@
                                 (let [t @frp/time]
                                   (advance2)
                                   (helpers/<= t @frp/time))))
+
+(clojure-test/defspec
+  behavior-pure
+  test-helpers/cljc-num-tests
+  (test-helpers/restart-for-all [a test-helpers/any-equal]
+                                (= @(-> unit/unit
+                                        frp/behavior
+                                        ctx/infer
+                                        (m/pure a))
+                                   a)))
 
 (clojure-test/defspec
   stepper-identity
