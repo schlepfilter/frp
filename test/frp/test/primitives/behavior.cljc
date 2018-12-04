@@ -76,13 +76,13 @@
                                               #(input-inner-event a))
                                             input-inner-anys)))
             invocations (gen/vector gen/boolean (count calls))]
-           (gen/tuple (gen/return outer-behavior)
-                      (gen/return f)
-                      (gen/return (partial doall (map (fn [invocation call]
-                                                        (if invocation
-                                                          (call)))
-                                                      invocations
-                                                      calls))))))
+    (gen/tuple (gen/return outer-behavior)
+               (gen/return f)
+               (gen/return (partial doall (map (fn [invocation call]
+                                                 (if invocation
+                                                   (call)))
+                                               invocations
+                                               calls))))))
 
 (clojure-test/defspec
   behavior->>=-identity

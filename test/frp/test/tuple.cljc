@@ -54,8 +54,8 @@
   helpers/cljc-num-tests
   (prop/for-all [a helpers/any-equal
                  mempty* mempty]
-                (= (aid/>>= (tuple/tuple mempty* a) aid/return)
-                   (tuple/tuple mempty* a))))
+    (= (aid/>>= (tuple/tuple mempty* a) aid/return)
+       (tuple/tuple mempty* a))))
 
 (clojure-test/defspec
   monad-left-identity-law
@@ -63,14 +63,14 @@
   (prop/for-all [a helpers/any-equal
                  f* (helpers/function helpers/any-equal)
                  monoid* monoid]
-                (let [f (comp (partial tuple/tuple monoid*)
-                              f*)]
-                  (= (aid/>>= (tuple/tuple (-> monoid*
-                                               ctx/infer
-                                               m/mempty)
-                                           a)
-                              f)
-                     (f a)))))
+    (let [f (comp (partial tuple/tuple monoid*)
+                  f*)]
+      (= (aid/>>= (tuple/tuple (-> monoid*
+                                   ctx/infer
+                                   m/mempty)
+                               a)
+                  f)
+         (f a)))))
 
 (clojure-test/defspec
   monad-associativity-law
@@ -79,11 +79,11 @@
                  monoids (scalar-monoid-vector 3)
                  f* (helpers/function helpers/any-equal)
                  g* (helpers/function helpers/any-equal)]
-                (let [f (comp (partial tuple/tuple (second monoids))
-                              f*)
-                      g (comp (partial tuple/tuple (last monoids))
-                              g*)
-                      ma (tuple/tuple (first monoids) a)]
-                  (= (aid/->= ma f g)
-                     (aid/>>= ma (comp (partial aid/=<< g)
-                                       f))))))
+    (let [f (comp (partial tuple/tuple (second monoids))
+                  f*)
+          g (comp (partial tuple/tuple (last monoids))
+                  g*)
+          ma (tuple/tuple (first monoids) a)]
+      (= (aid/->= ma f g)
+         (aid/>>= ma (comp (partial aid/=<< g)
+                           f))))))

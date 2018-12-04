@@ -11,5 +11,5 @@
   time-increasing
   test-helpers/cljc-num-tests
   (prop/for-all []
-                (helpers/<= (time/now)
-                            (time/now))))
+    (helpers/<= (time/now)
+                (time/now))))

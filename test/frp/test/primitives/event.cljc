@@ -86,10 +86,10 @@
                                           input-event-anys))
             calls (gen/return (concat outer-calls
                                       inner-calls))]
-           (gen/tuple (gen/return outer-input-event)
-                      (gen/return inner-input-events)
-                      (gen/return (partial doall (map aid/funcall
-                                                      calls))))))
+    (gen/tuple (gen/return outer-input-event)
+               (gen/return inner-input-events)
+               (gen/return (partial doall (map aid/funcall
+                                               calls))))))
 
 (defn take-last-while
   [pred coll]
@@ -123,11 +123,11 @@
                                                  (partial e unit/unit)))
                                        ns
                                        input-events))]
-           (gen/tuple (gen/return fmapped-events)
-                      (gen/return (apply m/<> fmapped-events))
-                      (gen/return (partial run!
-                                           aid/funcall
-                                           calls)))))
+    (gen/tuple (gen/return fmapped-events)
+               (gen/return (apply m/<> fmapped-events))
+               (gen/return (partial run!
+                                    aid/funcall
+                                    calls)))))
 
 (clojure-test/defspec
   event-<>

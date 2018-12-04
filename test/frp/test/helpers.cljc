@@ -88,8 +88,8 @@
   ;            2)
   ;=> (0.8163040448517938 0.8830449199816961)
   (gen/let [a any-equal]
-           (gen/one-of [(gen/return (frp/event))
-                        (gen/return (frp/event a))])))
+    (gen/one-of [(gen/return (frp/event))
+                 (gen/return (frp/event a))])))
 
 (defn conj-event
   [coll probability*]
@@ -121,11 +121,11 @@
   (gen/let [input-events (gen/return (get-events probabilities))
             fs (gen/vector (function any-equal)
                            (count input-events))]
-           (gen/tuple (gen/return input-events)
-                      (gen/return (doall (map m/<$> fs input-events))))))
+    (gen/tuple (gen/return input-events)
+               (gen/return (doall (map m/<$> fs input-events))))))
 
 (def advance
   (gen/let [n gen/pos-int]
-           (let [e (frp/event)]
-             #(dotimes [_ n]
-                (e unit/unit)))))
+    (let [e (frp/event)]
+      #(dotimes [_ n]
+         (e unit/unit)))))

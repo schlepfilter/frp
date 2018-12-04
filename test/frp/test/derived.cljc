@@ -66,13 +66,13 @@
                                       (partial input-event a))
                                     input-event-anys))
                        gen/shuffle)]
-           (gen/tuple (gen/return outer-behavior)
-                      (gen/return switching-event)
-                      (gen/return (frp/switcher outer-behavior switching-event))
-                      (->> calls
-                           (map aid/funcall)
-                           (partial doall)
-                           gen/return))))
+    (gen/tuple (gen/return outer-behavior)
+               (gen/return switching-event)
+               (gen/return (frp/switcher outer-behavior switching-event))
+               (->> calls
+                    (map aid/funcall)
+                    (partial doall)
+                    gen/return))))
 
 (clojure-test/defspec
   switcher-identity
