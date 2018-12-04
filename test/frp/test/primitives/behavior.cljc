@@ -16,13 +16,13 @@
 (test/use-fixtures :each test-helpers/fixture)
 
 (clojure-test/defspec
-  behavior-return
+  behavior-pure
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all [a test-helpers/any-equal]
                                 (= @(-> unit/unit
                                         frp/behavior
                                         aid/infer
-                                        (aid/return a))
+                                        (aid/pure a))
                                    a)))
 
 (clojure-test/defspec
