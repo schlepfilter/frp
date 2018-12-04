@@ -122,3 +122,13 @@
 
 (def run-calls!
   (partial run! aid/funcall))
+
+(def any-behavior
+  (gen/let [a any-equal
+            e any-event]
+    (gen/one-of [(gen/return frp/time)
+                 (-> a
+                     frp/behavior
+                     gen/return)
+                 (gen/return (frp/stepper a e))])))
+

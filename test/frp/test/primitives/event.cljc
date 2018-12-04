@@ -220,4 +220,19 @@
       (run! input-event as)
       (= @cat-event @map-event))))
 
-;TODO test snapshot
+(clojure-test/defspec
+  snapshot-identity
+  test-helpers/cljc-num-tests
+  (test-helpers/restart-for-all
+    ;TODO generate a behavior by stepper and call the event
+    [input-behavior test-helpers/any-behavior
+     input-event test-helpers/any-event
+     as (gen/vector test-helpers/any-equal)]
+    (let [snapshotted-event (frp/snapshot input-event input-behavior)]
+      (frp/activate)
+      (run! input-event as)
+      (= (map (comp first
+                    tuple/snd)
+              @snapshotted-event)
+         (map tuple/snd
+              @input-event)))))
