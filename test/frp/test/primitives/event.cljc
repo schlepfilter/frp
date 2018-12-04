@@ -44,6 +44,19 @@
                                   (last-= (map tuple/snd @e) as))))
 
 (clojure-test/defspec
+  event-<$>
+  test-helpers/cljc-num-tests
+  (test-helpers/restart-for-all
+    [input-event test-helpers/event
+     f (test-helpers/function test-helpers/any-equal)
+     as (gen/vector test-helpers/any-equal)]
+    (let [fmapped-event (m/<$> f input-event)]
+      (frp/activate)
+      (run! input-event as)
+      (last-= (map tuple/snd @fmapped-event)
+              (map f (concat (map tuple/snd @input-event) as))))))
+
+(clojure-test/defspec
   event-pure
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all [a test-helpers/any-equal]
