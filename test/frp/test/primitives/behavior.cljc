@@ -40,6 +40,15 @@
                                         (m/pure a))
                                    a)))
 
+(def any-behavior
+  (gen/let [a test-helpers/any-equal
+            e test-helpers/any-event]
+    (gen/one-of [(gen/return frp/time)
+                 (-> a
+                     frp/behavior
+                     gen/return)
+                 (gen/return (frp/stepper a e))])))
+
 (defn get-behaviors
   [es]
   (gen/let [bs (gen/sized (partial gen/vector any-behavior))
@@ -88,14 +97,5 @@
                                   (frp/activate)
                                   (run! e as)
                                   (= @b (last occurrences)))))
-
-(def any-behavior
-  (gen/let [a test-helpers/any-equal
-            e test-helpers/any-event]
-    (gen/one-of [(gen/return frp/time)
-                 (-> a
-                     frp/behavior
-                     gen/return)
-                 (gen/return (frp/stepper a e))])))
 
 ;TODO test time-transform
