@@ -48,9 +48,7 @@
                                 (= (last @(-> (frp/event)
                                               aid/infer
                                               (aid/pure a)))
-                                   (-> 0
-                                       time/time
-                                       (tuple/tuple a)))))
+                                   (tuple/tuple time/epoch a))))
 
 (def event
   (gen/fmap (fn [_]
