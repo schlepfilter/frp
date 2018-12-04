@@ -1,5 +1,5 @@
 (ns frp.helpers
-  (:refer-clojure :exclude [defcurried])
+  (:refer-clojure :exclude [defcurried <=])
   (:require [aid.core :as aid :include-macros true]
             [cats.protocols :as p]
             [com.rpl.specter :as s]))
@@ -48,3 +48,8 @@
        aid/flip
        (partial reduce)
        aid/flip))
+
+(def <=
+  (comp not
+        pos?
+        compare))

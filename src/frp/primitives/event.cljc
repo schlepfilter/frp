@@ -330,7 +330,10 @@
   [merged left right]
   (cond (empty? left) (s/setval s/END right merged)
         (empty? right) (s/setval s/END left merged)
-        (<= (get-first-time-number left) (get-first-time-number right))
+        (->> [left right]
+             (map (comp tuple/fst
+                        first))
+             (apply helpers/<=))
         (recur (merge-one left merged) (rest left) right)
         :else
         (recur (merge-one right merged) left (rest right))))
