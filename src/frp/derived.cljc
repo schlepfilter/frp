@@ -69,14 +69,14 @@
 (def behavior
   behavior/pure)
 
-(defn if-not-then-else
+(defn if-not-then
   [if-function then-function else]
   (helpers/if-then (complement if-function)
                    then-function
                    else))
 
 (def behaviorize
-  (partial if-not-then-else
+  (partial if-not-then
            behavior?
            behavior))
 
