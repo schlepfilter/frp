@@ -1,9 +1,9 @@
 (ns frp.test.derived
   (:require [aid.core :as aid :include-macros true]
-            [#?(:clj  clojure.test
-                :cljs cljs.test) :as test :include-macros true]
             [cats.core :as m]
             [cats.monad.maybe :as maybe]
+            [#?(:clj  clojure.test
+                :cljs cljs.test) :as test :include-macros true]
             [clojure.test.check]
             [clojure.test.check.clojure-test
              :as clojure-test
@@ -23,8 +23,7 @@
               fmapped-outer-event
               & fmapped-inner-events]]
             (helpers/events-tuple probabilities)
-            [stepper-outer-any input-outer-any]
-            (gen/vector helpers/any-equal 2)
+            stepper-outer-any helpers/any-equal
             ;TODO call <$> on outer-behavior
             outer-behavior (gen/elements [(frp/stepper stepper-outer-any
                                                        fmapped-outer-event)
