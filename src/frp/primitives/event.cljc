@@ -56,13 +56,13 @@
 
 (aid/defcurried set-occs
                 [occs id network]
-                (run! #(assert (or (-> %
-                                       tuple/snd
-                                       event?
-                                       not)
-                                   (-> %
-                                       tuple/fst
-                                       #{time/epoch (:time network)})))
+                (run! #(assert ((aid/build or
+                                           (comp not
+                                                 event?
+                                                 tuple/snd)
+                                           (comp #{time/epoch (:time network)}
+                                                 tuple/fst))
+                                 %))
                       occs)
                 (s/setval [:occs id s/END] occs network))
 
