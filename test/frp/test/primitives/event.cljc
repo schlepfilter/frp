@@ -29,7 +29,7 @@
 
 (def last-=
   (comp (partial apply =)
-        (partial map last)
+        (partial map (partial take-last 1))
         vector))
 
 (clojure-test/defspec
@@ -203,12 +203,11 @@
           earliests @input-event]
       (frp/activate)
       (run! input-event as)
-      (or (empty? @transduced-event)
-          (->> as
-               (get-elements xf (map tuple/snd earliests))
-               (reductions f init)
-               (take-last (count @transduced-event))
-               (map tuple/snd @transduced-event))))))
+      (->> as
+           (get-elements xf (map tuple/snd earliests))
+           (reductions f init)
+           rest
+           (= (map tuple/snd @transduced-event))))))
 
 (clojure-test/defspec
   cat-identity
