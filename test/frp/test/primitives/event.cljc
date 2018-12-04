@@ -4,6 +4,8 @@
             [aid.unit :as unit]
             [#?(:clj  clojure.test
                 :cljs cljs.test) :as test :include-macros true]
+            [cats.context :as ctx]
+            [cats.core :as m]
             [cats.monad.maybe :as maybe]
             [clojure.test.check]
             [clojure.test.check.clojure-test
@@ -46,8 +48,8 @@
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all [a test-helpers/any-equal]
                                 (= (last @(-> (frp/event)
-                                              aid/infer
-                                              (aid/pure a)))
+                                              ctx/infer
+                                              (m/pure a)))
                                    (tuple/tuple time/epoch a))))
 
 (def event
@@ -109,7 +111,7 @@
                                        ns
                                        input-events))]
            (gen/tuple (gen/return fmapped-events)
-                      (gen/return (apply aid/<> fmapped-events))
+                      (gen/return (apply m/<> fmapped-events))
                       (gen/return (partial run!
                                            aid/funcall
                                            calls)))))

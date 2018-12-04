@@ -7,6 +7,8 @@
     ;Compiling "resources/public/test/js/main.js" from ["src" "test"]...
     ;WARNING: Use of undeclared Var clojure.test.check/quick-check
             [cats.builtin]
+            [cats.context :as ctx]
+            [cats.core :as m]
             [cats.monad.maybe :as maybe]
             [clojure.test.check]
             [clojure.test.check.clojure-test
@@ -39,7 +41,7 @@
                (gen/recursive-gen maybe scalar-monoid)]))
 
 (def mempty
-  (gen/fmap (comp aid/mempty aid/infer)
+  (gen/fmap (comp m/mempty ctx/infer)
             monoid))
 
 (defn scalar-monoid-vector
@@ -64,8 +66,8 @@
                 (let [f (comp (partial tuple/tuple monoid*)
                               f*)]
                   (= (aid/>>= (tuple/tuple (-> monoid*
-                                               aid/infer
-                                               aid/mempty)
+                                               ctx/infer
+                                               m/mempty)
                                            a)
                               f)
                      (f a)))))

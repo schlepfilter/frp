@@ -1,6 +1,8 @@
 (ns frp.test.primitives.behavior
   (:require [aid.core :as aid :include-macros true]
             [aid.unit :as unit]
+            [cats.context :as ctx]
+            [cats.core :as m]
             [clojure.test.check.generators :as gen]
             [#?(:clj  clojure.test
                 :cljs cljs.test) :as test :include-macros true]
@@ -21,8 +23,8 @@
   (test-helpers/restart-for-all [a test-helpers/any-equal]
                                 (= @(-> unit/unit
                                         frp/behavior
-                                        aid/infer
-                                        (aid/pure a))
+                                        ctx/infer
+                                        (m/pure a))
                                    a)))
 
 (clojure-test/defspec

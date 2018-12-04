@@ -2,6 +2,7 @@
   (:require [aid.core :as aid :include-macros true]
             [#?(:clj  clojure.test
                 :cljs cljs.test) :as test :include-macros true]
+            [cats.core :as m]
             [cats.monad.maybe :as maybe]
             [clojure.test.check]
             [clojure.test.check.clojure-test
@@ -44,7 +45,7 @@
                      stepper-inner-anys
                      fmapped-inner-events)))
             switching-event
-            (gen/return (aid/<$>
+            (gen/return (m/<$>
                           (helpers/make-iterate inner-behaviors)
                           fmapped-switching-event))
             input-event-anys (gen/vector helpers/any-equal

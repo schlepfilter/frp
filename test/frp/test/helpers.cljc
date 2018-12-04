@@ -1,6 +1,6 @@
 (ns frp.test.helpers
-  (:require [aid.core :as aid]
-            [aid.unit :as unit]
+  (:require [aid.unit :as unit]
+            [cats.core :as m]
             [clojure.test.check.generators :as gen :include-macros true]
             [clojure.test.check.properties :as prop]
             [clojure.test.check.random :as random]
@@ -122,7 +122,7 @@
             fs (gen/vector (function any-equal)
                            (count input-events))]
            (gen/tuple (gen/return input-events)
-                      (gen/return (doall (map aid/<$> fs input-events))))))
+                      (gen/return (doall (map m/<$> fs input-events))))))
 
 (def advance
   (gen/let [n gen/pos-int]
