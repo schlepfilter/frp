@@ -116,16 +116,6 @@
                                            aid/funcall
                                            calls)))))
 
-(def get-last-occs
-  (helpers/if-else
-    empty?
-    #(filter (comp (partial =
-                            (-> %
-                                last
-                                tuple/fst))
-                   tuple/fst)
-             %)))
-
 (clojure-test/defspec
   event-<>
   test-helpers/cljc-num-tests
