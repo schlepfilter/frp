@@ -9,40 +9,41 @@
              :include-macros true]
             [aid.unit :as unit]
             [frp.core :as frp]
+            [frp.helpers :as helpers]
             [frp.tuple :as tuple]
-            [frp.test.helpers :as helpers :include-macros true]))
+            [frp.test.helpers :as test-helpers :include-macros true]))
 
-(test/use-fixtures :each helpers/fixture)
+(test/use-fixtures :each test-helpers/fixture)
 
 (clojure-test/defspec
   behavior-return
-  helpers/cljc-num-tests
-  (helpers/restart-for-all [a helpers/any-equal]
-                           (= @(-> unit/unit
-                                   frp/behavior
-                                   aid/infer
-                                   (aid/return a))
-                              a)))
+  test-helpers/cljc-num-tests
+  (test-helpers/restart-for-all [a test-helpers/any-equal]
+                                (= @(-> unit/unit
+                                        frp/behavior
+                                        aid/infer
+                                        (aid/return a))
+                                   a)))
 
 (clojure-test/defspec
   time-increasing
-  helpers/cljc-num-tests
-  (helpers/restart-for-all
-    [advance1 helpers/advance
-     advance2 helpers/advance]
+  test-helpers/cljc-num-tests
+  (test-helpers/restart-for-all
+    [advance1 test-helpers/advance
+     advance2 test-helpers/advance]
     (frp/activate)
     (advance1)
     (let [t @frp/time]
       (advance2)
-      (<= @t @@frp/time))))
+      (helpers/<= t @frp/time))))
 
 (clojure-test/defspec
   stepper-identity
-  helpers/cljc-num-tests
-  (helpers/restart-for-all
-    [a helpers/any-equal
-     as (gen/vector helpers/any-equal)
-     e helpers/event]
+  test-helpers/cljc-num-tests
+  (test-helpers/restart-for-all
+    [a test-helpers/any-equal
+     as (gen/vector test-helpers/any-equal)
+     e test-helpers/event]
     (let [b (frp/stepper a e)
           occurrences (concat [a] (map tuple/snd @e) as)]
       (frp/activate)
@@ -51,21 +52,21 @@
 
 (def behavior->>=
   ;TODO refactor
-  (gen/let [probabilities (gen/vector helpers/probability 2)
+  (gen/let [probabilities (gen/vector test-helpers/probability 2)
             [[input-outer-event input-inner-event]
              [fmapped-outer-event fmapped-inner-event]]
-            (helpers/events-tuple probabilities)
-            outer-any helpers/any-equal
+            (test-helpers/events-tuple probabilities)
+            outer-any test-helpers/any-equal
             outer-behavior (gen/elements [(frp/stepper outer-any
                                                        fmapped-outer-event)
                                           frp/time])
-            inner-any helpers/any-equal
+            inner-any test-helpers/any-equal
             f (gen/elements [frp/behavior
                              (constantly (frp/stepper inner-any
                                                       fmapped-inner-event))
                              (constantly frp/time)])
             [input-outer-anys input-inner-anys]
-            (gen/vector (gen/vector helpers/any-equal) 2)
+            (gen/vector (gen/vector test-helpers/any-equal) 2)
             calls (gen/shuffle (concat (map (fn [a]
                                               #(input-outer-event a))
                                             input-outer-anys)
@@ -83,8 +84,8 @@
 
 (clojure-test/defspec
   behavior->>=-identity
-  helpers/cljc-num-tests
-  (helpers/restart-for-all
+  test-helpers/cljc-num-tests
+  (test-helpers/restart-for-all
     [[outer-behavior get-behavior call] behavior->>=]
     (let [bound-behavior (aid/>>= outer-behavior get-behavior)]
       (frp/activate)
