@@ -197,7 +197,7 @@
            (get-elements xf (map tuple/snd earliests))
            (reductions f init)
            rest
-           (= (map tuple/snd @transduced-event))))))
+           (last-= (map tuple/snd @transduced-event))))))
 
 (clojure-test/defspec
   cat-identity
