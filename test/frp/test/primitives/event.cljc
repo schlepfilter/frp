@@ -69,21 +69,22 @@
   ;TODO refactor
   (gen/let [outer-input-event test-helpers/mempty-event
             probabilities* (test-helpers/probabilities 2)
-            inner-input-events
-            (gen/return (test-helpers/get-events probabilities*))
-            input-event-anys (gen/vector test-helpers/any-equal
-                                         (count inner-input-events))
-            outer-calls (gen/shuffle (map #(partial outer-input-event %)
-                                          inner-input-events))
+            inner-input-events (-> probabilities*
+                                   test-helpers/get-events
+                                   gen/return)
+            input-event-anys (->> inner-input-events
+                                  count
+                                  (gen/vector test-helpers/any-equal))
+            outer-calls (->> inner-input-events
+                             (map #(partial outer-input-event %))
+                             gen/shuffle)
             inner-calls (gen/shuffle (map partial
                                           inner-input-events
                                           input-event-anys))
-            calls (gen/return (concat outer-calls
-                                      inner-calls))]
+            calls (gen/return (concat outer-calls inner-calls))]
     (gen/tuple (gen/return outer-input-event)
                (gen/return inner-input-events)
-               (gen/return (partial doall (map aid/funcall
-                                               calls))))))
+               (gen/return (partial doall (map aid/funcall calls))))))
 
 (clojure-test/defspec
   event-join-identity
