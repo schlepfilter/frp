@@ -55,16 +55,8 @@
                     (modify-combine f)))
     (map :id parent-events)))
 
-(defn make-entity?
-  [entity-type]
-  (comp (partial = entity-type)
-        type))
-
-(def event?
-  (make-entity? frp.primitives.event.Event))
-
 (def behavior?
-  (make-entity? frp.primitives.behavior.Behavior))
+  (partial instance? frp.primitives.behavior.Behavior))
 
 (def behavior
   behavior/pure)
@@ -90,18 +82,18 @@
                 [e a]
                 ;TODO refactor
                 (aid/casep a
-                           event? a
+                           event/event? a
                            (m/<$> (constantly a)
                                   e)))
 
 (def has-event?
-  (partial some event?))
+  (partial some event/event?))
 
 (defn entitize
   [arguments]
   (map (if (has-event? arguments)
          (->> arguments
-              (filter event?)
+              (filter event/event?)
               first
               eventize)
          behaviorize)
