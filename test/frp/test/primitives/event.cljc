@@ -130,10 +130,11 @@
                                      (last-= @mappended-event))))
 
 (test/deftest event-mempty
-  (= @(-> (frp/event)
-          ctx/infer
-          m/mempty)
-     []))
+  (-> @(-> (frp/event)
+           ctx/infer
+           m/mempty)
+      (= [])
+      test/is))
 
 (defn get-generators
   [generator xforms**]
