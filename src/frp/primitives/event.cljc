@@ -128,7 +128,6 @@
                                  @network-state))
         (run-network-state-effects!)
         ;Not doing garbage collection is visibly slower.
-        ;TODO fix stepper for cases where the last occurrence is garbage collected
         (->> (partial s/setval* :time current)
              (swap! network-state))
         (run-network-state-effects!))))
