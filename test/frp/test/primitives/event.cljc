@@ -88,16 +88,16 @@
             calls (gen/return (concat outer-calls inner-calls))]
     (gen/tuple (gen/return outer-event)
                (gen/return inner-events)
-               (gen/return (partial run-calls! calls)))))
+               (gen/return calls))))
 
 (clojure-test/defspec
   event-join-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all
-    [[outer-event inner-events call] event-join]
+    [[outer-event inner-events calls] event-join]
     (let [joined-event (m/join outer-event)]
       (frp/activate)
-      (call)
+      (run-calls! calls)
       (last-= (->> inner-events
                    (map deref)
                    (reduce event/merge-occs []))
@@ -118,14 +118,14 @@
                                        input-events))]
     (gen/tuple (gen/return input-events)
                (gen/return (apply m/<> input-events))
-               (gen/return (partial run-calls! calls)))))
+               (gen/return calls))))
 
 (clojure-test/defspec
   event-<>
   test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all [[input-events mappended-event call] <>]
+  (test-helpers/restart-for-all [[input-events mappended-event calls] <>]
                                 (frp/activate)
-                                (call)
+                                (run-calls! calls)
                                 (->> input-events
                                      (map deref)
                                      (apply event/merge-occs)
