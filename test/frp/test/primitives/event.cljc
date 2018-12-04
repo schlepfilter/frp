@@ -144,8 +144,7 @@
                                 (->> fmapped-events
                                      (map deref)
                                      (apply event/merge-occs)
-                                     get-last-occs
-                                     (= (get-last-occs @mappended-event)))))
+                                     (last-= @mappended-event))))
 
 (defn get-generators
   [generator xforms**]
