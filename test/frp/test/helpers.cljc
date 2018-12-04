@@ -114,23 +114,6 @@
 (def get-events
   (partial reduce conj-event []))
 
-;TODO move this function to behavior
-(defn make-iterate
-  [coll]
-  (let [state (atom coll)]
-    (memoize (fn [& _]
-               (let [result (first @state)]
-                 (swap! state rest)
-                 result)))))
-
-(defn events-tuple
-  [probabilities]
-  (gen/let [input-events (gen/return (get-events probabilities))
-            fs (gen/vector (function any-equal)
-                           (count input-events))]
-    (gen/tuple (gen/return input-events)
-               (gen/return (doall (map m/<$> fs input-events))))))
-
 (def advance
   (gen/let [n gen/pos-int]
     (let [e (frp/event)]
