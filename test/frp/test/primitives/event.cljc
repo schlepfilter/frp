@@ -65,6 +65,9 @@
                                               (m/pure a)))
                                    (tuple/tuple time/epoch a))))
 
+(def run-calls!
+  (partial run! aid/funcall))
+
 (def event-join
   ;TODO refactor
   ;TODO consider the possibilities of outer-event having an initial event
@@ -83,7 +86,7 @@
             calls (gen/return (concat outer-calls inner-calls))]
     (gen/tuple (gen/return outer-event)
                (gen/return inner-events)
-               (gen/return (partial run! aid/funcall calls)))))
+               (gen/return (partial run-calls! calls)))))
 
 (clojure-test/defspec
   event-join-identity
@@ -112,9 +115,7 @@
                                        input-events))]
     (gen/tuple (gen/return fmapped-events)
                (gen/return (apply m/<> fmapped-events))
-               (gen/return (partial run!
-                                    aid/funcall
-                                    calls)))))
+               (gen/return (partial run-calls! calls)))))
 
 (clojure-test/defspec
   event-<>
