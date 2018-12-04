@@ -72,7 +72,7 @@
   ;TODO refactor
   ;TODO generate an event with pure
   (gen/let [outer-event test-helpers/mempty-event
-            probabilities* (test-helpers/probabilities 2)
+            probabilities* (test-helpers/probabilities 0)
             inner-events (-> probabilities*
                              test-helpers/get-events
                              gen/return)
