@@ -66,11 +66,8 @@
 (def behavior?
   (make-entity? frp.primitives.behavior.Behavior))
 
-(defn behavior
-  [a]
-  (->> a
-       m/pure
-       (ctx/with-context behavior/context)))
+(def behavior
+  behavior/pure)
 
 (defn if-not-then-else
   [if-function then-function else]

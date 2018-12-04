@@ -55,6 +55,10 @@
   [b t network]
   ((get-function b network) t))
 
+(def pure
+  (comp behavior*
+        constantly))
+
 (def context
   (helpers/reify-monad
     (fn [f fa]
@@ -62,8 +66,7 @@
                    (-> fa
                        (get-value t @event/network-state)
                        f))))
-    (comp behavior*
-          constantly)
+    pure
     #(behavior* (fn [t]
                   (-> %
                       (get-value t @event/network-state)
