@@ -104,8 +104,7 @@
 (def <>
   ;TODO refactor
   (gen/let [probabilities (gen/vector test-helpers/probability 2)
-            [input-events fmapped-events]
-            (test-helpers/events-tuple probabilities)
+            input-events (gen/return (test-helpers/get-events probabilities))
             ns (gen/vector (gen/sized (partial gen/choose 0))
                            (count input-events))
             calls (gen/shuffle (mapcat (fn [n e]
@@ -113,17 +112,17 @@
                                                  (partial e unit/unit)))
                                        ns
                                        input-events))]
-    (gen/tuple (gen/return fmapped-events)
-               (gen/return (apply m/<> fmapped-events))
+    (gen/tuple (gen/return input-events)
+               (gen/return (apply m/<> input-events))
                (gen/return (partial run-calls! calls)))))
 
 (clojure-test/defspec
   event-<>
   test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all [[fmapped-events mappended-event call] <>]
+  (test-helpers/restart-for-all [[input-events mappended-event call] <>]
                                 (frp/activate)
                                 (call)
-                                (->> fmapped-events
+                                (->> input-events
                                      (map deref)
                                      (apply event/merge-occs)
                                      (last-= @mappended-event))))
