@@ -52,8 +52,18 @@
   (let [past (time/now)]
     [past (get-new-time past)]))
 
+(declare event?)
+
 (aid/defcurried set-occs
                 [occs id network]
+                (run! #(assert (or (-> %
+                                       tuple/snd
+                                       event?
+                                       not)
+                                   (-> %
+                                       tuple/fst
+                                       #{time/epoch (:time network)})))
+                      occs)
                 (s/setval [:occs id s/END] occs network))
 
 (defn modify-network!
@@ -132,6 +142,9 @@
     (str "#[event " id "]")))
 
 (util/make-printable Event)
+
+(def event?
+  (partial instance? Event))
 
 (def parse-keyword
   (comp #?(:clj  read-string
@@ -276,15 +289,6 @@
 (aid/defcurried
   delay-sync
   [parent-id child-id network]
-  (assert (or (->> network
-                   (get-occs parent-id)
-                   empty?)
-              (every? (comp (aid/build or
-                                       zero?
-                                       (partial = @(:time network)))
-                            deref
-                            tuple/fst)
-                      (get-occs parent-id network))))
   (set-occs (->> network
                  (get-occs parent-id)
                  (delay-time-occs (:time network)))
