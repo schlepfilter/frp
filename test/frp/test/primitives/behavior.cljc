@@ -52,46 +52,47 @@
                                   (run! e as)
                                   (= @b (last occurrences)))))
 
-(def behavior->>=
-  ;TODO refactor
-  (gen/let [probabilities (gen/vector test-helpers/probability 2)
-            [[input-outer-event input-inner-event]
-             [fmapped-outer-event fmapped-inner-event]]
-            (test-helpers/events-tuple probabilities)
-            outer-any test-helpers/any-equal
-            outer-behavior (gen/elements [(frp/stepper outer-any
-                                                       fmapped-outer-event)
-                                          frp/time])
-            inner-any test-helpers/any-equal
-            f (gen/elements [frp/behavior
-                             (constantly (frp/stepper inner-any
-                                                      fmapped-inner-event))
-                             (constantly frp/time)])
-            [input-outer-anys input-inner-anys]
-            (gen/vector (gen/vector test-helpers/any-equal) 2)
-            calls (gen/shuffle (concat (map (fn [a]
-                                              #(input-outer-event a))
-                                            input-outer-anys)
-                                       (map (fn [a]
-                                              #(input-inner-event a))
-                                            input-inner-anys)))
-            invocations (gen/vector gen/boolean (count calls))]
-    (gen/tuple (gen/return outer-behavior)
-               (gen/return f)
-               (gen/return (partial doall (map (fn [invocation call]
-                                                 (if invocation
-                                                   (call)))
-                                               invocations
-                                               calls))))))
+(def any-behavior
+  (gen/let [a test-helpers/any-equal
+            e test-helpers/any-event]
+    (gen/one-of [(gen/return frp/time)
+                 (-> a
+                     frp/behavior
+                     gen/return)
+                 (gen/return (frp/stepper a e))])))
+
+(defn get-behaviors
+  [es]
+  (gen/let [bs (gen/sized (partial gen/vector any-behavior))
+            as (gen/vector test-helpers/any-equal (count es))]
+    (gen/shuffle (concat bs (map frp/stepper as es)))))
+
+(def behavior-join
+  (gen/let [probabilities* (test-helpers/probabilities 1)
+            inner-events (gen/return (test-helpers/get-events probabilities*))
+            as (gen/vector test-helpers/any-equal (count inner-events))
+            [inner-behavior & _ :as inner-behaviors]
+            (get-behaviors inner-events)
+            ;TODO generate a behavior with pure
+            outer-event (gen/return (frp/event))
+            ;TODO create a behavior with pure
+            outer-behavior (gen/return (frp/stepper inner-behavior outer-event))
+            ;TODO shuffle calls
+            calls (gen/return (concat (map partial inner-events as)
+                                      (map #(partial outer-event %)
+                                           inner-behaviors)))]
+    (gen/tuple (gen/return inner-behaviors)
+               (gen/return outer-behavior)
+               (gen/return calls))))
 
 (clojure-test/defspec
-  behavior->>=-identity
+  behavior-join-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all
-    [[outer-behavior get-behavior call] behavior->>=]
-    (let [bound-behavior (aid/>>= outer-behavior get-behavior)]
+    [[inner-behaviors outer-behavior calls] (gen/no-shrink behavior-join)]
+    (let [joined-behavior (m/join outer-behavior)]
       (frp/activate)
-      (call)
-      (= @bound-behavior @(get-behavior @outer-behavior)))))
+      (test-helpers/run-calls! calls)
+      (= @joined-behavior @(last inner-behaviors)))))
 
 ;TODO test time-transform

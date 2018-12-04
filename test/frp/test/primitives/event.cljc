@@ -65,9 +65,6 @@
                                               (m/pure a)))
                                    (tuple/tuple time/epoch a))))
 
-(def run-calls!
-  (partial run! aid/funcall))
-
 (def event-join
   ;TODO refactor
   ;TODO generate an event with pure
@@ -97,7 +94,7 @@
     [[outer-event inner-events calls] event-join]
     (let [joined-event (m/join outer-event)]
       (frp/activate)
-      (run-calls! calls)
+      (test-helpers/run-calls! calls)
       (last-= (->> inner-events
                    (map deref)
                    (reduce event/merge-occs []))
@@ -125,7 +122,7 @@
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all [[input-events mappended-event calls] <>]
                                 (frp/activate)
-                                (run-calls! calls)
+                                (test-helpers/run-calls! calls)
                                 (->> input-events
                                      (map deref)
                                      (apply event/merge-occs)

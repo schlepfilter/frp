@@ -1,5 +1,6 @@
 (ns frp.test.helpers
-  (:require [aid.unit :as unit]
+  (:require [aid.core :as aid]
+            [aid.unit :as unit]
             [cats.core :as m]
             [clojure.test.check.generators :as gen :include-macros true]
             [clojure.test.check.properties :as prop]
@@ -135,3 +136,6 @@
     (let [e (frp/event)]
       #(dotimes [_ n]
          (e unit/unit)))))
+
+(def run-calls!
+  (partial run! aid/funcall))
