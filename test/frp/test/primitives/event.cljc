@@ -88,7 +88,7 @@
   event-join-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all
-    [[outer-event inner-events call] (gen/no-shrink event-join)]
+    [[outer-event inner-events call] event-join]
     (let [joined-event (m/join outer-event)]
       (frp/activate)
       (call)
