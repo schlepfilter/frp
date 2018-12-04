@@ -67,6 +67,7 @@
 
 (def event-join
   ;TODO refactor
+  ;TODO consider the possibilities of outer-event having an initial event
   (gen/let [outer-event test-helpers/mempty-event
             probabilities* (test-helpers/probabilities 2)
             inner-events (-> probabilities*
