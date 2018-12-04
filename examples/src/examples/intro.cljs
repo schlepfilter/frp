@@ -3,6 +3,7 @@
             [aid.core :as aid :include-macros true]
             [aid.unit :as unit]
             [ajax.core :refer [GET POST]]
+            [cats.core :as m]
             [com.rpl.specter :as s]
             [frp.clojure.core :as core]
             [frp.core :as frp]))
@@ -61,7 +62,7 @@
        (quot user-number)
        (range 0 user-number)
        (map (fn [click-count offset]
-              (aid/<$> (partial + offset) click-count))
+              (m/<$> (partial + offset) click-count))
             closing-counts)))
 
 (def users
@@ -97,16 +98,16 @@
                "refresh"]]]))
 
 (def intro
-  (aid/<$> intro-component users))
+  (m/<$> intro-component users))
 
 (def endpoint
   "https://api.github.com/users")
 
 (def option
-  (aid/<$> (partial assoc-in
-                    {:handler (comp response
-                                    walk/keywordize-keys)}
-                    [:params :since])
-           beginning))
+  (m/<$> (partial assoc-in
+                  {:handler (comp response
+                                  walk/keywordize-keys)}
+                  [:params :since])
+         beginning))
 
 (frp/on (partial GET endpoint) option)

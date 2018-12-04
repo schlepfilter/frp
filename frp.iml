@@ -15,7 +15,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Leiningen: aid:0.1.1" level="project" />
+    <orderEntry type="library" name="Leiningen: aid:0.1.2" level="project" />
     <orderEntry type="library" name="Leiningen: args4j:2.0.26" level="project" />
     <orderEntry type="library" name="Leiningen: aysylu/loom:1.0.2" level="project" />
     <orderEntry type="library" name="Leiningen: binaryage/devtools:0.9.10" level="project" />
@@ -89,7 +89,7 @@
     <orderEntry type="library" name="Leiningen: org.mozilla/rhino:1.7R5" level="project" />
     <orderEntry type="library" name="Leiningen: org.msgpack/msgpack:0.6.12" level="project" />
     <orderEntry type="library" name="Leiningen: org.ow2.asm/asm-all:4.2" level="project" />
-    <orderEntry type="library" name="Leiningen: potemkin:0.4.3" level="project" />
+    <orderEntry type="library" name="Leiningen: potemkin:0.4.5" level="project" />
     <orderEntry type="library" name="Leiningen: riddley:0.1.12" level="project" />
     <orderEntry type="library" name="Leiningen: ring-cors:0.1.12" level="project" />
     <orderEntry type="library" name="Leiningen: ring/ring-codec:1.0.1" level="project" />

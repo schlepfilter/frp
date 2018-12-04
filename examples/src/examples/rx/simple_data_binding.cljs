@@ -1,5 +1,6 @@
 (ns examples.rx.simple-data-binding
   (:require [aid.core :as aid]
+            [cats.core :as m]
             [frp.core :as frp]))
 
 (defn partial-name
@@ -37,4 +38,4 @@
     (frp/stepper "" last-name)))
 
 (def simple-data-binding
-  (aid/<$> simple-data-binding-component full-name))
+  (m/<$> simple-data-binding-component full-name))

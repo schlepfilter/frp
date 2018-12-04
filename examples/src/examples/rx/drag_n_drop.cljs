@@ -1,6 +1,7 @@
 (ns examples.rx.drag-n-drop
   (:require [aid.core :as aid]
             [aid.unit :as unit]
+            [cats.core :as m]
             [frp.clojure.core :as core]
             [frp.core :as frp]
             [frp.window :as window]))
@@ -13,20 +14,20 @@
   (frp/event))
 
 (def drag
-  (->> (aid/<> (aid/<$> (constantly true) mousedown)
-               (aid/<$> (constantly false) window/mouseup))
+  (->> (m/<> (m/<$> (constantly true) mousedown)
+             (m/<$> (constantly false) window/mouseup))
        (frp/stepper false)))
 
 (def movement
   (->> drag
        (frp/snapshot window/mousemove)
        (core/filter second)
-       (aid/<$> first)))
+       (m/<$> first)))
 
 (def get-one-dimension
   (comp (partial frp/stepper 0)
         core/+
-        (partial (aid/flip aid/<$>) movement)))
+        (partial (aid/flip m/<$>) movement)))
 
 (def left
   (get-one-dimension :movement-x))
@@ -62,4 +63,4 @@
    [:p "Example to show coordinating events to perform drag and drop"]])
 
 (def drag-n-drop
-  (aid/<$> drag-n-drop-component origin))
+  (m/<$> drag-n-drop-component origin))
