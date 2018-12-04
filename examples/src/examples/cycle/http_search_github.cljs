@@ -45,7 +45,7 @@
        (core/remove empty?)
        (m/<$> (partial assoc-in
                        {:handler (comp response
-                                         walk/keywordize-keys)}
+                                       walk/keywordize-keys)}
                        [:params :q]))))
 
 (frp/on (partial GET endpoint) option)
