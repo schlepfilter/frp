@@ -372,6 +372,7 @@
           (cons (add-edge (:id %)))
           event*)
     protocols/Semigroup
+    ;TODO possibly make mappend multi-arity
     (-mappend [_ left-event right-event]
               (-> (modify-<> (:id left-event)
                              (:id right-event))
