@@ -1,6 +1,5 @@
 (ns ^:figwheel-always frp.test.core
   (:require [cljs.test :refer-macros [run-all-tests]]
-            [frp.test.derived]
             [frp.test.io]
             [frp.test.location]
             [frp.test.primitives.behavior]
