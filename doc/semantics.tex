@@ -8,7 +8,7 @@
 \newcommand{\any}[3]{&\ \textit{#1}\ (#2 \rightarrow #3)}
 \begin{document}
 \begin{align*}
-  \mathbf{type}\ E_a = [(\hat{T}, a)] \text{ -- for non-decreasing times where a is not } E_a
+  \mathbf{type}\ E_a = [(\hat{T}, a)] \text{ -- for non-decreasing times where } a \text{ is not } E_a
 \end{align*}
 \begin{align*}
   \mathbf{type}\ E_{E_a} = [(\hat{T_{outer}}, [\hat{T_{inner}}, a])] \text{ -- for non-decreasing times where } \hat{T_{outer}} \leq \hat{T_{inner}}
@@ -38,17 +38,17 @@
 \end{align*}
 \begin{align*}
   %TODO add the 3 arity version of transduce
-  transduce : Xform \rightarrow (a \rightarrow b \rightarrow a) \rightarrow a \rightarrow Event\ b \rightarrow Event\ a
+  transduce :: Xform \rightarrow (a \rightarrow b \rightarrow a) \rightarrow a \rightarrow Event\ b \rightarrow Event\ a
 \end{align*}
 \begin{align*}
   &occs\ (transduce\ xform\ f\ a\ e)\\
   &\quad= scanl\ (liftA2\ f)\ a\ \$\ mapMaybe\ (unreduced\ .\ (xform\ (\backslash\_\ x\rightarrow just\ x))\ nothing)\ \$\ occs\ e
 \end{align*}
 \begin{align*}
-  >>=\ : Behavior\ a \rightarrow f \rightarrow Behavior\ b
+  join_B :: Behavior\ (Behavior\ a) \rightarrow Behavior\ a
 \end{align*}
 \begin{align*}
-  at\ \$>>= b\ f =\backslash t \rightarrow f\ (b\ `at` \ t)\ `at` \ t
+  at\ \$join\ b =\backslash t \rightarrow (b\ `at` \ t)\ `at` \ t
 \end{align*}
 %TODO add toTime and fromTime
 \begin{align*}
@@ -59,7 +59,7 @@
 \end{align*}
 \begin{align*}
   &\mathbf{class}\ Entity\ e\ \mathbf{where}\\
-  &\quad on : (a\rightarrow IO\ ())\rightarrow e \rightarrow IO\ ()
+  &\quad on :: (a\rightarrow IO\ ())\rightarrow e \rightarrow IO\ ()
 \end{align*}
 \begin{align*}
   &\mathbf{instance_{sem}}\ Entity\ (Event\ a)\ \mathbf{where}\\
