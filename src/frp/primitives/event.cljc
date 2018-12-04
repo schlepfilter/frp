@@ -472,7 +472,9 @@
                    (if (= rate #?(:clj  Double/POSITIVE_INFINITY
                                   :cljs js/Number.POSITIVE_INFINITY))
                      aid/nop
-                     #?(:clj  (chime/chime-at (get-periods rate) handle)
+                     #?(:clj  (-> rate
+                                  get-periods
+                                  (chime/chime-at handle))
                         :cljs (->> (js/setInterval handle rate)
                                    (partial js/clearInterval))))))
    (swap! network-state (partial s/setval* :active true))
