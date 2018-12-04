@@ -76,8 +76,7 @@
             probabilities* (test-helpers/probabilities 2)
             inner-input-events
             (gen/return (test-helpers/get-events probabilities*))
-            ;;TODO generalize gen/uuid
-            input-event-anys (gen/vector gen/uuid
+            input-event-anys (gen/vector test-helpers/any-equal
                                          (count inner-input-events))
             outer-calls (gen/shuffle (map #(partial outer-input-event %)
                                           inner-input-events))
