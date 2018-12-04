@@ -90,7 +90,7 @@
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all
     [[outer-event inner-events call] (gen/no-shrink event-join)]
-    (let [joined-event (event/join outer-event)]
+    (let [joined-event (m/join outer-event)]
       (frp/activate)
       (call)
       (last-= (->> inner-events

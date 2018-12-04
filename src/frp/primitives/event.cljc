@@ -312,12 +312,6 @@
                        ((make-get-occs-or-latests initial) parent-id network))
                   network))
 
-(def join
-  #(->> (modify-join (:id %))
-        make-set-modify-modify
-        (cons (add-edge (:id %)))
-        event*))
-
 (defn merge-one
   [parent merged]
   (s/setval s/END [(first parent)] merged))
@@ -364,41 +358,32 @@
   #(event* []))
 
 (def context
-  (reify
-    protocols/Context
-    protocols/Functor
-    (-fmap [_ f fa]
+  (helpers/reify-monad
+    (fn [f fa]
       (->> fa
            :id
            (modify-<$> f)
            make-set-modify-modify
            (cons (add-edge (:id fa)))
            event*))
-    protocols/Applicative
-    (-pure [_ v]
-      (pure v))
-    (-fapply [_ fab fa]
-      (aid/ap fab fa))
-    protocols/Monad
-    (-mreturn [_ a]
-      (ctx/with-context context (m/pure a)))
-    (-mbind [_ ma f]
-      (->> ma
-           (m/<$> f)
-           join))
+    pure
+    #(->> (modify-join (:id %))
+          make-set-modify-modify
+          (cons (add-edge (:id %)))
+          event*)
     protocols/Semigroup
     (-mappend [_ left-event right-event]
-      (-> (modify-<> (:id left-event)
-                     (:id right-event))
-          make-set-modify-modify
-          (concat (map (comp add-edge
-                             :id)
-                       [left-event right-event]))
-          event*))
+              (-> (modify-<> (:id left-event)
+                             (:id right-event))
+                  make-set-modify-modify
+                  (concat (map (comp add-edge
+                                     :id)
+                               [left-event right-event]))
+                  event*))
     ;TODO delete Monoid
     protocols/Monoid
     (-mempty [_]
-      (mempty))))
+             (mempty))))
 
 (defn get-elements
   [step! id initial network]
