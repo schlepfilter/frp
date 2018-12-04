@@ -64,11 +64,10 @@
                        f))))
     (comp behavior*
           constantly)
-    (fn [ma]
-      (behavior* (fn [t]
-                   (-> ma
-                       (get-value t @event/network-state)
-                       (get-value t @event/network-state)))))))
+    #(behavior* (fn [t]
+                  (-> %
+                      (get-value t @event/network-state)
+                      (get-value t @event/network-state))))))
 
 (defn stop
   []
