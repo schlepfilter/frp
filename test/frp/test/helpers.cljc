@@ -80,11 +80,6 @@
                    (partial + n))))
 
 (def mempty-event
-  (gen/fmap (fn [_]
-              (frp/event))
-            (gen/return unit/unit)))
-
-(def any-event
   ;gen/fmap ensures a new event is returned
   ;(gen/sample (gen/return (rand)) 2)
   ;=> (0.7306051862977597 0.7306051862977597)
@@ -92,9 +87,15 @@
   ;                      (gen/return 0))
   ;            2)
   ;=> (0.8163040448517938 0.8830449199816961)
+  (gen/fmap (fn [_]
+              (frp/event))
+            (gen/return unit/unit)))
+
+(def any-event
   (gen/let [a any-equal]
-    (gen/one-of [mempty-event
-                 (gen/return (frp/event a))])))
+    (gen/one-of [mempty-event (-> a
+                                  frp/event
+                                  gen/return)])))
 
 (defn conj-event
   [coll probability*]
