@@ -37,9 +37,9 @@
 
 (def valid-number
   ((aid/lift-a (fn [relative-number* total-number]
-                 (if (zero? total-number)
-                   0
-                   (mod relative-number* total-number))))
+                 (aid/if-else zero?
+                              (partial mod relative-number*)
+                              total-number)))
     (frp/stepper 0 relative-number)
     (m/<$> count suggestions)))
 
