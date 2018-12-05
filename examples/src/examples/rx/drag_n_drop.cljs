@@ -35,7 +35,7 @@
        initialize))
 
 (defn drag-n-drop-component
-  [{:keys [left top]} height]
+  [origin* height]
   [:div {:on-drop      #(drop* {:page-x (.-pageX %)
                                 :page-y (.-pageY %)})
          :on-drag-over #(.preventDefault %)
@@ -44,20 +44,19 @@
                         :height   height
                         :width    "100%"}}
    [:div {:draggable     true
-          :on-drag-start #(drag-start {:left   left
-                                       :page-x (.-pageX %)
-                                       :page-y (.-pageY %)
-                                       :top    top})
-          :style         {:background-image    "url(/img/logo.png)"
-                          :background-repeat   "no-repeat"
-                          :background-position "center"
-                          :background-color    black
-                          :color               white
-                          :height              200
-                          :left                left
-                          :position            "absolute"
-                          :top                 top
-                          :width               200}}
+          :on-drag-start #(->> {:page-x (.-pageX %)
+                                :page-y (.-pageY %)}
+                               (merge origin*)
+                               (drag-start))
+          :style         (merge origin*
+                                {:background-image    "url(/img/logo.png)"
+                                 :background-repeat   "no-repeat"
+                                 :background-position "center"
+                                 :background-color    black
+                                 :color               white
+                                 :height              200
+                                 :position            "absolute"
+                                 :width               200})}
     "Drag Me!"]
    [:h1 "Drag and Drop Example"]
    [:p "Example to show coordinating events to perform drag and drop"]])
