@@ -45,7 +45,8 @@
     (m/<$> count suggestions)))
 
 (def completion
-  (->> valid-number ((aid/lift-a nth) suggestions)
+  (->> valid-number
+       ((aid/lift-a nth) suggestions)
        (frp/snapshot enter)
        (m/<$> second)))
 
