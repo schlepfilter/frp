@@ -38,7 +38,7 @@
 
 (defn redef-listen
   [e f]
-  (browser/redef e)
+  (browser/redef-event e)
   (-> e
       :id
       name

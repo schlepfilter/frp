@@ -2,7 +2,7 @@
   (:require [frp.primitives.behavior :as behavior]
             [frp.derived :as derived]))
 
-(def redef
+(def redef-event
   #(behavior/redef % (derived/event)))
 
 

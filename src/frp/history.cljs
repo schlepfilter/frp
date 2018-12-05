@@ -7,7 +7,7 @@
   (event/->Event ::pushstate))
 
 (behavior/register
-  (browser/redef pushstate))
+  (browser/redef-event pushstate))
 
 (defn push-state
   [state title url-string]
