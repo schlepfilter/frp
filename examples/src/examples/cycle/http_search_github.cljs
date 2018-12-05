@@ -21,10 +21,9 @@
   [users*]
   [:div
    [:label "Search:"]
-   [:input {:on-change (fn [event*]
-                         (-> event*
-                             .-target.value
-                             term))
+   [:input {:on-change #(-> %
+                            .-target.value
+                            term)
             :type      "text"}]
    (->> users*
         (map (fn [user*]

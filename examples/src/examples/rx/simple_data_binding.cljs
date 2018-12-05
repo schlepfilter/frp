@@ -7,10 +7,9 @@
   [{:keys [event label]}]
   [:div
    [:label label]
-   [:input {:on-change   (fn [event*]
-                           (-> event*
-                               .-target.value
-                               event))
+   [:input {:on-change   #(-> %
+                              .-target.value
+                              event)
             :placeholder (str "Enter " label "...")}]])
 
 (def first-name

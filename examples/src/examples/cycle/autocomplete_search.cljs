@@ -52,14 +52,12 @@
 
 (defn query-input-component
   [query*]
-  [:input {:on-change   (fn [event*]
-                          (-> event*
-                              .-target.value
-                              typing))
-           :on-key-down (fn [event*]
-                          (-> event*
-                              .-key
-                              key-down))
+  [:input {:on-change   #(-> %
+                             .-target.value
+                             typing)
+           :on-key-down #(-> %
+                             .-key
+                             key-down)
            :type        "text"
            :style       {:width "100%"}
            :value       query*}])

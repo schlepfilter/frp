@@ -23,10 +23,9 @@
   [:div "Weight " (str weight) "kg"
    [:input {:max       140
             :min       40
-            :on-change (fn [event*]
-                         (-> event*
-                             .-target.value
-                             weight-event))
+            :on-change #(-> %
+                            .-target.value
+                            weight-event)
             :type      "range"
             :value     weight}]])
 
@@ -35,10 +34,9 @@
   [:div "Height " (str height) "cm"
    [:input {:max       210
             :min       140
-            :on-change (fn [event*]
-                         (-> event*
-                             .-target.value
-                             height-event))
+            :on-change #(-> %
+                           .-target.value
+                           height-event)
             :type      "range"
             :value     height}]])
 
