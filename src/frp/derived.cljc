@@ -16,45 +16,6 @@
   ([a]
    (event/pure a)))
 
-(aid/defcurried add-edges
-                [parents child network]
-                (helpers/call-functions (map ((aid/flip event/add-edge) child)
-                                             parents)
-                                        network))
-
-(defn get-occs-or-latests-coll
-  [initial ids network]
-  (map (partial (aid/flip (event/make-get-occs-or-latests initial)) network)
-       ids))
-
-(defn make-combine-occs-or-latests
-  [f]
-  (comp (aid/build tuple/tuple
-                   (comp tuple/fst first)
-                   (comp (partial apply f)
-                         (partial map tuple/snd)))
-        vector))
-
-(defn get-combined-occs
-  [f parents initial network]
-  (apply (partial map (make-combine-occs-or-latests f))
-         (get-occs-or-latests-coll initial parents network)))
-
-(aid/defcurried modify-combine
-                [f parents initial child network]
-                (event/set-occs (get-combined-occs f parents initial network)
-                                child
-                                network))
-
-(defn combine
-  [f & parent-events]
-  ((aid/build (comp event/event*
-                    cons)
-              add-edges
-              (comp event/make-set-modify-modify
-                    (modify-combine f)))
-    (map :id parent-events)))
-
 (def behavior?
   (partial instance? frp.primitives.behavior.Behavior))
 

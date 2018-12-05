@@ -36,9 +36,6 @@
 (def on
   io/on)
 
-(def combine
-  derived/combine)
-
 (defmacro transparent
   [expr]
   `(derived/transparent ~expr))
