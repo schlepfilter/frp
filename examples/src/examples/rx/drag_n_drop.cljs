@@ -16,10 +16,8 @@
   (frp/event))
 
 (def initialize
-  (partial frp/stepper (->> 0
-                            repeat
-                            (interleave #{:left :page-x :page-y :top})
-                            (apply array-map))))
+  (partial frp/stepper
+           (s/setval (s/multi-path :left :page-x :page-y :top) 0 {})))
 
 (def origin
   (->> drag-start
