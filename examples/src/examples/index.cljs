@@ -35,8 +35,7 @@
           route-keywords))
 
 (def route
-  ["/" (merge {"" :index}
-              example-route)])
+  ["/" (merge {"" :index} example-route)])
 
 (defn example-component
   [path]
