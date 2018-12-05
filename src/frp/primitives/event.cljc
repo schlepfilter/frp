@@ -121,7 +121,7 @@
     ;e stands for an event, and a stands for any as in Push-Pull Functional Reactive Programming.
     (when (:active @network-state)
       (let [[past current] (get-times)]
-        ;(garbage-collect!)
+        (garbage-collect!)
         (reset! network-state
                 (modify-network! (tuple/tuple past a)
                                  id
