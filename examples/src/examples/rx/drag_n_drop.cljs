@@ -46,7 +46,7 @@
           :on-drag-start #(->> {:page-x (.-pageX %)
                                 :page-y (.-pageY %)}
                                (merge origin*)
-                               (drag-start))
+                               drag-start)
           :style         (merge origin*
                                 {:background-image    "url(/img/logo.png)"
                                  :background-repeat   "no-repeat"
