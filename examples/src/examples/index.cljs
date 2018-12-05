@@ -29,9 +29,8 @@
 (def route-keywords
   (keys route-function))
 
-(defn unkebab
-  [s]
-  (str/replace s #"-" ""))
+(def unkebab
+  #(str/replace % #"-" ""))
 
 (def example-route
   (zipmap (map (comp unkebab
