@@ -14,6 +14,7 @@
 (defn counter-component
   [total]
   [:div
+   ;TODO make event accept zero argument
    [:button {:on-click #(increment unit/unit)}
     "Increment"]
    [:button {:on-click #(decrement unit/unit)}
