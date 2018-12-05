@@ -1,7 +1,6 @@
 (ns examples.index
   (:require [aid.core :as aid]
             [bidi.bidi :as bidi]
-            [clojure.string :as str]
             [com.rpl.specter :as s]
             [examples.cycle.autocomplete-search :as autocomplete-search]
             [examples.cycle.bmi-naive :as bmi-naive]
@@ -29,12 +28,8 @@
 (def route-keywords
   (keys route-function))
 
-(def unkebab
-  #(str/replace % #"-" ""))
-
 (def example-route
-  (zipmap (map (comp unkebab
-                     (partial (aid/flip subs) 1)
+  (zipmap (map (comp (partial (aid/flip subs) 1)
                      str)
                route-keywords)
           route-keywords))
