@@ -11,12 +11,6 @@
 (def mouseup
   (event/->Event ::mouseup))
 
-(def dragstart
-  (event/->Event ::dragstart))
-
-(def drop
-  (event/->Event ::drop))
-
 (def popstate
   (event/->Event ::popstate))
 
@@ -61,14 +55,4 @@
 
   (add-remove-listener "mouseup"
                        (fn [_]
-                         (mouseup {})))
-
-  (add-remove-listener "dragstart"
-                       (fn [event*]
-                         (dragstart {:page-x (aget event* "pageX")
-                                     :page-y (aget event* "pageY")})))
-
-  (add-remove-listener "drop"
-                       (fn [event*]
-                         (drop {:page-x (aget event* "pageX")
-                                :page-y (aget event* "pageY")}))))
+                         (mouseup {}))))

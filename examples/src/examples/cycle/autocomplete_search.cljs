@@ -17,11 +17,10 @@
        (core/remove empty?)
        (m/=<< (comp (partial GET endpoint)
                     (partial assoc-in
-                             {:handler identity
-                              :params  {:action "opensearch"
-                                        ;https://www.mediawiki.org/wiki/Manual:CORS#Description
-                                        ;For anonymous requests, origin query string parameter can be set to * which will allow requests from anywhere.
-                                        :origin "*"}}
+                             {:params {:action "opensearch"
+                                       ;https://www.mediawiki.org/wiki/Manual:CORS#Description
+                                       ;For anonymous requests, origin query string parameter can be set to * which will allow requests from anywhere.
+                                       :origin "*"}}
                              [:params :search])))))
 
 (def key-down

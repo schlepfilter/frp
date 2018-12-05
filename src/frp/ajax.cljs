@@ -7,6 +7,7 @@
   #(fn [url option]
      (let [e (derived/event)]
        (->> option
+            (merge {:handler identity})
             (s/transform :handler (partial comp e))
             (% url))
        ;TODO garbage collect
