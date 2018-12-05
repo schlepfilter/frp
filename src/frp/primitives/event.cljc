@@ -96,10 +96,8 @@
            [:occs s/MAP-VALS]
            #(->> %
                  (filter (comp (conj (->> %
-                                          reverse
+                                          (take-last 1)
                                           (map tuple/fst)
-                                          dedupe
-                                          (take 2)
                                           set)
                                      time/epoch)
                                tuple/fst))
