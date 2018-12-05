@@ -11,6 +11,12 @@
 (def mouseup
   (event/->Event ::mouseup))
 
+(def dragstart
+  (event/->Event ::dragstart))
+
+(def drop
+  (event/->Event ::drop))
+
 (def popstate
   (event/->Event ::popstate))
 
@@ -40,10 +46,12 @@
   ;TODO define a macro to define behaviors and add and remove event listeners
   (add-remove-listener
     "popstate"
-    #(popstate {:location {:pathname js/location.pathname}}))
+    (fn [_]
+      (popstate {:location {:pathname js/location.pathname}})))
 
   (add-remove-listener "resize"
-                       #(resize {:inner-height js/innerHeight}))
+                       (fn [_]
+                         (resize {:inner-height js/innerHeight})))
 
   (add-remove-listener "mousemove"
                        (fn [event*]
@@ -52,5 +60,15 @@
                                      :movement-y (aget event* "movementY")})))
 
   (add-remove-listener "mouseup"
+                       (fn [_]
+                         (mouseup {})))
+
+  (add-remove-listener "dragstart"
                        (fn [event*]
-                         (mouseup {}))))
+                         (dragstart {:page-x (aget event* "pageX")
+                                     :page-y (aget event* "pageY")})))
+
+  (add-remove-listener "drop"
+                       (fn [event*]
+                         (drop {:page-x (aget event* "pageX")
+                                :page-y (aget event* "pageY")}))))

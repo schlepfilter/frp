@@ -1,54 +1,56 @@
 (ns examples.rx.drag-n-drop
-  (:require [aid.core :as aid]
-            [aid.unit :as unit]
-            [cats.core :as m]
-            [frp.clojure.core :as core]
+  (:require [cats.core :as m]
+            [com.rpl.specter :as s :include-macros true]
             [frp.core :as frp]
-            [frp.window :as window]))
+            [frp.window :as window]
+            [aid.core :as aid]))
 
 (def black "hsl(0, 0%, 0%)")
 
 (def white "hsl(0, 0%, 100%)")
 
-;TODO use draggable
-(def mousedown
+(def drag-start
   (frp/event))
 
-(def drag
-  (->> (m/<> (aid/<$ true mousedown)
-             (aid/<$ false window/mouseup))
-       (frp/stepper false)))
+(def drop*
+  (frp/event))
 
-(def movement
-  (->> drag
-       (frp/snapshot window/mousemove)
-       (core/filter second)
-       (m/<$> first)))
-
-(def get-one-dimension
-  (comp (partial frp/stepper 0)
-        core/+
-        (partial (aid/flip m/<$>) movement)))
-
-(def left
-  (get-one-dimension :movement-x))
-
-(def top
-  (get-one-dimension :movement-y))
+(def initialize
+  (partial frp/stepper {:left   0
+                        :page-x 0
+                        :page-y 0
+                        :top    0}))
 
 (def origin
-  ;TODO infer the number of arguments from fn
-  ((aid/lift-a (fn [left* top*]
-                 {:left left*
-                  :top  top*}))
-    left
-    top))
+  (->> drag-start
+       initialize
+       (frp/snapshot drop*)
+       (m/<$> (fn [[drop** drag-start*]]
+                (->> drag-start*
+                     (s/transform :left (partial + (- (:page-x drop**)
+                                                      (:page-x drag-start*))))
+                     (s/transform :top (partial + (- (:page-y drop**)
+                                                     (:page-y drag-start*)))))))
+       initialize))
 
 (defn drag-n-drop-component
-  [{:keys [left top]}]
-  [:div
-   [:div {:on-mouse-down (fn [_]
-                           (mousedown unit/unit))
+  [{:keys [left top]} height]
+  [:div {:on-drop      (fn [e]
+                         (drop* {:page-x (.-pageX e)
+                                 :page-y (.-pageY e)}))
+         :on-drag-over (fn [e]
+                         (.preventDefault e))
+         :style        {:position "absolute"
+                        :top      0
+                        :height   height
+                        :width    "100%"}}
+   [:div {:draggable     true
+          :on-drag-start (fn [e]
+                           (drag-start {:left   left
+                                        :page-x (.-pageX e)
+                                        :page-y (.-pageY e)
+                                        :top    top}))
+
           :style         {:background-image    "url(/img/logo.png)"
                           :background-repeat   "no-repeat"
                           :background-position "center"
@@ -64,4 +66,4 @@
    [:p "Example to show coordinating events to perform drag and drop"]])
 
 (def drag-n-drop
-  (m/<$> drag-n-drop-component origin))
+  ((aid/lift-a drag-n-drop-component) origin window/inner-height))
