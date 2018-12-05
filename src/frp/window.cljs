@@ -30,7 +30,7 @@
                     (js/removeEventListener event-type listener)))))
 
 (behavior/register
-  (io/redef-events [popstate resize mousemove mouseup])
+  (io/redef-events mousemove mouseup popstate resize)
 
   (behavior/redef inner-height
                   (->> resize

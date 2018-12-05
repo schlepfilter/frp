@@ -56,6 +56,7 @@
         get-effect!))
 
 (def redef-events
-  (partial run! (fn [from]
-                  (behavior/redef from
-                                  (derived/event)))))
+  (comp (partial run! (fn [from]
+                        (behavior/redef from
+                                        (derived/event))))
+        vector))
