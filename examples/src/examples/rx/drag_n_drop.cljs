@@ -1,9 +1,9 @@
 (ns examples.rx.drag-n-drop
-  (:require [cats.core :as m]
+  (:require [aid.core :as aid]
+            [cats.core :as m]
             [com.rpl.specter :as s :include-macros true]
             [frp.core :as frp]
-            [frp.window :as window]
-            [aid.core :as aid]))
+            [frp.window :as window]))
 
 (def black "hsl(0, 0%, 0%)")
 
