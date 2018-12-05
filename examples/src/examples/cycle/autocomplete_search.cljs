@@ -16,12 +16,10 @@
   (frp/event))
 
 (def enter
-  (core/filter (partial = "Enter")
-               key-down))
+  (core/filter (partial = "Enter") key-down))
 
 (def suggested
-  (m/<> (aid/<$ true response)
-        (aid/<$ false enter)))
+  (m/<> (aid/<$ true response) (aid/<$ false enter)))
 
 (def relative-number
   (->> (m/<> (->> key-down
