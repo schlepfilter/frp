@@ -1,16 +1,28 @@
 (ns examples.cycle.autocomplete-search
   (:require [aid.core :as aid]
-            [ajax.core :refer [GET]]
             [cats.core :as m]
             [com.rpl.specter :as s]
-            [frp.core :as frp]
-            [frp.clojure.core :as core]))
+            [frp.ajax :refer [GET]]
+            [frp.clojure.core :as core]
+            [frp.core :as frp]))
 
 (def typing
   (frp/event))
 
+(def endpoint
+  "https://en.wikipedia.org/w/api.php")
+
 (def response
-  (frp/event))
+  (->> typing
+       (core/remove empty?)
+       (m/=<< (comp (partial GET endpoint)
+                    (partial assoc-in
+                             {:handler identity
+                              :params  {:action "opensearch"
+                                        ;https://www.mediawiki.org/wiki/Manual:CORS#Description
+                                        ;For anonymous requests, origin query string parameter can be set to * which will allow requests from anywhere.
+                                        :origin "*"}}
+                             [:params :search])))))
 
 (def key-down
   (frp/event))
@@ -141,19 +153,3 @@
 
 (def autocomplete-search
   ((aid/lift-a autocomplete-search-component) query-input suggestion-list))
-
-(def endpoint
-  "https://en.wikipedia.org/w/api.php")
-
-(def option
-  (->> typing
-       (core/remove empty?)
-       (m/<$> (partial assoc-in
-                       {:handler response
-                        :params  {:action "opensearch"
-                                  ;https://www.mediawiki.org/wiki/Manual:CORS#Description
-                                  ;For anonymous requests, origin query string parameter can be set to * which will allow requests from anywhere.
-                                  :origin "*"}}
-                       [:params :search]))))
-
-(frp/on (partial GET endpoint) option)
