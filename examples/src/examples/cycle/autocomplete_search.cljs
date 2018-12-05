@@ -124,11 +124,11 @@
                        x]))
        (aid/if-else empty?
                     (partial s/transform*
-                             (s/srange number* (inc number*))
-                             (fn [[[_ m s]]]
-                               [[:li
-                                 (s/setval [:style :background] green m)
-                                 s]])))
+                             [(s/srange number* (inc number*)) s/ALL]
+                             (fn [[_ m s]]
+                               [:li
+                                (s/setval [:style :background] green m)
+                                s])))
        (concat [:ul
                 {:style    {:background    "white"
                             :border        border
