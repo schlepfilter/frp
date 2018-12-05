@@ -98,31 +98,28 @@
   ;https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/bufferwithcount.md
   ([size e]
    (buffer size size e))
-  ([size start e]
+  ([size skip e]
    (->> e
-        (core/reduce (fn [accumulation element]
-                       (s/setval s/END
-                                 [element]
-                                 (aid/if-then (comp (partial = size)
-                                                    count)
-                                              rest
-                                              accumulation)))
-                     (rest []))
-        (combine vector (core/count e))
-        (core/filter (fn [[n xs]]
-                       (and (= (count xs) size)
-                            (= (rem (- n size) start) 0))))
-        ;This is harder to read.
-        ;(core/filter (aid/build and
-        ;                        (comp (partial = size)
-        ;                              count
-        ;                              last)
-        ;                        (comp (partial = 0)
-        ;                              (partial (aid/flip rem) start)
-        ;                              (partial + size)
-        ;                              -
-        ;                              first)))
-        (m/<$> second))))
+        (core/reduce (fn [reduction element]
+                       (->> reduction
+                            (aid/if-then (comp zero?
+                                               (partial (aid/flip mod) skip)
+                                               :start)
+                                         (partial s/setval*
+                                                  [:occs
+                                                   s/AFTER-ELEM]
+                                                  []))
+                            (s/setval [:occs s/ALL s/AFTER-ELEM] element)
+                            (s/transform :occs
+                                         (partial remove (comp (partial < size)
+                                                               count)))
+                            (s/transform :start inc)))
+                     {:occs  []
+                      :start 0})
+        (m/<$> (comp first
+                     :occs))
+        (core/filter (comp (partial = size)
+                           count)))))
 
 (def mean
   (comp (m/<$> (partial apply /))
@@ -136,31 +133,3 @@
 (def switcher
   (comp m/join
         behavior/stepper))
-
-(defn buffer
-  ;TODO accept different types of arguments like http://reactivex.io/documentation/operators/buffer.html
-  ;https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/bufferwithcount.md
-  ([size e]
-   (buffer size size e))
-  ([size skip e]
-   (->> e
-        (core/reduce (fn [reduction element]
-                       (->> reduction
-                            (aid/if-then (comp zero?
-                                               (partial (aid/flip mod) skip)
-                                               :start)
-                                         (partial s/setval*
-                                                  [:occs
-                                                             s/AFTER-ELEM]
-                                                  []))
-                            (s/setval [:occs s/ALL s/AFTER-ELEM] element)
-                            (s/transform :occs
-                                         (partial remove (comp (partial < size)
-                                                                     count)))
-                            (s/transform :start inc)))
-                     {:occs  []
-                      :start 0})
-        (m/<$> (comp first
-                     :occs))
-        (core/filter (comp (partial = size)
-                           count)))))
