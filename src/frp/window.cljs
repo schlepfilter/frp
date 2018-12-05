@@ -6,6 +6,9 @@
             [frp.primitives.event :as event]
             [frp.browser :as browser]))
 
+(def dragstart
+  (event/->Event ::dragstart))
+
 (def drop
   (event/->Event ::drop))
 
@@ -41,15 +44,24 @@
       name
       (add-remove-listener f)))
 
+(defn get-coordinate
+  [event]
+  {:page-x (aget event "pageX")
+   :page-y (aget event "pageY")})
+
 (behavior/register
   (behavior/redef inner-height
                   (->> resize
                        (m/<$> :inner-height)
                        (behavior/stepper js/innerHeight)))
 
+  (redef-listen dragstart
+                (comp dragstart
+                      get-coordinate))
+
   (redef-listen drop
-                #(drop {:page-x (aget % "pageX")
-                        :page-y (aget % "pageY")}))
+                (comp drop
+                      get-coordinate))
 
   (redef-listen mousemove
                 ;(.-movementX %) is undefined in :advanced.

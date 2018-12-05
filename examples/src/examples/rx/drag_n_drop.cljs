@@ -1,7 +1,9 @@
 (ns examples.rx.drag-n-drop
   (:require [aid.core :as aid]
             [cats.core :as m]
+            [clojure.set :as set]
             [com.rpl.specter :as s :include-macros true]
+            [frp.clojure.core :as core]
             [frp.core :as frp]
             [frp.window :as window]))
 
@@ -9,26 +11,18 @@
 
 (def white "hsl(0, 0%, 100%)")
 
-(def drag-start
-  (frp/event))
-
 (def initialize
-  (partial frp/stepper
-           (s/setval (s/multi-path :left :page-x :page-y :top) 0 {})))
+  (partial frp/stepper (s/setval (s/multi-path :page-x :page-y) 0 {})))
 
 (def origin
-  (->> drag-start
+  (->> window/dragstart
        initialize
        (frp/snapshot window/drop)
-       (m/<$> #(->> %
-                    second
-                    (s/transform :left (partial + (->> %
-                                                       (map :page-x)
-                                                       (apply -))))
-                    (s/transform :top (partial + (->> %
-                                                      (map :page-y)
-                                                      (apply -))))))
-       initialize))
+       (m/<$> (partial apply merge-with -))
+       (core/reduce (partial merge-with +))
+       initialize
+       (m/<$> (partial (aid/flip set/rename-keys) {:page-x :left
+                                                   :page-y :top}))))
 
 (defn drag-n-drop-component
   [origin* height]
@@ -37,20 +31,16 @@
                         :top      0
                         :height   height
                         :width    "100%"}}
-   [:div {:draggable     true
-          :on-drag-start #(->> {:page-x (.-pageX %)
-                                :page-y (.-pageY %)}
-                               (merge origin*)
-                               drag-start)
-          :style         (merge origin*
-                                {:background-image    "url(/img/logo.png)"
-                                 :background-repeat   "no-repeat"
-                                 :background-position "center"
-                                 :background-color    black
-                                 :color               white
-                                 :height              200
-                                 :position            "absolute"
-                                 :width               200})}
+   [:div {:draggable true
+          :style     (merge origin*
+                            {:background-image    "url(/img/logo.png)"
+                             :background-repeat   "no-repeat"
+                             :background-position "center"
+                             :background-color    black
+                             :color               white
+                             :height              200
+                             :position            "absolute"
+                             :width               200})}
     "Drag Me!"]
    [:h1 "Drag and Drop Example"]
    [:p "Example to show coordinating events to perform drag and drop"]])
