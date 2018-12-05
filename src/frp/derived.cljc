@@ -125,9 +125,13 @@
         (m/<$> second))))
 
 (def mean
-  (aid/build (partial combine /)
-             core/+
-             core/count))
+  (comp (m/<$> (partial apply /))
+        (partial core/reduce
+                 (fn [reduction element]
+                   (->> reduction
+                        (s/transform s/FIRST (partial + element))
+                        (s/transform s/LAST inc)))
+                 [0 0])))
 
 (def switcher
   (comp m/join
