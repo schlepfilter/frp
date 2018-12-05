@@ -12,8 +12,8 @@
                  [reagent "0.8.1"]]
   :main ^:skip-aot examples.core
   :target-path "target/%s"
-  :plugins [[lein-ancient "0.6.10"]
-            [lein-cljsbuild "1.1.3"]]
+  :plugins [[lein-ancient "0.6.15"]
+            [lein-cljsbuild "1.1.7"]]
   :cljsbuild {:builds {:prod {:source-paths ["src"]
                               :compiler     {:output-to     "dist/js/main.js"
                                              :main          examples.core
