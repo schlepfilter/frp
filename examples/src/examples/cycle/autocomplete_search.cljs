@@ -32,7 +32,8 @@
        (frp/accum 0)))
 
 (def suggestions
-  (->> (m/<$> second response)
+  (->> response
+       (m/<$> second)
        (frp/stepper [])))
 
 (def valid-number
