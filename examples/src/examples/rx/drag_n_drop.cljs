@@ -14,8 +14,8 @@
   (frp/event))
 
 (def drag
-  (->> (m/<> (m/<$> (constantly true) mousedown)
-             (m/<$> (constantly false) window/mouseup))
+  (->> (m/<> (aid/<$ true mousedown)
+             (aid/<$ false window/mouseup))
        (frp/stepper false)))
 
 (def movement

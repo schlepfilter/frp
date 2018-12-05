@@ -20,15 +20,15 @@
                key-down))
 
 (def suggested
-  (m/<> (m/<$> (constantly true) response)
-        (m/<$> (constantly false) enter)))
+  (m/<> (aid/<$ true response)
+        (aid/<$ false enter)))
 
 (def relative-number
-  (->> (m/<> (m/<$> (constantly inc)
-                    (core/filter (partial = "ArrowDown") key-down))
-             (m/<$> (constantly dec)
-                    (core/filter (partial = "ArrowUp") key-down))
-             (m/<$> (constantly (constantly 0)) response))
+  (->> (m/<> (aid/<$ inc
+                     (core/filter (partial = "ArrowDown") key-down))
+             (aid/<$ dec
+                     (core/filter (partial = "ArrowUp") key-down))
+             (aid/<$ (constantly 0) response))
        (frp/accum 0)))
 
 (def suggestions
