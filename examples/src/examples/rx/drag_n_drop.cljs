@@ -7,9 +7,9 @@
             [frp.core :as frp]
             [frp.window :as window]))
 
-(def black "hsl(0, 0, 0)")
+(def black "black")
 
-(def white "hsl(0, 0, 100)")
+(def white "white")
 
 (def initialize
   (partial frp/stepper (s/setval (s/multi-path :page-x :page-y) 0 {})))
