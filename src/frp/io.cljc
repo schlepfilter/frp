@@ -54,9 +54,3 @@
         ((aid/curry 3 s/setval*) [:effects s/END])
         vector
         get-effect!))
-
-(def redef-events
-  (comp (partial run! (fn [from]
-                        (behavior/redef from
-                                        (derived/event))))
-        vector))
