@@ -65,32 +65,6 @@
   (aid/if-else behavior?
                behavior))
 
-(defn xor
-  ;TODO support variadic arguments
-  [p q]
-  (or (and p (not q))
-      (and (not p) q)))
-
-(aid/defcurried eventize
-                [e a]
-                ;TODO refactor
-                (aid/casep a
-                           event/event? a
-                           (aid/<$ a e)))
-
-(def has-event?
-  (partial some event/event?))
-
-(defn entitize
-  [arguments]
-  (map (if (has-event? arguments)
-         (->> arguments
-              (filter event/event?)
-              first
-              eventize)
-         behaviorize)
-       arguments))
-
 (def has-argument?
   (aid/build and
              seq?
@@ -101,12 +75,10 @@
    (do (defmacro transparent*
          [[f & more]]
          `(let [arguments# [~@more]]
-            (if (xor (has-event? arguments#)
-                     (some behavior? arguments#))
-              (apply (if (has-event? arguments#)
-                       (partial combine ~f)
-                       (aid/lift-a ~f))
-                     (entitize arguments#))
+            (if (some behavior? arguments#)
+              (->> arguments#
+                   (map behaviorize)
+                   (apply (aid/lift-a ~f)))
               (apply ~f arguments#))))
 
        (defmacro transparent
