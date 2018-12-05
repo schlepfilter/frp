@@ -23,15 +23,14 @@
   (->> drag-start
        initialize
        (frp/snapshot drop*)
-       (m/<$> (fn [events]
-                (->> events
-                     second
-                     (s/transform :left (partial + (->> events
-                                                        (map :page-x)
-                                                        (apply -))))
-                     (s/transform :top (partial + (->> events
-                                                       (map :page-y)
-                                                       (apply -)))))))
+       (m/<$> #(->> %
+                    second
+                    (s/transform :left (partial + (->> %
+                                                       (map :page-x)
+                                                       (apply -))))
+                    (s/transform :top (partial + (->> %
+                                                      (map :page-y)
+                                                      (apply -))))))
        initialize))
 
 (defn drag-n-drop-component
