@@ -3,7 +3,6 @@
             [cats.context :as ctx]
             [cats.core :as m]
             [com.rpl.specter :as s :include-macros true]
-            [frp.helpers :as helpers :include-macros true]
             [frp.clojure.core :as core]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]
