@@ -11,6 +11,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/dist/js" />
+      <excludeFolder url="file://$MODULE_DIR$/resources/public/js" />
       <excludeFolder url="file://$MODULE_DIR$/target/base+system+user+dev" />
       <excludeFolder url="file://$MODULE_DIR$/target/default" />
     </content>
