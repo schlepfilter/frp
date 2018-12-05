@@ -38,15 +38,6 @@
                        (behavior/stepper js/innerHeight)))
 
   ;TODO define a macro to define behaviors and add and remove event listeners
-  (add-remove-listener
-    :popstate
-    (fn [_]
-      (popstate {:location {:pathname js/location.pathname}})))
-
-  (add-remove-listener :resize
-                       (fn [_]
-                         (resize {:inner-height js/innerHeight})))
-
   (add-remove-listener :mousemove
                        (fn [event*]
                          ;(.-movementX event*) is undefined in :advanced.
@@ -55,4 +46,13 @@
 
   (add-remove-listener :mouseup
                        (fn [_]
-                         (mouseup {}))))
+                         (mouseup {})))
+
+  (add-remove-listener
+    :popstate
+    (fn [_]
+      (popstate {:location {:pathname js/location.pathname}})))
+
+  (add-remove-listener :resize
+                       (fn [_]
+                         (resize {:inner-height js/innerHeight}))))
