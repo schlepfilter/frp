@@ -1,9 +1,13 @@
 (ns frp.window
+  (:refer-clojure :exclude [drop])
   (:require [cats.core :as m]
             [com.rpl.specter :as s]
             [frp.primitives.behavior :as behavior :include-macros true]
             [frp.primitives.event :as event]
             [frp.browser :as browser]))
+
+(def drop
+  (event/->Event ::drop))
 
 (def mousemove
   (event/->Event ::mousemove))
@@ -42,6 +46,10 @@
                   (->> resize
                        (m/<$> :inner-height)
                        (behavior/stepper js/innerHeight)))
+
+  (redef-listen drop
+                #(drop {:page-x (aget % "pageX")
+                        :page-y (aget % "pageY")}))
 
   (redef-listen mousemove
                 ;(.-movementX %) is undefined in :advanced.

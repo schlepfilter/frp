@@ -12,9 +12,6 @@
 (def drag-start
   (frp/event))
 
-(def drop*
-  (frp/event))
-
 (def initialize
   (partial frp/stepper
            (s/setval (s/multi-path :left :page-x :page-y :top) 0 {})))
@@ -22,7 +19,7 @@
 (def origin
   (->> drag-start
        initialize
-       (frp/snapshot drop*)
+       (frp/snapshot window/drop)
        (m/<$> #(->> %
                     second
                     (s/transform :left (partial + (->> %
@@ -35,9 +32,7 @@
 
 (defn drag-n-drop-component
   [origin* height]
-  [:div {:on-drop      #(drop* {:page-x (.-pageX %)
-                                :page-y (.-pageY %)})
-         :on-drag-over #(.preventDefault %)
+  [:div {:on-drag-over #(.preventDefault %)
          :style        {:position "absolute"
                         :top      0
                         :height   height
