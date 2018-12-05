@@ -10,6 +10,7 @@
 
 (def white "hsl(0, 0%, 100%)")
 
+;TODO use draggable
 (def mousedown
   (frp/event))
 
