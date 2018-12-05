@@ -43,7 +43,6 @@
 
        (defmacro transparent
          [expr]
-         ;TODO use if-then
          (walk/postwalk (fn [x]
                           (aid/casep x
                                      has-argument? `(transparent* ~x)
