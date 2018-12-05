@@ -22,7 +22,7 @@
 
 (defn add-remove-listener
   [event-type listener]
-  (js/addEventListener event-type listener)
+  (js/addEventListener (name event-type) listener)
   (swap! event/network-state
          (partial s/setval*
                   :cancel
@@ -39,20 +39,20 @@
 
   ;TODO define a macro to define behaviors and add and remove event listeners
   (add-remove-listener
-    "popstate"
+    :popstate
     (fn [_]
       (popstate {:location {:pathname js/location.pathname}})))
 
-  (add-remove-listener "resize"
+  (add-remove-listener :resize
                        (fn [_]
                          (resize {:inner-height js/innerHeight})))
 
-  (add-remove-listener "mousemove"
+  (add-remove-listener :mousemove
                        (fn [event*]
                          ;(.-movementX event*) is undefined in :advanced.
                          (mousemove {:movement-x (aget event* "movementX")
                                      :movement-y (aget event* "movementY")})))
 
-  (add-remove-listener "mouseup"
+  (add-remove-listener :mouseup
                        (fn [_]
                          (mouseup {}))))
