@@ -35,22 +35,18 @@
 
 (defn drag-n-drop-component
   [{:keys [left top]} height]
-  [:div {:on-drop      (fn [e]
-                         (drop* {:page-x (.-pageX e)
-                                 :page-y (.-pageY e)}))
-         :on-drag-over (fn [e]
-                         (.preventDefault e))
+  [:div {:on-drop      #(drop* {:page-x (.-pageX %)
+                                :page-y (.-pageY %)})
+         :on-drag-over #(.preventDefault %)
          :style        {:position "absolute"
                         :top      0
                         :height   height
                         :width    "100%"}}
    [:div {:draggable     true
-          :on-drag-start (fn [e]
-                           (drag-start {:left   left
-                                        :page-x (.-pageX e)
-                                        :page-y (.-pageY e)
-                                        :top    top}))
-
+          :on-drag-start #(drag-start {:left   left
+                                       :page-x (.-pageX %)
+                                       :page-y (.-pageY %)
+                                       :top    top})
           :style         {:background-image    "url(/img/logo.png)"
                           :background-repeat   "no-repeat"
                           :background-position "center"
