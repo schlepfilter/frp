@@ -43,10 +43,11 @@
 
        (defmacro transparent
          [expr]
-         (walk/postwalk #(aid/casep %
-                                    has-argument? `(transparent* ~%)
-                                    %)
-                        (macroexpand expr)))))
+         (walk/postwalk
+           #(aid/casep %
+                       has-argument? `(transparent* ~(macroexpand %))
+                       %)
+           expr))))
 
 (def accum
   (partial core/reduce (aid/flip aid/funcall)))
