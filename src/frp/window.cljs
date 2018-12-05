@@ -44,10 +44,9 @@
                        (behavior/stepper js/innerHeight)))
 
   (redef-listen mousemove
-                (fn [event*]
-                  ;(.-movementX event*) is undefined in :advanced.
-                  (mousemove {:movement-x (aget event* "movementX")
-                              :movement-y (aget event* "movementY")})))
+                ;(.-movementX %) is undefined in :advanced.
+                #(mousemove {:movement-x (aget % "movementX")
+                             :movement-y (aget % "movementY")}))
 
   (redef-listen mouseup
                 (fn [_]
