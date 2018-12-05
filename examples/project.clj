@@ -15,7 +15,7 @@
   :plugins [[lein-ancient "0.6.15"]
             [lein-cljsbuild "1.1.7"]]
   :cljsbuild {:builds {:prod {:source-paths ["src"]
-                              :compiler     {:output-to     "dist/js/main.js"
+                              :compiler     {:output-to     "resources/js/main.js"
                                              :main          examples.core
                                              :optimizations :advanced}}}}
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.10"]
