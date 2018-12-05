@@ -21,7 +21,6 @@
                                :main          examples.core
                                :optimizations :advanced}}}}
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.10"]
-                                  [com.taoensso/encore "2.105.0"]
                                   [figwheel-sidecar "0.5.17"]
                                   [org.clojure/tools.namespace "0.2.11"]
                                   [spyscope "0.1.6"]]}})

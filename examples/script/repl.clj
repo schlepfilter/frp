@@ -1,7 +1,5 @@
 (ns repl
-  (:require [com.rpl.specter :as s]
-            [figwheel-sidecar.repl-api :as repl-api]
-            [taoensso.encore :as encore]))
+  (:require [figwheel-sidecar.repl-api :as repl-api]))
 
 (def app-build
   {:id           "app"
