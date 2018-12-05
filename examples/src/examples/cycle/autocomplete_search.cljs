@@ -24,10 +24,12 @@
         (aid/<$ false enter)))
 
 (def relative-number
-  (->> (m/<> (aid/<$ inc
-                     (core/filter (partial = "ArrowDown") key-down))
-             (aid/<$ dec
-                     (core/filter (partial = "ArrowUp") key-down))
+  (->> (m/<> (->> key-down
+                  (core/filter (partial = "ArrowDown"))
+                  (aid/<$ inc))
+             (->> key-down
+                  (core/filter (partial = "ArrowUp"))
+                  (aid/<$ dec))
              (aid/<$ (constantly 0) response))
        (frp/accum 0)))
 
