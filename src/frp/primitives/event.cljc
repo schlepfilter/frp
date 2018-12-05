@@ -121,13 +121,13 @@
     ;e stands for an event, and a stands for any as in Push-Pull Functional Reactive Programming.
     (when (:active @network-state)
       (let [[past current] (get-times)]
+        ;Not doing garbage collection is visibly slower.
         (garbage-collect!)
         (reset! network-state
                 (modify-network! (tuple/tuple past a)
                                  id
                                  @network-state))
         (run-network-state-effects!)
-        ;Not doing garbage collection is visibly slower.
         (->> (partial s/setval* :time current)
              (swap! network-state))
         (run-network-state-effects!))))
