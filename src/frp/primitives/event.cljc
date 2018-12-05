@@ -97,7 +97,8 @@
            #(->> %
                  (filter (comp (conj (->> %
                                           reverse
-                                          (partition-by tuple/fst)
+                                          (map tuple/fst)
+                                          dedupe
                                           (take 2)
                                           set)
                                      time/epoch)
