@@ -35,14 +35,13 @@
    [:input {:max       210
             :min       140
             :on-change #(-> %
-                           .-target.value
-                           height-event)
+                            .-target.value
+                            height-event)
             :type      "range"
             :value     height}]])
 
-(defn bmi-component
-  [bmi*]
-  [:h2 "BMI is " bmi*])
+(def bmi-component
+  (partial vector :h2 "BMI is "))
 
 (def bmi-naive
   (frp/transparent (vector :div
