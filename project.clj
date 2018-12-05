@@ -8,6 +8,7 @@
                  [org.clojure/clojurescript "1.10.439"]
                  [aid "0.1.2"]
                  [aysylu/loom "1.0.2"]
+                 [cljs-ajax "0.8.0"]
                  [clj-time "0.15.1"]
                  [com.andrewmcveigh/cljs-time "0.5.2"]
                  [com.rpl/specter "1.1.2"]
