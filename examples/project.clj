@@ -14,10 +14,12 @@
   :target-path "target/%s"
   :plugins [[lein-ancient "0.6.15"]
             [lein-cljsbuild "1.1.7"]]
-  :cljsbuild {:builds {:prod {:source-paths ["src"]
-                              :compiler     {:output-to     "resources/js/main.js"
-                                             :main          examples.core
-                                             :optimizations :advanced}}}}
+  :cljsbuild {:builds
+              {:prod
+               {:source-paths ["src"]
+                :compiler     {:output-to     "resources/public/js/main.js"
+                               :main          examples.core
+                               :optimizations :advanced}}}}
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.10"]
                                   [figwheel-sidecar "0.5.17"]
                                   [org.clojure/tools.namespace "0.2.11"]
