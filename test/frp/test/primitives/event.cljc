@@ -48,13 +48,14 @@
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all
     [input-event test-helpers/any-event
-     f (test-helpers/function test-helpers/any-equal)
+     ;TODO consider cases where f! has side effects
+     f! (test-helpers/function test-helpers/any-equal)
      as (gen/vector test-helpers/any-equal)]
-    (let [fmapped-event (m/<$> f input-event)]
+    (let [fmapped-event (m/<$> f! input-event)]
       (frp/activate)
       (run! input-event as)
       (last-= (map tuple/snd @fmapped-event)
-              (map f (concat (map tuple/snd @input-event) as))))))
+              (map f! (concat (map tuple/snd @input-event) as))))))
 
 (clojure-test/defspec
   pure-identity
