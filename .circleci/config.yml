@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/clojure:lein-2.7.1
+      - image: circleci/clojure:lein-2.8.1-node-browsers
     steps:
       - checkout
       - run: script/circleci.sh
