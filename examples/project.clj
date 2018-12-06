@@ -8,7 +8,7 @@
                  [reagent "0.8.1"]]
   :plugins [[lein-ancient "0.6.15"]
             [lein-cljsbuild "1.1.7"]]
-  :clean-targets ^{:protect false} ["resources/public/js"]
+  :clean-targets ^{:protect false} ["resources/public/js" :target-path]
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.10"]
                                   [figwheel-sidecar "0.5.17"]
                                   [org.clojure/tools.namespace "0.2.11"]
