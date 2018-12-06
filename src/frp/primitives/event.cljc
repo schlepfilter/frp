@@ -374,12 +374,6 @@
   [parent merged]
   (s/setval s/END [(first parent)] merged))
 
-;TODO delete this function
-(def get-first-time-number
-  (comp deref
-        tuple/fst
-        first))
-
 (defn merge-occs*
   [merged left right]
   (cond (empty? left) (s/setval s/END right merged)
