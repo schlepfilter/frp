@@ -29,6 +29,7 @@
   (keys route-function))
 
 (def example-route
+  ;TODO refactor this function
   (zipmap (map (comp (partial (aid/flip subs) 1)
                      str)
                route-keywords)
