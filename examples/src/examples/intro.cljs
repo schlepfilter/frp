@@ -82,7 +82,9 @@
 (defn handle-click
   [event*]
   (.preventDefault event*)
-  (response (repeat user-number {}))
+  (->> {}
+       (repeat user-number)
+       response)
   (->> (js/Math.random)
        (* 500)
        int
