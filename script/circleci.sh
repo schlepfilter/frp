@@ -7,4 +7,5 @@ cd .. &&
 lein test &&
 lein npm install &&
 #TODO test other environments
-lein doo chrome-headless test once
+lein doo chrome-headless test once &&
+lein cljsbuild once prod
