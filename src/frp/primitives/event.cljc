@@ -230,9 +230,9 @@
     get-latests))
 
 (aid/defcurried modify-<$>
-                [f parent-id initial child-id network]
+                [f! parent-id initial child-id network]
                 ;TODO refactor
-                (set-occs (mapv (partial m/<$> f)
+                (set-occs (mapv (partial m/<$> f!)
                                 ((make-get-occs-or-latests initial)
                                   parent-id
                                   network))
@@ -362,10 +362,10 @@
 
 (def context
   (helpers/reify-monad
-    (fn [f fa]
+    (fn [f! fa]
       (->> fa
            :id
-           (modify-<$> f)
+           (modify-<$> f!)
            make-set-modify-modify
            (cons (add-edge (:id fa)))
            event*))
