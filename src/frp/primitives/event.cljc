@@ -233,12 +233,13 @@
                 [f! parent-id initial child-id network]
                 ;TODO refactor
                 ;TODO consider cases where f! has side effects
-                (set-occs (mapv (partial m/<$> f!)
-                                ((make-get-occs-or-latests initial)
-                                  parent-id
-                                  network))
-                          child-id
-                          network))
+                (let [es (mapv (partial m/<$> f!)
+                               ((make-get-occs-or-latests initial)
+                                 parent-id
+                                 network))]
+                  (set-occs es
+                            child-id
+                            @network-state)))
 
 (defn make-call-once
   [id modify!]
