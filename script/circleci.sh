@@ -16,4 +16,6 @@ git checkout -- . &&
 lein clean &&
 lein cljsbuild once prod &&
 cd resources/public &&
+git add . &&
+git commit -m $CIRCLE_SHA1 &&
 git push origin master
