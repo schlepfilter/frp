@@ -40,6 +40,7 @@
 
 (defn example-component
   [path]
+  ;TODO refactor this component
   [:a {:href     path
        :on-click (fn [event*]
                    (.preventDefault event*)
