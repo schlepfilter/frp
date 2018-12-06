@@ -10,4 +10,8 @@ lein npm install &&
 lein doo chrome-headless test once &&
 lein install &&
 cd examples &&
+rm -rf resources/public &&
+git clone https://github.com/frpexamples/frpexamples.github.io.git resources/public &&
+git checkout -- . &&
+lein clean &&
 lein cljsbuild once prod
