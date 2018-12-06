@@ -2,7 +2,7 @@
   (:require [clojure.walk :as walk]
             [aid.core :as aid :include-macros true]
             [aid.unit :as unit]
-            [ajax.core :refer [GET POST]]
+            [frp.ajax :refer [GET]]
             [cats.core :as m]
             [com.rpl.specter :as s]
             [frp.clojure.core :as core]
@@ -37,11 +37,18 @@
 (def grey
   "hsl(0, 0%, 93%)")
 
-(def response
-  (frp/event))
-
 (def beginning
   (frp/event 0))
+
+(def endpoint
+  "https://api.github.com/users")
+
+(def response
+  (m/=<< (comp (partial GET endpoint)
+               (partial assoc-in
+                        {:handler walk/keywordize-keys}
+                        [:params :since]))
+         beginning))
 
 (def suggestion-number
   3)
@@ -99,15 +106,3 @@
 
 (def intro
   (m/<$> intro-component users))
-
-(def endpoint
-  "https://api.github.com/users")
-
-(def option
-  (m/<$> (partial assoc-in
-                  {:handler (comp response
-                                  walk/keywordize-keys)}
-                  [:params :since])
-         beginning))
-
-(frp/on (partial GET endpoint) option)
