@@ -179,3 +179,11 @@
                                           @event/network-state)))
 
 ;TODO implement calculus after a Clojure/ClojureScript library for symbolic computation is released
+
+
+(aid/defcurried transfer*
+                [apath f m]
+                (s/setval apath (f m) m))
+
+(s/transform s/MAP-KEYS name (s/transform s/ALL (transfer* s/LAST first) {:a 1
+                                                                          :b 2}))

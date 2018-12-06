@@ -1,6 +1,5 @@
 (ns examples.index
-  (:require [aid.core :as aid]
-            [bidi.bidi :as bidi]
+  (:require [bidi.bidi :as bidi]
             [com.rpl.specter :as s]
             [examples.cycle.autocomplete-search :as autocomplete-search]
             [examples.cycle.bmi-naive :as bmi-naive]
@@ -29,18 +28,13 @@
   (keys route-function))
 
 (def example-route
-  ;TODO refactor this function
-  (zipmap (map (comp (partial (aid/flip subs) 1)
-                     str)
-               route-keywords)
-          route-keywords))
+  (zipmap (map name route-keywords) route-keywords))
 
 (def route
   ["/" (merge {"" :index} example-route)])
 
 (defn example-component
   [path]
-  ;TODO refactor this component
   [:a {:href     path
        :on-click (fn [event*]
                    (.preventDefault event*)
