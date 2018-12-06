@@ -190,6 +190,7 @@
 (defn event**
   [id fs network]
   ;TODO add a node to dependency
+  ;TODO consider the case where id is taken by a side effect of fs
   (->> network
        (helpers/call-functions
          (concat [(set-occs [] id)]
