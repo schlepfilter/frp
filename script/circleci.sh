@@ -17,7 +17,7 @@ lein clean &&
 lein cljsbuild once prod &&
 cd resources/public &&
 git add . &&
-git config --global user.email "you@example.com"
-git config --global user.name "Your Name"
+git config --global user.email "you@example.com" &&
+git config --global user.name "Your Name" &&
 git commit -m $CIRCLE_SHA1 &&
 git push origin master
