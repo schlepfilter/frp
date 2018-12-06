@@ -236,12 +236,9 @@
 
 (defn make-call-once
   [id modify!]
-  (fn [network]
-    (if (-> network
-            :modified
-            id)
-      network
-      (modify! network))))
+  (aid/if-else (comp :modified
+                     id)
+               modify!))
 
 (defn set-modify
   [id modify! network]
@@ -283,8 +280,7 @@
 
 (defn delay-time-occs
   [t occs]
-  (map (partial m/<*> (tuple/tuple t identity))
-       occs))
+  (map (partial m/<*> (tuple/tuple t identity)) occs))
 
 (aid/defcurried
   delay-sync

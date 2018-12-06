@@ -2,9 +2,9 @@
   (:require [clojure.walk :as walk]
             [aid.core :as aid :include-macros true]
             [aid.unit :as unit]
-            [frp.ajax :refer [GET]]
             [cats.core :as m]
             [com.rpl.specter :as s]
+            [frp.ajax :refer [GET]]
             [frp.clojure.core :as core]
             [frp.core :as frp]))
 
