@@ -8,4 +8,6 @@ lein test &&
 lein npm install &&
 #TODO test other environments
 lein doo chrome-headless test once &&
+lein install &&
+cd examples &&
 lein cljsbuild once prod
