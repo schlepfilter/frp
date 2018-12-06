@@ -62,7 +62,7 @@
                                        (comp not
                                              event?
                                              tuple/snd)
-                                       (comp #{time/epoch (:time network)}
+                                       (comp (set [time/epoch (:time network)])
                                              tuple/fst)))
                            assert)
                       occs)
