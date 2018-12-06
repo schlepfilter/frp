@@ -299,25 +299,81 @@
             child-id
             network))
 
+(defn effect-swap!
+  [state f]
+  (->> @state
+       f
+       (reset! state)))
+
+(defn get-reachable-subgraph
+  [g n]
+  (->> n
+       (alg/bf-traverse g)
+       (graph/subgraph g)))
+
+(defn get-ancestor-subgraph
+  [id network]
+  (-> network
+      :dependency
+      graph/transpose
+      (get-reachable-subgraph id)
+      (graph/remove-nodes id)
+      graph/transpose))
+
+(defn get-parent-ancestor-modifies
+  [id network]
+  (->> network
+       (get-ancestor-subgraph id)
+       alg/topsort
+       (mapcat (:modifies! network))))
+
+(defn modify-parent-ancestor!
+  [id network]
+  (helpers/call-functions (get-parent-ancestor-modifies id network) network))
+
+(aid/defcurried modify-event!
+                [id network]
+                (-> network
+                    :modifies!
+                    id
+                    (helpers/call-functions network)))
+
+(defn effect-swap-event!
+  [id]
+  (run! (fn [f]
+          (effect-swap! network-state (partial f id)))
+        [modify-parent-ancestor! modify-event!]))
+
 (aid/defcurried modify-join
                 [parent-id initial child-id network]
-                (helpers/call-functions
-                  (map (comp (fn [parent-id*]
-                               (partial helpers/call-functions
-                                        ((juxt add-edge
-                                               insert-merge-sync
-                                               delay-sync)
-                                          parent-id*
-                                          child-id)))
-                             :id
-                             tuple/snd)
-                       ((make-get-occs-or-latests initial) parent-id network))
-                  network))
+                (do (reset! network-state network)
+                    (let [parent-events
+                          (->> network
+                               ((make-get-occs-or-latests initial) parent-id)
+                               ;TODO use mapv
+                               (map tuple/snd)
+                               doall)]
+                      (run! (comp effect-swap-event!
+                                  :id)
+                            parent-events)
+                      (helpers/call-functions
+                        (map (comp (fn [parent-id*]
+                                     (partial helpers/call-functions
+                                              ((juxt add-edge
+                                                     insert-merge-sync
+                                                     delay-sync)
+                                                parent-id*
+                                                child-id)))
+                                   :id)
+                             parent-events)
+                        @network-state))))
+
 
 (defn merge-one
   [parent merged]
   (s/setval s/END [(first parent)] merged))
 
+;TODO delete this function
 (def get-first-time-number
   (comp deref
         tuple/fst
