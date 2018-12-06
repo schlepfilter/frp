@@ -232,6 +232,7 @@
 (aid/defcurried modify-<$>
                 [f! parent-id initial child-id network]
                 ;TODO refactor
+                ;TODO consider cases where f! has side effects
                 (set-occs (mapv (partial m/<$> f!)
                                 ((make-get-occs-or-latests initial)
                                   parent-id
