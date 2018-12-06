@@ -24,7 +24,7 @@
   {:builds {:test {:source-paths ["src" "test"]
                    :compiler     {:output-to  "dev-resources/public/js/main.js"
                                   :output-dir "dev-resources/public/js/out"
-                                  :main       frp.test.core
+                                  :main       frp.test.doo
                                   :asset-path "/js/out"}}}}
   :doo {:paths {:karma "node_modules/karma/bin/karma"}}
   :npm {:dependencies [[karma "3.1.3"]

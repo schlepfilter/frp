@@ -1,5 +1,5 @@
 (ns ^:figwheel-always frp.test.core
-  (:require [doo.runner :refer-macros [doo-all-tests]]
+  (:require [cljs.test :refer-macros [run-all-tests]]
             [frp.test.io]
             [frp.test.location]
             [frp.test.primitives.behavior]
@@ -10,4 +10,4 @@
 
 (enable-console-print!)
 
-(doo-all-tests)
+(run-all-tests)
