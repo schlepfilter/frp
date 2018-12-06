@@ -236,9 +236,7 @@
                 (let [es (->> network
                               ((make-get-occs-or-latests initial) parent-id)
                               (mapv (partial m/<$> f!)))]
-                  (set-occs es
-                            child-id
-                            @network-state)))
+                  (set-occs es child-id @network-state)))
 
 (defn make-call-once
   [id modify!]
