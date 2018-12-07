@@ -7,6 +7,7 @@
             [cats.monad.maybe :as maybe]
             [cats.protocols :as protocols]
             [cats.util :as util]
+            [spyscope.core :as spy]
             [com.rpl.specter :as s :include-macros true]
             [linked.core :as linked]
             [loom.alg :as alg]
@@ -425,13 +426,13 @@
                            second
                            vector))]
     (aid/curriedfn [f init parent-id initial child-id network]
-                   (-> (get-accumulator f init child-id network)
-                       (reduce []
-                               (get-elements step!
-                                             parent-id
-                                             initial
-                                             network))
-                       (set-occs child-id network)))))
+                   (let [occs (reduce (get-accumulator f init child-id network)
+                                      []
+                                      (get-elements step!
+                                                    parent-id
+                                                    initial
+                                                    network))]
+                     (set-occs occs child-id @network-state)))))
 
 (defn transduce
   ([xform f e]

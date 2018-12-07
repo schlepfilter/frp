@@ -204,7 +204,9 @@
   (test-helpers/restart-for-all
     [input-event test-helpers/any-event
      xf xform
-     f (test-helpers/function test-helpers/any-equal)
+     f (gen/one-of [(test-helpers/function test-helpers/any-equal)
+                    (gen/return (comp frp/event
+                                      vector))])
      init test-helpers/any-equal
      as (gen/vector test-helpers/any-equal)]
     (let [transduced-event (frp/transduce xf f init input-event)
