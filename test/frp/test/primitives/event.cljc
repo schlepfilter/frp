@@ -1,6 +1,7 @@
 (ns frp.test.primitives.event
   (:refer-clojure :exclude [transduce])
-  (:require [aid.core :as aid]
+  (:require [clojure.walk :as walk]
+            [aid.core :as aid]
             [aid.unit :as unit]
             [#?(:clj  clojure.test
                 :cljs cljs.test) :as test :include-macros true]
@@ -30,11 +31,16 @@
                                   (run! e as)
                                   (empty? @e))))
 
+(defn recursively-get-occs
+  [x]
+  (walk/postwalk (aid/if-then event/event?
+                              (comp recursively-get-occs
+                                    deref))
+                 x))
+
 (def equal
   (comp (partial apply =)
-        ;TODO recursively deref nested events
-        (partial map (aid/if-then event/event?
-                                  deref))
+        recursively-get-occs
         vector))
 
 (def last-equal
@@ -219,8 +225,8 @@
     ;TODO generate an event with pure
     [input-event test-helpers/mempty-event
      f! (gen/one-of [(test-helpers/function test-helpers/any-equal)
-                    (gen/return (comp frp/event
-                                      vector))])
+                     (gen/return (comp frp/event
+                                       vector))])
      init test-helpers/any-equal
      ;TODO generate list
      as (gen/vector (gen/vector test-helpers/any-equal))]
