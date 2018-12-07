@@ -55,19 +55,22 @@
 
 (declare event?)
 
-(aid/defcurried set-occs
-                [occs id network]
-                (run! #(-> %
-                           ;TODO consider cases where event is inside a collection
-                           ((aid/build or
-                                       (comp not
-                                             event?
-                                             tuple/snd)
-                                       (comp (set [time/epoch (:time network)])
-                                             tuple/fst)))
-                           assert)
-                      occs)
-                (s/setval [:occs id s/END] occs network))
+(aid/defcurried
+  set-occs
+  [occs id network]
+  (run! #(-> %
+             ;TODO consider cases where event is inside a collection
+             tuple/snd
+             ((aid/build or
+                         (complement event?)
+                         (comp (partial every?
+                                        (comp (set [time/epoch
+                                                    (:time network)])
+                                              tuple/fst))
+                               deref)))
+             assert)
+        occs)
+  (s/setval [:occs id s/END] occs network))
 
 (defn modify-network!
   [occ id network]
