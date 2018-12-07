@@ -4,5 +4,3 @@
 
 (def redef-event
   #(behavior/redef % (derived/event)))
-
-
