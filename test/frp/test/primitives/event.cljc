@@ -32,14 +32,15 @@
 
 (def equal
   (comp (partial apply =)
-        (partial s/transform* [s/ALL s/ALL]
-                 (aid/if-then event/event?
-                              deref))
+        (partial map (aid/if-then event/event?
+                                  deref))
         vector))
 
 (def last-equal
-  (comp (partial apply equal)
-        (partial map (partial take-last 1))
+  (comp (aid/build or
+                   (partial every? empty?)
+                   (comp (partial apply equal)
+                         (partial map last)))
         vector))
 
 (clojure-test/defspec
