@@ -56,6 +56,7 @@
     <orderEntry type="library" name="Leiningen: commons-logging:1.2" level="project" />
     <orderEntry type="library" name="Leiningen: crypto-equality:1.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: crypto-random:1.2.0" level="project" />
+    <orderEntry type="library" name="Leiningen: doo:0.1.11" level="project" />
     <orderEntry type="library" name="Leiningen: figwheel-sidecar:0.5.17" level="project" />
     <orderEntry type="library" name="Leiningen: figwheel:0.5.17" level="project" />
     <orderEntry type="library" name="Leiningen: fipp:0.6.3" level="project" />
@@ -65,6 +66,9 @@
     <orderEntry type="library" name="Leiningen: http-kit:2.3.0" level="project" />
     <orderEntry type="library" name="Leiningen: jarohen/chime:0.2.2" level="project" />
     <orderEntry type="library" name="Leiningen: joda-time:2.10" level="project" />
+    <orderEntry type="library" name="Leiningen: karma-reporter:3.1.0" level="project" />
+    <orderEntry type="library" name="Leiningen: lein-doo:0.1.11" level="project" />
+    <orderEntry type="library" name="Leiningen: meta-merge:1.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: mvxcvi/arrangement:1.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: mvxcvi/puget:1.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: net.cgrand/parsley:0.9.3" level="project" />
