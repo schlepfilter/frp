@@ -7,6 +7,7 @@
             [cats.context :as ctx]
             [cats.core :as m]
             [cats.monad.maybe :as maybe]
+            [com.rpl.specter :as s]
             [clojure.test.check]
             [clojure.test.check.clojure-test
              :as clojure-test
@@ -29,8 +30,15 @@
                                   (run! e as)
                                   (empty? @e))))
 
-(def last-=
+(def equal
   (comp (partial apply =)
+        (partial s/transform* [s/ALL s/ALL]
+                 (aid/if-then event/event?
+                              deref))
+        vector))
+
+(def last-equal
+  (comp (partial apply equal)
         (partial map (partial take-last 1))
         vector))
 
@@ -41,7 +49,7 @@
                                 (let [e (frp/event)]
                                   (frp/activate)
                                   (run! e as)
-                                  (last-= (map tuple/snd @e) as))))
+                                  (last-equal (map tuple/snd @e) as))))
 
 (clojure-test/defspec
   <$>-identity
@@ -49,14 +57,15 @@
   (test-helpers/restart-for-all
     [input-event test-helpers/any-event
      ;TODO consider cases where f has side effects
-     f (test-helpers/function test-helpers/any-equal)
+     f (gen/one-of [(gen/return frp/event)
+                    (test-helpers/function test-helpers/any-equal)])
      as (gen/vector test-helpers/any-equal)]
     (let [occs @input-event
           fmapped-event (m/<$> f input-event)]
       (frp/activate)
       (run! input-event as)
-      (last-= (map tuple/snd @fmapped-event)
-              (map f (concat (map tuple/snd occs) as))))))
+      (last-equal (map tuple/snd @fmapped-event)
+                  (map f (concat (map tuple/snd occs) as))))))
 
 (clojure-test/defspec
   pure-identity
@@ -97,10 +106,10 @@
     (let [joined-event (m/join outer-event)]
       (frp/activate)
       (test-helpers/run-calls! calls)
-      (last-= (->> inner-events
-                   (map deref)
-                   (reduce event/merge-occs []))
-              @joined-event))))
+      (last-equal (->> inner-events
+                       (map deref)
+                       (reduce event/merge-occs []))
+                  @joined-event))))
 
 (def <>-generator
   ;TODO refactor
@@ -129,7 +138,7 @@
                                 (->> input-events
                                      (map deref)
                                      (apply event/merge-occs)
-                                     (last-= @mappended-event))))
+                                     (last-equal @mappended-event))))
 
 (test/deftest event-mempty
   (-> @(-> (frp/event)
@@ -198,7 +207,7 @@
            (get-elements xf (map tuple/snd earliests))
            (reductions f init)
            rest
-           (last-= (map tuple/snd @transduced-event))))))
+           (last-equal (map tuple/snd @transduced-event))))))
 
 (clojure-test/defspec
   cat-identity
