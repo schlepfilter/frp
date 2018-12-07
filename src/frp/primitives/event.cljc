@@ -197,6 +197,7 @@
   ;TODO add a node to dependency
   (->> network
        (helpers/call-functions
+         ;TODO don't use reset-network-state!
          (concat [(comp reset-network-state! (set-occs [] id))]
                  (map ((aid/curry 3 (aid/flip aid/funcall)) id) fs)))
        (reset! network-state))
