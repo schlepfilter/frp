@@ -22,8 +22,7 @@
    [:p (str "Counter: " total)]])
 
 (def counter
-  (->> (m/<> (aid/<$ 1 increment)
-             (aid/<$ -1 decrement))
+  (->> (m/<> (aid/<$ 1 increment) (aid/<$ -1 decrement))
        core/+
        (frp/stepper 0)
        (m/<$> counter-component)))
