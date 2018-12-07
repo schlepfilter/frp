@@ -73,10 +73,7 @@
   (s/setval [:occs id s/END] occs network))
 
 (def call-functions
-  (->> aid/funcall
-       aid/flip
-       (partial reduce)
-       aid/flip))
+  (aid/flip (partial reduce (aid/flip aid/funcall))))
 
 (defn modify-network!
   [occ id network]
