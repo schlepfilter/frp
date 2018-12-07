@@ -197,18 +197,12 @@
              (get-id-number :occs)
              (get-id-number :function)))
 
-(defn reset-network-state!
-  [network]
-  (reset! network-state network)
-  network)
-
 (defn event**
   [id fs network]
   ;TODO add a node to dependency
   (->> network
        (call-functions
-         ;TODO don't use reset-network-state!
-         (concat [(comp reset-network-state! (set-occs [] id))]
+         (concat [(comp (partial reset! network-state) (set-occs [] id))]
                  (map ((aid/curry 3 (aid/flip aid/funcall)) id) fs)))
        (reset! network-state))
   (Event. id))
