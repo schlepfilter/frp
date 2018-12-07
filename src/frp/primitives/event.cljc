@@ -432,6 +432,7 @@
    (transduce xform f (f) e))
   ([xform f init e]
     ;TODO refactor
+    ;TODO consider cases where f has side effects
    (->> ((make-modify-transduce xform) f init (:id e))
         make-set-modify-modify
         (cons (add-edge (:id e)))
