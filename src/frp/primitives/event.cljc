@@ -58,6 +58,7 @@
 (aid/defcurried set-occs
                 [occs id network]
                 (run! #(-> %
+                           ;TODO consider cases where event is inside a collection
                            ((aid/build or
                                        (comp not
                                              event?
