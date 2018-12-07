@@ -217,7 +217,9 @@
   (test-helpers/restart-for-all
     ;TODO generate an event with pure
     [input-event test-helpers/mempty-event
-     f (test-helpers/function test-helpers/any-equal)
+     f (gen/one-of [(test-helpers/function test-helpers/any-equal)
+                    (gen/return (comp frp/event
+                                      vector))])
      init test-helpers/any-equal
      ;TODO generate list
      as (gen/vector (gen/vector test-helpers/any-equal))]
@@ -230,7 +232,7 @@
                                    input-event)]
       (frp/activate)
       (run! input-event as)
-      (= @cat-event @map-event))))
+      (last-equal @cat-event @map-event))))
 
 (clojure-test/defspec
   snapshot-identity

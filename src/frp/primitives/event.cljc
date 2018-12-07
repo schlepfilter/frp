@@ -72,8 +72,14 @@
         occs)
   (s/setval [:occs id s/END] occs network))
 
-(def call-functions
+(def call-functions*
   (aid/flip (partial reduce (aid/flip aid/funcall))))
+
+(defn call-functions
+  [fs network]
+  (call-functions* (interleave fs
+                               (repeat (partial reset! network-state)))
+                   network))
 
 (defn modify-network!
   [occ id network]
@@ -199,9 +205,8 @@
   ;TODO add a node to dependency
   (->> network
        (call-functions
-         (concat [(comp (partial reset! network-state) (set-occs [] id))]
-                 (map ((aid/curry 3 (aid/flip aid/funcall)) id) fs)))
-       (reset! network-state))
+         (concat [(set-occs [] id)]
+                 (map ((aid/curry 3 (aid/flip aid/funcall)) id) fs))))
   (Event. id))
 
 (defn event*
