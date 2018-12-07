@@ -7,7 +7,6 @@
             [cats.monad.maybe :as maybe]
             [cats.protocols :as protocols]
             [cats.util :as util]
-            [spyscope.core :as spy]
             [com.rpl.specter :as s :include-macros true]
             [linked.core :as linked]
             [loom.alg :as alg]
