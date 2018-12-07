@@ -24,12 +24,6 @@
                (~join (m/<$> f# ma#)))
              ~@more)))
 
-(def call-functions
-  (->> aid/funcall
-       aid/flip
-       (partial reduce)
-       aid/flip))
-
 (def <=
   (comp (partial every? (comp not
                               pos?

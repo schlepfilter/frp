@@ -72,10 +72,16 @@
         occs)
   (s/setval [:occs id s/END] occs network))
 
+(def call-functions
+  (->> aid/funcall
+       aid/flip
+       (partial reduce)
+       aid/flip))
+
 (defn modify-network!
   [occ id network]
   ;TODO advance
-  (helpers/call-functions
+  (call-functions
     (->> network
          :dependency
          alg/topsort
@@ -88,7 +94,7 @@
     network))
 
 (def run-effects!
-  (aid/build helpers/call-functions
+  (aid/build call-functions
              :effects
              identity))
 
@@ -200,7 +206,7 @@
   [id fs network]
   ;TODO add a node to dependency
   (->> network
-       (helpers/call-functions
+       (call-functions
          ;TODO don't use reset-network-state!
          (concat [(comp reset-network-state! (set-occs [] id))]
                  (map ((aid/curry 3 (aid/flip aid/funcall)) id) fs)))
@@ -306,9 +312,9 @@
 
 (aid/defcurried modify-join
                 [parent-id initial child-id network]
-                (helpers/call-functions
+                (call-functions
                   (map (comp (fn [parent-id*]
-                               (partial helpers/call-functions
+                               (partial call-functions
                                         ((juxt add-edge
                                                insert-merge-sync
                                                delay-sync)
