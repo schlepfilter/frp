@@ -77,8 +77,7 @@
 
 (defn call-functions
   [fs network]
-  (call-functions* (interleave fs
-                               (repeat (partial reset! network-state)))
+  (call-functions* (interleave fs (repeat (partial reset! network-state)))
                    network))
 
 (defn modify-network!
