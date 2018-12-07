@@ -32,6 +32,7 @@
 
 (def equal
   (comp (partial apply =)
+        ;TODO recursively deref nested events
         (partial map (aid/if-then event/event?
                                   deref))
         vector))
