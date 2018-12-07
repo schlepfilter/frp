@@ -232,7 +232,6 @@
 (aid/defcurried modify-<$>
                 [f! parent-id initial child-id network]
                 ;TODO refactor
-                ;TODO consider cases where f! has side effects
                 (reset! network-state network)
                 (let [es (->> network
                               ((make-get-occs-or-latests initial) parent-id)
