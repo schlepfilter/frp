@@ -217,17 +217,17 @@
   (test-helpers/restart-for-all
     ;TODO generate an event with pure
     [input-event test-helpers/mempty-event
-     f (gen/one-of [(test-helpers/function test-helpers/any-equal)
+     f! (gen/one-of [(test-helpers/function test-helpers/any-equal)
                     (gen/return (comp frp/event
                                       vector))])
      init test-helpers/any-equal
      ;TODO generate list
      as (gen/vector (gen/vector test-helpers/any-equal))]
     ;TODO compose xforms
-    (let [cat-event (frp/transduce cat f init input-event)
+    (let [cat-event (frp/transduce cat f! init input-event)
           map-event (frp/transduce (comp (remove empty?)
                                          (map last))
-                                   f
+                                   f!
                                    init
                                    input-event)]
       (frp/activate)
