@@ -410,10 +410,10 @@
       last))
 
 (aid/defcurried get-accumulator
-                [f init id network reduction element]
+                [f! init id network reduction element]
                 (s/setval s/END
                           reduction
-                          [((aid/lift-a f)
+                          [((aid/lift-a f!)
                              (get-transduction init
                                                (get-occs id network)
                                                reduction)
@@ -425,8 +425,8 @@
   (let [step! (xform (comp maybe/just
                            second
                            vector))]
-    (aid/curriedfn [f init parent-id initial child-id network]
-                   (let [occs (reduce (get-accumulator f init child-id network)
+    (aid/curriedfn [f! init parent-id initial child-id network]
+                   (let [occs (reduce (get-accumulator f! init child-id network)
                                       []
                                       (get-elements step!
                                                     parent-id
