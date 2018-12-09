@@ -19,7 +19,7 @@
   (frp/event))
 
 (defn simple-data-binding-component
-  [full-name]
+  [full-name*]
   [:div
    [:h1 "Simple Data Binding Example"]
    [:p "Show simple concepts of data binding!"]
@@ -28,7 +28,7 @@
    [partial-name {:event last-name
                   :label "Last Name"}]
    [:div "Full Name"]
-   [:div full-name]])
+   [:div full-name*]])
 
 (def full-name
   ;TODO use transparent
