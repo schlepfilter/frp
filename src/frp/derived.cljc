@@ -43,14 +43,10 @@
 
        (defmacro transparent
          [expr]
-         (walk/postwalk
-           #(aid/casep %
-                       ;TODO make this macro work in ClojureScript
-                       ;macroexpand is only intended as a REPL utility
-                       ;https://cljs.github.io/api/cljs.core/macroexpand
-                       has-argument? `(transparent* ~(macroexpand %))
-                       %)
-           expr))))
+         (walk/postwalk #(aid/casep %
+                                    has-argument? `(transparent* ~%)
+                                    %)
+                        (walk/macroexpand-all expr)))))
 
 (def accum
   (partial core/reduce (aid/flip aid/funcall)))
