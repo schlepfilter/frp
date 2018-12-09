@@ -18,6 +18,7 @@
   (frp/transparent (int (/ weight-behavior
                            (js/Math.pow (/ height-behavior 100) 2)))))
 
+;TODO extract a function from weight-component and height-component
 (defn weight-component
   [weight]
   [:div "Weight " (str weight) "kg"
