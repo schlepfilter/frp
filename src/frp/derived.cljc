@@ -53,6 +53,9 @@
        (defmacro transparent
          [expr]
          (->> expr
+              ;TODO make this macro work in ClojureScript
+              ;macroexpand is only intended as a REPL utility
+              ;https://cljs.github.io/api/cljs.core/macroexpand
               walk/macroexpand-all
               (walk/postwalk #(aid/casep %
                                          has-argument? `(transparent* ~%)
