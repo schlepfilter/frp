@@ -1,7 +1,6 @@
 (ns examples.rx.simple-data-binding
-  (:require [aid.core :as aid]
-            [cats.core :as m]
-            [frp.core :as frp]))
+  (:require [cats.core :as m]
+            [frp.core :as frp :include-macros]))
 
 (defn partial-name
   [{:keys [event label]}]
@@ -31,11 +30,9 @@
    [:div full-name*]])
 
 (def full-name
-  ;TODO use transparent
-  ((aid/lift-a str)
-    (frp/stepper "" first-name)
-    (frp/behavior " ")
-    (frp/stepper "" last-name)))
+  (frp/transparent (str (frp/stepper "" first-name)
+                        " "
+                        (frp/stepper "" last-name))))
 
 (def simple-data-binding
   (m/<$> simple-data-binding-component full-name))
