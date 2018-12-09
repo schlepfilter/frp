@@ -15,7 +15,7 @@
 (defn checkbox-component
   [checked*]
   [:div
-   [:input {:on-change check
+   [:input {:on-change #(check)
             :type      "checkbox"}]
    "Toggle me"
    [:p (if checked*

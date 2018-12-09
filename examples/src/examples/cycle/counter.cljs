@@ -13,9 +13,9 @@
 (defn counter-component
   [total]
   [:div
-   [:button {:on-click increment}
+   [:button {:on-click #(increment)}
     "Increment"]
-   [:button {:on-click decrement}
+   [:button {:on-click #(decrement)}
     "Decrement"]
    [:p (str "Counter: " total)]])
 
