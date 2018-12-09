@@ -19,6 +19,6 @@
 
 (def letter-count
   (frp/transparent (->> length
-                        (str "length: ")
+                        ((partial str "length: "))
                         (frp/stepper "Start Typing!")
                         letter-count-component)))
