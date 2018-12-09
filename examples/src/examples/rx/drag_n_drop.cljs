@@ -17,6 +17,7 @@
 (def origin
   (->> window/dragstart
        initialize
+       ;TODO implement transparent for snapshot and <$> of event
        (frp/snapshot window/drop)
        (m/<$> (partial apply merge-with -))
        (core/merge-with +)
