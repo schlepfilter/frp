@@ -1,14 +1,14 @@
 (ns frp.clojure.core
   (:refer-clojure :exclude [+ count drop filter max min reduce remove])
-  ;TODO require clojure.core to alias it
-  (:require [aid.unit :as unit]
+  (:require [clojure.core :as core]
+            [aid.unit :as unit]
             [cats.core :as m]
             [frp.primitives.event :as event]))
 
 (defn reduce
   ([f e]
    (->> e
-        (event/transduce (clojure.core/drop 0)
+        (event/transduce (core/drop 0)
                          (fn [{:keys [event-value start]} element]
                            {:event-value (if start
                                            element
@@ -18,11 +18,11 @@
                           :start       true})
         (m/<$> :event-value)))
   ([f val e]
-   (event/transduce (clojure.core/drop 0) f val e)))
+   (event/transduce (core/drop 0) f val e)))
 
 (defn filter
   [pred e]
-  (event/transduce (clojure.core/filter pred)
+  (event/transduce (core/filter pred)
                    (comp second
                          vector)
                    unit/unit
@@ -33,22 +33,22 @@
   (filter (complement pred) e))
 
 (def max
-  (partial reduce clojure.core/max #?(:clj  Double/NEGATIVE_INFINITY
-                                      :cljs js/Number.NEGATIVE_INFINITY)))
+  (partial reduce core/max #?(:clj  Double/NEGATIVE_INFINITY
+                              :cljs js/Number.NEGATIVE_INFINITY)))
 
 (def min
-  (partial reduce clojure.core/min #?(:clj  Double/POSITIVE_INFINITY
-                                      :cljs js/Number.POSITIVE_INFINITY)))
+  (partial reduce core/min #?(:clj  Double/POSITIVE_INFINITY
+                              :cljs js/Number.POSITIVE_INFINITY)))
 
 (def +
-  (partial reduce clojure.core/+))
+  (partial reduce core/+))
 
 (def count
-  (partial event/transduce (map (constantly 1)) clojure.core/+))
+  (partial event/transduce (map (constantly 1)) core/+))
 
 (defn drop
   [n e]
-  (event/transduce (clojure.core/drop n)
+  (event/transduce (core/drop n)
                    (comp second
                          vector)
                    e))
