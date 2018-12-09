@@ -1,6 +1,5 @@
 (ns examples.cycle.counter
   (:require [aid.core :as aid]
-            [aid.unit :as unit]
             [cats.core :as m]
             [frp.clojure.core :as core]
             [frp.core :as frp]))
@@ -15,9 +14,9 @@
   [total]
   [:div
    ;TODO make event accept zero argument
-   [:button {:on-click #(increment unit/unit)}
+   [:button {:on-click increment}
     "Increment"]
-   [:button {:on-click #(decrement unit/unit)}
+   [:button {:on-click decrement}
     "Decrement"]
    [:p (str "Counter: " total)]])
 

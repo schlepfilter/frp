@@ -1,7 +1,6 @@
 (ns examples.intro
   (:require [clojure.walk :as walk]
             [aid.core :as aid :include-macros true]
-            [aid.unit :as unit]
             [cats.core :as m]
             [com.rpl.specter :as s]
             [frp.ajax :refer [GET]]
@@ -30,7 +29,7 @@
    [:a {:href     "#"
         :on-click (fn [event*]
                     (.preventDefault event*)
-                    (click unit/unit))
+                    (click))
         :style    link-style}
     "x"]])
 
