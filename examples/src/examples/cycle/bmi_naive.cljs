@@ -14,6 +14,7 @@
   (frp/stepper 170 height-event))
 
 (def bmi
+  ;TODO thread this definition
   (frp/transparent (int (/ weight-behavior
                            (js/Math.pow (/ height-behavior 100) 2)))))
 

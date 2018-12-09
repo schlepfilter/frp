@@ -18,6 +18,7 @@
     [:p message]]])
 
 (def letter-count
+  ;TODO use transparent
   (->> length
        (m/<$> (partial str "length: "))
        (frp/stepper "Start Typing!")
