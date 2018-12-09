@@ -1,5 +1,6 @@
 (ns examples.rx.drag-n-drop
   (:require [aid.core :as aid]
+            [cats.core :as m]
             [clojure.set :as set]
             [com.rpl.specter :as s :include-macros true]
             [frp.clojure.core :as core]
@@ -14,14 +15,14 @@
   (partial frp/stepper (s/setval (s/multi-path :page-x :page-y) 0 {})))
 
 (def origin
-  (frp/transparent (->> window/dragstart
-                        initialize
-                        (frp/snapshot window/drop)
-                        (apply merge-with -)
-                        (core/merge-with +)
-                        initialize
-                        ((partial (aid/flip set/rename-keys) {:page-x :left
-                                                              :page-y :top})))))
+  (->> window/dragstart
+       initialize
+       (frp/snapshot window/drop)
+       (m/<$> (partial apply merge-with -))
+       (core/merge-with +)
+       initialize
+       (m/<$> (partial (aid/flip set/rename-keys) {:page-x :left
+                                                   :page-y :top}))))
 
 (defn drag-n-drop-component
   [origin* height]

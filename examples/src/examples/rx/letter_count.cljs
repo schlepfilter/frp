@@ -18,7 +18,7 @@
     [:p message]]])
 
 (def letter-count
-  (frp/transparent (->> length
-                        ((partial str "length: "))
-                        (frp/stepper "Start Typing!")
-                        letter-count-component)))
+  (->> length
+       (m/<$> (partial str "length: "))
+       (frp/stepper "Start Typing!")
+       (m/<$> letter-count-component)))
