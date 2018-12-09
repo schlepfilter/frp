@@ -148,7 +148,6 @@
     (invoke* id unit/unit))
   (#?(:clj  invoke
       :cljs -invoke) [_ a]
-    ;e stands for an event, and a stands for any as in Push-Pull Functional Reactive Programming.
     (invoke* id a))
   entity-protocols/Entity
   (-get-keyword [_]
