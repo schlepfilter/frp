@@ -2,6 +2,7 @@
 (ns frp.primitives.event
   (:refer-clojure :exclude [transduce])
   (:require [aid.core :as aid :include-macros true]
+            [aid.unit :as unit]
             [cats.context :as ctx]
             [cats.core :as m]
             [cats.monad.maybe :as maybe]
@@ -118,6 +119,21 @@
 (def garbage-collect!
   (partial swap! network-state garbage-collect))
 
+(defn invoke*
+  [id a]
+  (when (:active @network-state)
+    (let [[past current] (get-times)]
+      ;Not doing garbage collection is visibly slower.
+      (garbage-collect!)
+      (reset! network-state
+              (modify-network! (tuple/tuple past a)
+                               id
+                               @network-state))
+      (run-network-state-effects!)
+      (->> (partial s/setval* :time current)
+           (swap! network-state))
+      (run-network-state-effects!))))
+
 (defrecord Event
   [id]
   protocols/Contextual
@@ -128,20 +144,12 @@
   IFn
   ;TODO implement applyTo
   (#?(:clj  invoke
+      :cljs -invoke) [_]
+    (invoke* id unit/unit))
+  (#?(:clj  invoke
       :cljs -invoke) [_ a]
     ;e stands for an event, and a stands for any as in Push-Pull Functional Reactive Programming.
-    (when (:active @network-state)
-      (let [[past current] (get-times)]
-        ;Not doing garbage collection is visibly slower.
-        (garbage-collect!)
-        (reset! network-state
-                (modify-network! (tuple/tuple past a)
-                                 id
-                                 @network-state))
-        (run-network-state-effects!)
-        (->> (partial s/setval* :time current)
-             (swap! network-state))
-        (run-network-state-effects!))))
+    (invoke* id a))
   entity-protocols/Entity
   (-get-keyword [_]
     :event)
