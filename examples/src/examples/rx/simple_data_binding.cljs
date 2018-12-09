@@ -31,6 +31,7 @@
    [:div full-name]])
 
 (def full-name
+  ;TODO use transparent
   ((aid/lift-a str)
     (frp/stepper "" first-name)
     (frp/behavior " ")
