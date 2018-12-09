@@ -23,7 +23,6 @@ and couldn't find one.  Here's an outline of some of the motivating ideas.
 ## (Pseudo) transparent reactivity is a good thing
 * Event functions emulating Seq functions
 * Implicit lifting for behaviors
-* Implicit combining for events
 * Native events packaged via Events and Behaviors
 
 ## FRP is a good thing
