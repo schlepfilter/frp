@@ -35,11 +35,20 @@
    (do (defmacro transparent*
          [[f & more]]
          `(let [arguments# [~@more]]
-            (if (some behavior? arguments#)
-              (->> arguments#
-                   (map behaviorize)
-                   (apply (aid/lift-a ~f)))
-              (apply ~f arguments#))))
+            (aid/casep arguments#
+                       (partial some behavior?)
+                       (->> arguments#
+                            (map behaviorize)
+                            (apply (aid/lift-a ~f)))
+                       (aid/build and
+                                  (comp (partial = 1)
+                                        count)
+                                  (comp event/event?
+                                        first))
+                       (->> arguments#
+                            first
+                            (m/<$> ~f))
+                       (apply ~f arguments#))))
 
        (defmacro transparent
          [expr]
