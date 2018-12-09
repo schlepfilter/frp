@@ -31,6 +31,10 @@
              (comp (partial not= 1)
                    count)))
 
+(def singleton?
+  (comp (partial = 1)
+        count))
+
 #?(:clj
    (do (defmacro transparent*
          [f & more]
@@ -41,8 +45,7 @@
                             (map behaviorize)
                             (apply (aid/lift-a ~f)))
                        (aid/build and
-                                  (comp (partial = 1)
-                                        count)
+                                  singleton?
                                   (comp event/event?
                                         first))
                        (->> arguments#
