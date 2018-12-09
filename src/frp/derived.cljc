@@ -33,7 +33,7 @@
 
 #?(:clj
    (do (defmacro transparent*
-         [[f & more]]
+         [f & more]
          `(let [arguments# [~@more]]
             (aid/casep arguments#
                        (partial some behavior?)
@@ -58,7 +58,7 @@
               ;https://cljs.github.io/api/cljs.core/macroexpand
               walk/macroexpand-all
               (walk/postwalk #(aid/casep %
-                                         has-argument? `(transparent* ~%)
+                                         has-argument? `(transparent* ~@%)
                                          %))))))
 
 (def accum
