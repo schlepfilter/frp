@@ -1,5 +1,13 @@
 (ns frp.clojure.core
-  (:refer-clojure :exclude [+ count drop filter max min reduce remove])
+  (:refer-clojure :exclude [+
+                            count
+                            drop
+                            filter
+                            max
+                            merge-with
+                            min
+                            reduce
+                            remove])
   (:require [clojure.core :as core]
             [aid.unit :as unit]
             [cats.core :as m]
@@ -52,3 +60,7 @@
                    (comp second
                          vector)
                    e))
+
+(defn merge-with
+  [f e]
+  (reduce (partial core/merge-with f) e))

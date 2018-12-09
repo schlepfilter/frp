@@ -19,7 +19,7 @@
        initialize
        (frp/snapshot window/drop)
        (m/<$> (partial apply merge-with -))
-       (core/reduce (partial merge-with +))
+       (core/merge-with +)
        initialize
        (m/<$> (partial (aid/flip set/rename-keys) {:page-x :left
                                                    :page-y :top}))))
