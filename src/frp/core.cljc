@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [stepper time transduce])
   (:require [frp.derived :as derived :include-macros true]
             [frp.io :as io]
-            [frp.primitives.behavior :as behavior :include-macros true]
+            [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]
             #?(:cljs [frp.location])))
 
