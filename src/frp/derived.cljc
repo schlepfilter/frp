@@ -52,7 +52,7 @@
 #?(:clj
    (do (defmacro transparent*
          [f & more]
-         `(let [arguments# (vec ~more)]
+         `(let [arguments# [~@more]]
             (->> arguments#
                  (map (aid/casep arguments#
                                  event-only? eventize
