@@ -41,11 +41,14 @@
       (add-remove-listener (comp e
                                  f))))
 
+(def get-caller-keyword
+  #(->> %
+        (str *ns* "/")
+        keyword))
+
 #?(:clj (defmacro defevent
           ([expr]
            `(def ~expr
-              (get-event ~(->> expr
-                               (str *ns* "/")
-                               keyword))))
+              (get-event ~(get-caller-keyword expr))))
           ([expr f]
            `(listen (defevent ~expr) ~f))))
