@@ -100,16 +100,10 @@
 (def registry
   (atom []))
 
-(def register*
+(def register!
   (comp (partial swap! registry)
         ((aid/curry 3 s/setval*) s/END)
         vector))
-
-;TODO delete this macro
-#?(:clj (defmacro register
-          [& body]
-          `(register* (fn []
-                        ~@body))))
 
 (defn start
   []

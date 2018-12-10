@@ -16,7 +16,7 @@
                    (derived/event)))
 
 (def get-event
-  (comp (effect (comp behavior/register*
+  (comp (effect (comp behavior/register!
                       make-redef-event))
         event/->Event))
 
@@ -44,7 +44,7 @@
 
 (defn get-behavior
   [f k]
-  (effect (comp behavior/register*
+  (effect (comp behavior/register!
                 (make-redef-behavior f))
           (behavior/->Behavior k)))
 
