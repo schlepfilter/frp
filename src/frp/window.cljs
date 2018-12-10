@@ -8,10 +8,7 @@
 
 (defn get-coordinate
   [event*]
-  (->> #{:page-x
-         :page-y
-         :movement-x
-         :movement-y}
+  (->> #{:page-x :page-y :movement-x :movement-y}
        (mapcat (aid/build vector
                           identity
                           (comp (partial aget event*)
