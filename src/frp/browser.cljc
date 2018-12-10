@@ -6,13 +6,17 @@
 (def redef-event
   #(behavior/redef % (derived/event)))
 
+(defn get-event
+  [k]
+  (let [e (event/->Event k)]
+    (-> e
+        redef-event
+        behavior/register)
+    e))
+
 #?(:clj (defmacro defevent
           [expr]
           `(def ~expr
-             (let [e# (event/->Event ~(->> expr
-                                           (str *ns* "/")
-                                           keyword))]
-               (-> e#
-                   redef-event
-                   behavior/register)
-               e#))))
+             (get-event ~(->> expr
+                              (str *ns* "/")
+                              keyword)))))
