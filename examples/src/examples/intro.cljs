@@ -3,6 +3,7 @@
             [aid.core :as aid :include-macros true]
             [cats.core :as m]
             [com.rpl.specter :as s]
+            [examples.helpers :as helpers]
             [frp.ajax :refer [GET]]
             [frp.clojure.core :as core]
             [frp.core :as frp]))
@@ -34,7 +35,7 @@
     "x"]])
 
 (def grey
-  "hsl(0, 0%, 93%)")
+  (helpers/get-color 0 0 0.93))
 
 (def beginning
   (frp/event 0))
