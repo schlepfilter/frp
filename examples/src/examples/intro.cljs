@@ -74,8 +74,7 @@
 
 (def users
   (apply (aid/lift-a (fn [response* & offset-counts*]
-                       (map (partial nth (cycle response*))
-                            offset-counts*)))
+                       (map (partial nth (cycle response*)) offset-counts*)))
          (frp/stepper (repeat user-number {}) response)
          offset-counts))
 
