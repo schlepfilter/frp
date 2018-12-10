@@ -5,8 +5,13 @@
 (def length
   (frp/event))
 
+(def message
+  (-> length
+      (m/<$> (partial str "length: "))
+      (frp/stepper "Start Typing!")))
+
 (defn letter-count-component
-  [message]
+  [message*]
   [:div
    [:h1 "Letter Counting Example"]
    [:p "Example to show getting the current length of the input."]
@@ -15,11 +20,7 @@
           [:input {:on-change #(-> %
                                    .-target.value.length
                                    length)}]]
-    [:p message]]])
+    [:p message*]]])
 
 (def letter-count
-  (->> length
-       ((partial str "length: "))
-       (frp/stepper "Start Typing!")
-       letter-count-component
-       frp/transparent))
+  (m/<$> letter-count-component message))
