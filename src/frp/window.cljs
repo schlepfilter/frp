@@ -35,6 +35,3 @@
   #(->> resize
         (m/<$> :inner-height)
         (behavior/stepper js/innerHeight)))
-
-(def inner-height
-  (behavior/->Behavior ::inner-height))
