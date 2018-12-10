@@ -32,11 +32,11 @@
 
 (defn listen
   [f e]
-  (-> e
-      :id
-      name
-      (add-remove-listener (comp e
-                                 f)))
+  (behavior/register! #(-> e
+                           :id
+                           name
+                           (add-remove-listener (comp e
+                                                      f))))
   e)
 
 (aid/defcurried make-redef-behavior
