@@ -10,13 +10,10 @@
                 (f x)
                 x)
 
-(def redef-event
-  #(behavior/redef %
-                   (derived/event)))
-
 (defn make-redef-event
   [e]
-  #(redef-event e))
+  #(behavior/redef e
+                   (derived/event)))
 
 (def get-event
   (comp (effect (comp behavior/register*
