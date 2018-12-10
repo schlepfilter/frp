@@ -19,28 +19,30 @@
       int
       frp/transparent))
 
-;TODO extract a function from weight-component and height-component
-(defn weight-component
-  [weight]
-  [:div "Weight " (str weight) "kg"
-   [:input {:max       140
-            :min       40
-            :on-change #(-> %
-                            .-target.value
-                            weight-event)
-            :type      "range"
-            :value     weight}]])
+(defn get-measurement-component
+  [m]
+  (fn [value]
+    [:div (str (:label m) value (:unit m))
+     [:input (merge m
+                    {:on-change #(->> %
+                                      .-target.value
+                                      ((:event m)))
+                     :type      "range"
+                     :value     value})]]))
 
-(defn height-component
-  [height]
-  [:div "Height " (str height) "cm"
-   [:input {:max       210
-            :min       140
-            :on-change #(-> %
-                            .-target.value
-                            height-event)
-            :type      "range"
-            :value     height}]])
+(def weight-component
+  (get-measurement-component {:event weight-event
+                              :label "Weight "
+                              :max   140
+                              :min   40
+                              :unit  "kg"}))
+
+(def height-component
+  (get-measurement-component {:event height-event
+                              :label "Height "
+                              :max   210
+                              :min   140
+                              :unit  "cm"}))
 
 (def bmi-component
   (partial vector :h2 "BMI is "))
