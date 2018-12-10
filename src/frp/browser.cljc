@@ -36,7 +36,8 @@
       :id
       name
       (add-remove-listener (comp e
-                                 f))))
+                                 f)))
+  e)
 
 (aid/defcurried make-redef-behavior
                 [f b]
