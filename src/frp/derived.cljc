@@ -25,6 +25,10 @@
   (aid/if-else behavior?
                behavior))
 
+(def eventize
+  (aid/if-else event/event?
+               event))
+
 (def has-argument?
   (aid/build and
              seq?
@@ -35,23 +39,31 @@
   (comp (partial = 1)
         count))
 
+(def event-only?
+  (aid/build and
+             (partial some event/event?)
+             (complement (partial some behavior?))))
+
+(def behavior-only?
+  (aid/build and
+             (partial some behavior?)
+             (complement (partial some event/event?))))
+
 #?(:clj
    (do (defmacro transparent*
          [f & more]
-         `(let [arguments# [~@more]]
-            (aid/casep arguments#
-                       (partial some behavior?)
-                       (->> arguments#
-                            (map behaviorize)
-                            (apply (aid/lift-a ~f)))
-                       (aid/build and
-                                  singleton?
-                                  (comp event/event?
-                                        first))
-                       (->> arguments#
-                            first
-                            (m/<$> ~f))
-                       (apply ~f arguments#))))
+         `(let [arguments# (vec ~more)]
+            (->> arguments#
+                 (map (aid/casep arguments#
+                                 event-only? eventize
+                                 behavior-only? behaviorize
+                                 identity))
+                 (apply ((aid/casep arguments#
+                                    (aid/build or
+                                               event-only?
+                                               behavior-only?)
+                                    aid/lift-a
+                                    identity) ~f)))))
 
        (defmacro transparent
          [expr]
@@ -108,3 +120,4 @@
 (def switcher
   (comp m/join
         behavior/stepper))
+
