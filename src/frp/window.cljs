@@ -1,8 +1,8 @@
 (ns frp.window
   (:refer-clojure :exclude [drop])
   (:require [cats.core :as m]
-            [frp.primitives.behavior :as behavior :include-macros true]
-            [frp.browser :as browser :include-macros true]))
+            [frp.browser :as browser :include-macros true]
+            [frp.primitives.behavior :as behavior :include-macros true]))
 
 (defn get-coordinate
   [event]

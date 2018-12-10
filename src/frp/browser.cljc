@@ -47,4 +47,4 @@
                                (str *ns* "/")
                                keyword))))
           ([expr f]
-           `(listen (defevent ~expr) f))))
+           `(listen (defevent ~expr) ~f))))
