@@ -31,11 +31,10 @@
   (fn [_]
     {:inner-height js/innerHeight}))
 
+(browser/defbehavior inner-height
+  #(->> resize
+        (m/<$> :inner-height)
+        (behavior/stepper js/innerHeight)))
+
 (def inner-height
   (behavior/->Behavior ::inner-height))
-
-(behavior/register
-  (behavior/redef inner-height
-                  (->> resize
-                       (m/<$> :inner-height)
-                       (behavior/stepper js/innerHeight))))

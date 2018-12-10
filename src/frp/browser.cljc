@@ -38,14 +38,31 @@
       (add-remove-listener (comp e
                                  f))))
 
+(aid/defcurried make-redef-behavior
+                [f b]
+                #(behavior/redef b (f)))
+
+(defn get-behavior
+  [f k]
+  (effect (comp behavior/register*
+                (make-redef-behavior f))
+          (behavior/->Behavior k)))
+
 (def get-caller-keyword
   #(->> %
         (str *ns* "/")
         keyword))
 
-#?(:clj (defmacro defevent
-          ([expr]
-           `(def ~expr
-              (get-event ~(get-caller-keyword expr))))
-          ([expr f]
-           `(listen ~f (defevent ~expr)))))
+#?(:clj
+   (do (defmacro defevent
+         ([expr]
+          `(def ~expr
+             (get-event ~(get-caller-keyword expr))))
+         ([expr f]
+          `(listen ~f (defevent ~expr))))
+
+       (defmacro defbehavior
+         ([expr f]
+          `(def ~expr
+             (get-behavior ~f ~(get-caller-keyword expr)))))))
+
