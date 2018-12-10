@@ -63,7 +63,8 @@
                                                event-only?
                                                behavior-only?)
                                     aid/lift-a
-                                    identity) ~f)))))
+                                    identity)
+                          ~f)))))
 
        (defmacro transparent
          [expr]
