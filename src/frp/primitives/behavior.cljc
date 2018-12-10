@@ -102,8 +102,7 @@
 
 (def register!
   (comp (partial swap! registry)
-        ((aid/curry 3 s/setval*) s/END)
-        vector))
+        ((aid/curry 3 s/setval*) s/AFTER-ELEM)))
 
 (defn start
   []
