@@ -15,7 +15,6 @@
   (partial frp/stepper (s/setval (s/multi-path :page-x :page-y) 0 {})))
 
 (def origin
-  ;TODO use transparent
   (->> window/dragstart
        initialize
        (frp/snapshot window/drop)
