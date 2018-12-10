@@ -9,6 +9,10 @@
 #?(:clj (defmacro defevent
           [expr]
           `(def ~expr
-             (let [e# (event/->Event ~(keyword (str *ns* "/" expr)))]
-               (behavior/register (redef-event e#))
+             (let [e# (event/->Event ~(->> expr
+                                           (str *ns* "/")
+                                           keyword))]
+               (-> e#
+                   redef-event
+                   behavior/register)
                e#))))
