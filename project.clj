@@ -8,6 +8,7 @@
                  [com.andrewmcveigh/cljs-time "0.5.2"]
                  [com.rpl/specter "1.1.2"]
                  [funcool/cats "2.3.1"]
+                 [funcool/cuerdas "2.0.5"]
                  [frankiesardo/linked "1.3.0"]
                  [jarohen/chime "0.2.2"]]
   :plugins [[com.jakemccrary/lein-test-refresh "0.19.0"]

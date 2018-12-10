@@ -1,13 +1,22 @@
 (ns frp.window
   (:refer-clojure :exclude [drop])
-  (:require [cats.core :as m]
+  (:require [aid.core :as aid]
+            [cats.core :as m]
+            [cuerdas.core :as cuerdas]
             [frp.browser :as browser :include-macros true]
             [frp.primitives.behavior :as behavior :include-macros true]))
 
 (defn get-coordinate
   [event*]
-  {:page-x (aget event* "pageX")
-   :page-y (aget event* "pageY")})
+  (->> #{:page-x
+         :page-y
+         :movement-x
+         :movement-y}
+       (mapcat (aid/build vector
+                          identity
+                          (comp (partial aget event*)
+                                cuerdas/camel)))
+       (apply array-map)))
 
 (browser/defevent dragstart
   get-coordinate)
@@ -16,9 +25,7 @@
   get-coordinate)
 
 (browser/defevent mousemove
-  (fn [event*]
-    {:movement-x (aget event* "movementX")
-     :movement-y (aget event* "movementY")}))
+  get-coordinate)
 
 (browser/defevent mouseup
   (constantly {}))
