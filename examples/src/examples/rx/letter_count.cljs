@@ -6,9 +6,9 @@
   (frp/event))
 
 (def message
-  (-> length
-      (m/<$> (partial str "length: "))
-      (frp/stepper "Start Typing!")))
+  (->> length
+       (m/<$> (partial str "length: "))
+       (frp/stepper "Start Typing!")))
 
 (defn letter-count-component
   [message*]
