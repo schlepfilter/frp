@@ -34,7 +34,7 @@
                            (js/removeEventListener event-type listener)))))))
 
 (defn listen
-  [e f]
+  [f e]
   (-> e
       :id
       name
@@ -51,4 +51,4 @@
            `(def ~expr
               (get-event ~(get-caller-keyword expr))))
           ([expr f]
-           `(listen (defevent ~expr) ~f))))
+           `(listen ~f (defevent ~expr)))))
