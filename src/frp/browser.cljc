@@ -1,18 +1,27 @@
 (ns frp.browser
-  (:require [frp.derived :as derived]
+  (:require [aid.core :as aid]
+            [frp.derived :as derived]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]))
 
-(def redef-event
-  #(behavior/redef % (derived/event)))
+(aid/defcurried effect
+                [f x]
+                (f x)
+                x)
 
-(defn get-event
-  [k]
-  (let [e (event/->Event k)]
-    (-> e
-        redef-event
-        behavior/register)
-    e))
+;TODO combine this function with redef-listen
+(def redef-event
+  #(behavior/redef %
+                   (derived/event)))
+
+(defn make-redef-event
+  [e]
+  #(redef-event e))
+
+(def get-event
+  (comp (effect (comp behavior/register*
+                      make-redef-event))
+        event/->Event))
 
 #?(:clj (defmacro defevent
           [expr]

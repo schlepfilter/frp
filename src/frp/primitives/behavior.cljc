@@ -105,6 +105,7 @@
         ((aid/curry 3 s/setval*) s/END)
         vector))
 
+;TODO delete this macro
 #?(:clj (defmacro register
           [& body]
           `(register* (fn []
