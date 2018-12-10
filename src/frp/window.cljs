@@ -5,9 +5,9 @@
             [frp.primitives.behavior :as behavior :include-macros true]))
 
 (defn get-coordinate
-  [event]
-  {:page-x (aget event "pageX")
-   :page-y (aget event "pageY")})
+  [event*]
+  {:page-x (aget event* "pageX")
+   :page-y (aget event* "pageY")})
 
 (browser/defevent dragstart
   get-coordinate)
