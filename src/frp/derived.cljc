@@ -70,7 +70,6 @@
          [expr]
          (->> expr
               ;TODO macroexpand expr when ClojureScript starts supporting runtime macro expansion
-              ;
               ;macroexpand is only intended as a REPL utility
               ;https://cljs.github.io/api/cljs.core/macroexpand
               walk/macroexpand-all
