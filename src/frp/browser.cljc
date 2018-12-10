@@ -25,12 +25,13 @@
 
 (defn add-remove-listener
   [event-type listener]
-  (js/addEventListener event-type listener)
-  (swap! event/network-state
-         (partial s/setval*
-                  :cancel
-                  (fn [_]
-                    (js/removeEventListener event-type listener)))))
+  #?(:cljs
+     (do (js/addEventListener event-type listener)
+         (swap! event/network-state
+                (partial s/setval*
+                         :cancel
+                         (fn [_]
+                           (js/removeEventListener event-type listener)))))))
 
 (defn listen
   [e f]
