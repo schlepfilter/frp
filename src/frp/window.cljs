@@ -28,7 +28,7 @@
   get-coordinate)
 
 (browser/defevent mouseup
-  (constantly {}))
+  get-coordinate)
 
 (browser/defevent popstate
   (fn [_]
