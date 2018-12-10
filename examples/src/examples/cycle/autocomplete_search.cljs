@@ -5,7 +5,7 @@
             [frp.ajax :refer [GET]]
             [frp.clojure.core :as core]
             [frp.core :as frp]
-            [thi.ng.color.core :as col]))
+            [examples.helpers :as helpers]))
 
 (def typing
   (frp/event))
@@ -82,15 +82,10 @@
 (def section-style
   {:margin-bottom 10})
 
-(def get-color
-  (comp deref
-        col/as-css
-        col/hsla))
-
 (defn autocomplete-search-component
   ;TODO display suggestions
   [query-input* suggestion-list*]
-  [:div {:style {:background (get-color 0 0 0.94)
+  [:div {:style {:background (helpers/get-color 0 0 0.94)
                  :padding    5}}
    [:section {:style section-style}
     [:label {:style label-style}
@@ -113,10 +108,10 @@
   (m/<$> query-input-component query))
 
 (def green
-  (get-color (/ 29 72) 0.66 0.74))
+  (helpers/get-color (/ 29 72) 0.66 0.74))
 
 (def border
-  (str "1px solid " (get-color 0 0 0.8)))
+  (str "1px solid " (helpers/get-color 0 0 0.8)))
 
 (defn suggestion-list-component
   [suggested* suggestions* number*]
@@ -139,7 +134,7 @@
                 {:style    {:background    "white"
                             :border        border
                             :border-bottom "0px"
-                            :box-shadow    (->> (get-color 0 0 0.863)
+                            :box-shadow    (->> (helpers/get-color 0 0 0.863)
                                                 (str "0px 4px 4px "))
                             :display       (if suggested*
                                              "block"
