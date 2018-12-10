@@ -1,13 +1,7 @@
 (ns frp.history
-  (:require [frp.browser :as browser]
-            [frp.primitives.behavior :as behavior :include-macros true]
-            [frp.primitives.event :as event]))
+  (:require [frp.browser :as browser :include-macros true]))
 
-(def pushstate
-  (event/->Event ::pushstate))
-
-(behavior/register
-  (browser/redef-event pushstate))
+(browser/defevent pushstate)
 
 (defn push-state
   [state title url-string]
