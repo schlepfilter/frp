@@ -469,8 +469,9 @@
    (activate #?(:clj  Double/POSITIVE_INFINITY
                 :cljs js/Number.POSITIVE_INFINITY)))
   ([rate]
-   (->> (aid/case-eval rate #?(:clj  Double/POSITIVE_INFINITY
-                               :cljs js/Number.POSITIVE_INFINITY)
+   (->> (aid/case-eval rate
+                       #?(:clj  Double/POSITIVE_INFINITY
+                          :cljs js/Number.POSITIVE_INFINITY)
                        aid/nop
                        #?(:clj  (-> rate
                                     get-periods
