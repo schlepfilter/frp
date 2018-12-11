@@ -283,10 +283,7 @@
 
 (aid/defcurried insert-merge-sync
   [parent-id child-id network]
-  (insert-modify (fn [network*]
-                   (set-occs (get-latests parent-id network*)
-                             child-id
-                             network*))
+  (insert-modify #(set-occs (get-latests parent-id %) child-id %)
                  child-id
                  network))
 
