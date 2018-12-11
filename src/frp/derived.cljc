@@ -49,33 +49,33 @@
              (partial some behavior?)
              (complement (partial some event/event?))))
 
-#?(:clj
-   (do (defmacro transparent*
-         [f & more]
-         `(let [arguments# [~@more]]
-            (->> arguments#
-                 (map (aid/casep arguments#
-                                 event-only? eventize
-                                 behavior-only? behaviorize
-                                 identity))
-                 (apply ((aid/casep arguments#
-                                    (aid/build or
-                                               event-only?
-                                               behavior-only?)
-                                    aid/lift-a
-                                    identity)
-                          ~f)))))
+(defn transparent*
+  [f & more]
+  (->> more
+       (map (aid/casep more
+                       event-only? eventize
+                       behavior-only? behaviorize
+                       identity))
+       (apply ((aid/casep more
+                          (aid/build or
+                                     event-only?
+                                     behavior-only?)
+                          aid/lift-a
+                          identity)
+                f))))
 
-       (defmacro transparent
-         [expr]
-         (->> expr
-              ;TODO macroexpand expr when ClojureScript starts supporting runtime macro expansion
-              ;macroexpand is only intended as a REPL utility
-              ;https://cljs.github.io/api/cljs.core/macroexpand
-              walk/macroexpand-all
-              (walk/postwalk #(aid/casep %
-                                         has-argument? `(transparent* ~@%)
-                                         %))))))
+#?(:clj
+   (defmacro transparent
+     [expr]
+     (->> expr
+          ;TODO macroexpand expr when ClojureScript starts supporting runtime macro expansion
+          ;macroexpand is only intended as a REPL utility
+          ;https://cljs.github.io/api/cljs.core/macroexpand
+          walk/macroexpand-all
+          (walk/postwalk #(aid/casep %
+                                     has-argument? `(apply transparent*
+                                                           ~(vec %))
+                                     %)))))
 
 (def accum
   (partial core/reduce (aid/flip aid/funcall)))
