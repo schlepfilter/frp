@@ -82,6 +82,7 @@
 (defn modify-network!
   [occ id network]
   ;TODO advance
+  ;TODO call modifications only of the events connected to the event with id
   (->> network
        :dependency
        alg/topsort
