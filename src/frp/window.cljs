@@ -21,10 +21,10 @@
 (browser/defevent drop
   get-coordinate)
 
-(browser/defevent mousemove
+(browser/defevent pointermove
   get-coordinate)
 
-(browser/defevent mouseup
+(browser/defevent pointerup
   get-coordinate)
 
 (browser/defevent popstate
