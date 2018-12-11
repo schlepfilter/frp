@@ -26,12 +26,10 @@
 
 (defn get-initial-network
   []
-  {:cancellations []
-   :dependency    (graph/digraph)
-   :effects       []
-   :function      (linked/map)
-   :occs          (linked/map)
-   :time          time/epoch})
+  {:dependency (graph/digraph)
+   :function   (linked/map)
+   :occs       (linked/map)
+   :time       time/epoch})
 
 (def network-state
   (atom (get-initial-network)))
