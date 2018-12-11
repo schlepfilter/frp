@@ -254,13 +254,9 @@
 
 (defn make-call-once
   [id modify!]
-  ;TODO use aid/if-else
-  (fn [network]
-    (if (-> network
-            :modified
-            id)
-      network
-      (modify! network))))
+  (aid/if-else (comp id
+                     :modified)
+               modify!))
 
 (defn set-modify
   [id modify! network]
