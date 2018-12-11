@@ -72,9 +72,8 @@
                       (get-value t @event/network-state)
                       (get-value t @event/network-state))))))
 
-(defn stop
-  []
-  ((:cancel @event/network-state)))
+(def stop
+  #((:cancel @event/network-state)))
 
 (def rename-id
   (comp ((aid/curry 3 s/transform*)
