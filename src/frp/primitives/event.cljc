@@ -71,30 +71,29 @@
         occs)
   (s/setval [:occs id s/END] occs network))
 
-(def call-functions*
+(def call-functions
   (aid/flip (partial reduce (aid/flip aid/funcall))))
 
-(defn call-functions
+(def call-functions!
   ;TODO delete network
-  [fs]
-  (call-functions* (interleave fs (repeat (partial reset! network-state)))
+  #(call-functions (interleave % (repeat (partial reset! network-state)))
                    @network-state))
 
 (defn modify-network!
   [occ id network]
   ;TODO advance
-  (call-functions (->> network
-                       :dependency
-                       alg/topsort
-                       (mapcat (:modifications network))
-                       (concat [(partial s/setval* [:modified s/MAP-VALS] false)
-                                ;TODO clear cache
-                                (partial s/setval* :time (tuple/fst occ))
-                                (set-occs [occ] id)
-                                (partial s/setval* [:modified id] true)]))))
+  (call-functions! (->> network
+                        :dependency
+                        alg/topsort
+                        (mapcat (:modifications network))
+                        (concat [(partial s/setval* [:modified s/MAP-VALS] false)
+                                 ;TODO clear cache
+                                 (partial s/setval* :time (tuple/fst occ))
+                                 (set-occs [occ] id)
+                                 (partial s/setval* [:modified id] true)]))))
 
 (def run-effects!
-  (comp call-functions
+  (comp call-functions!
         :effects))
 
 (def run-network-state-effects!
@@ -204,8 +203,8 @@
 (defn event**
   [id fs network]
   ;TODO add a node to dependency
-  (call-functions (cons (set-occs [] id)
-                        (map ((aid/curry 3 (aid/flip aid/funcall)) id) fs)))
+  (call-functions! (cons (set-occs [] id)
+                         (map ((aid/curry 3 (aid/flip aid/funcall)) id) fs)))
   (Event. id))
 
 (def event*
@@ -303,14 +302,14 @@
   (->> network
        ((make-get-occs-or-latests initial) parent-id)
        (map (comp (aid/curriedfn [parent-id* _]
-                                 (call-functions ((juxt add-edge
-                                                        insert-merge-sync
-                                                        delay-sync)
-                                                   parent-id*
-                                                   child-id)))
+                                 (call-functions! ((juxt add-edge
+                                                         insert-merge-sync
+                                                         delay-sync)
+                                                    parent-id*
+                                                    child-id)))
                   :id
                   tuple/snd))
-       call-functions))
+       call-functions!))
 
 
 (defn merge-one
