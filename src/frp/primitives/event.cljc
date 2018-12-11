@@ -88,7 +88,7 @@
     (->> network
          :dependency
          alg/topsort
-         (mapcat (:modifies! network))
+         (mapcat (:modifications network))
          (concat [(partial s/setval* [:modified s/MAP-VALS] false)
                   ;TODO clear cache
                   (partial s/setval* :time (tuple/fst occ))
@@ -263,7 +263,7 @@
 
 (defn set-modify
   [id modify! network]
-  (s/setval [:modifies! id]
+  (s/setval [:modifications id]
             [(make-call-once id modify!)
              (partial s/setval* [:modified id] true)]
             network))
@@ -280,12 +280,12 @@
 
 (defn insert-modify
   [modify! id network]
-  (s/setval [:modifies! id (-> network
-                               :modifies!
-                               id
-                               count
-                               (- 2)
-                               snth)]
+  (s/setval [:modifications id (-> network
+                                   :modifications
+                                   id
+                                   count
+                                   (- 2)
+                                   snth)]
             [(make-call-once id modify!)]
             network))
 
