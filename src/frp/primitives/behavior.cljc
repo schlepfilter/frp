@@ -41,11 +41,10 @@
   (swap! event/network-state (partial s/setval* [:function id] f))
   (Behavior. id))
 
-(defn behavior*
-  [f]
-  (-> @event/network-state
-      event/get-id
-      (behavior** f)))
+(def behavior*
+  #(-> @event/network-state
+       event/get-id
+       (behavior** %)))
 
 (defn get-function
   [b network]
