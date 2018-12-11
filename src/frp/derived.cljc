@@ -38,15 +38,17 @@
              seq?
              multiton?))
 
-(def event-only?
+(defn make-only?
+  [x y]
   (aid/build and
-             (partial some event/event?)
-             (complement (partial some behavior?))))
+             (partial some x)
+             (complement (partial some y))))
+
+(def event-only?
+  (make-only? event/event? behavior?))
 
 (def behavior-only?
-  (aid/build and
-             (partial some behavior?)
-             (complement (partial some event/event?))))
+  (make-only? behavior? event/event?))
 
 (defn transparent*
   [f & more]
