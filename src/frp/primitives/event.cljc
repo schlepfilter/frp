@@ -213,9 +213,8 @@
                  (map ((aid/curry 3 (aid/flip aid/funcall)) id) fs))))
   (Event. id))
 
-(defn event*
-  [fs]
-  (event** (get-id @network-state) fs @network-state))
+(def event*
+  #(event** (get-id @network-state) % @network-state))
 
 (def get-unit
   (partial tuple/tuple time/epoch))
