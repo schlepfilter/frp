@@ -178,19 +178,18 @@
   (comp parse-keyword
         get-last-key))
 
-(defn get-id-number*
-  [ordered-map]
-  (aid/casep ordered-map
-             empty? 0
-             (comp number?
-                   parse-last-key)
-             (-> ordered-map
-                 parse-last-key
-                 inc)
-             (->> ordered-map
-                  get-last-key
-                  (dissoc ordered-map)
-                  recur)))
+(def get-id-number*
+  #(aid/casep %
+              empty? 0
+              (comp number?
+                    parse-last-key)
+              (-> %
+                  parse-last-key
+                  inc)
+              (->> %
+                   get-last-key
+                   (dissoc %)
+                   recur)))
 
 (aid/defcurried get-id-number
                 [k network]
