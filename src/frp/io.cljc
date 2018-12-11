@@ -48,8 +48,8 @@
                          ;TODO consider cases where the cache is nil
                          ((:id b) (:cache network)))
                     network
-                    (do (f! (get-network-value b network))
-                        (set-cache b network))))
+                    (f! (get-network-value b network)))
+                  (set-cache b network))
 
 (def on
   (comp (partial swap! event/network-state)
