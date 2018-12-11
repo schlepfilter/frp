@@ -449,9 +449,7 @@
 
 (defn snapshot
   [e b]
-  (m/<$> (fn [x]
-           [x @b])
-         e))
+  (m/<$> (partial (aid/flip vector) @b) e))
 
 #?(:clj (defn get-periods
           ;TODO extract a purely functional function
