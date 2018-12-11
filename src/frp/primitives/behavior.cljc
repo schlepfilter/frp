@@ -153,8 +153,7 @@
 
 (defn stepper
   [a e]
-  (behavior* (fn [t]
-               (get-stepper-value a e t @event/network-state))))
+  (behavior* #(get-stepper-value a e % @event/network-state)))
 
 (defn get-time-transform-function
   ;TODO refactor
