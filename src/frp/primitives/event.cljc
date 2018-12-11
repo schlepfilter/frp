@@ -233,11 +233,10 @@
        (filter (comp (partial = (:time network))
                      tuple/fst))))
 
-(defn make-get-occs-or-latests
-  [initial]
-  (if initial
-    get-occs
-    get-latests))
+(def make-get-occs-or-latests
+  #(if %
+     get-occs
+     get-latests))
 
 (aid/defcurried modify-<$>
                 [f! parent-id initial child-id network]
