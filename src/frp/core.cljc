@@ -4,7 +4,8 @@
             [frp.io :as io]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]
-            #?(:cljs [frp.location])))
+            #?@(:cljs [[frp.document]
+                       [frp.location]])))
 
 (def restart
   behavior/restart)

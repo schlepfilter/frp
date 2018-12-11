@@ -13,9 +13,8 @@
 (clojure-test/defspec
   location
   helpers/cljs-num-tests
-  (helpers/restart-for-all
-    [advance* helpers/advance]
-    (frp/activate)
-    (advance*)
-    ;TODO call on if asynchronous testing gets supported in test.check
-    (= @location/pathname js/location.pathname)))
+  (helpers/restart-for-all [advance* helpers/advance]
+                           (frp/activate)
+                           (advance*)
+                           ;TODO call on if asynchronous testing gets supported in test.check
+                           (= @location/pathname js/location.pathname)))
