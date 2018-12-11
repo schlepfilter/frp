@@ -26,12 +26,12 @@
 
 (defn get-initial-network
   []
-  {:cancel     aid/nop
-   :dependency (graph/digraph)
-   :effects    []
-   :function   (linked/map)
-   :occs       (linked/map)
-   :time       time/epoch})
+  {:cancellations []
+   :dependency    (graph/digraph)
+   :effects       []
+   :function      (linked/map)
+   :occs          (linked/map)
+   :time          time/epoch})
 
 (def network-state
   (atom (get-initial-network)))
@@ -472,22 +472,24 @@
          (swap! network-state))
     (run-effects! @network-state)))
 
+(def append-cancellation
+  (aid/curry 2 (partial s/setval* [:cancellations s/AFTER-ELEM])))
+
 (defn activate
   ([]
    (activate #?(:clj  Double/POSITIVE_INFINITY
                 :cljs js/Number.POSITIVE_INFINITY)))
   ([rate]
    (swap! network-state
-          (partial s/setval*
-                   :cancel
-                   (if (= rate #?(:clj  Double/POSITIVE_INFINITY
-                                  :cljs js/Number.POSITIVE_INFINITY))
-                     aid/nop
-                     #?(:clj  (-> rate
-                                  get-periods
-                                  (chime/chime-at handle))
-                        :cljs (->> (js/setInterval handle rate)
-                                   (partial js/clearInterval))))))
+          (append-cancellation (if (= rate
+                                      #?(:clj  Double/POSITIVE_INFINITY
+                                         :cljs js/Number.POSITIVE_INFINITY))
+                                 aid/nop
+                                 #?(:clj  (-> rate
+                                              get-periods
+                                              (chime/chime-at handle))
+                                    :cljs (->> (js/setInterval handle rate)
+                                               (partial js/clearInterval))))))
    (swap! network-state (partial s/setval* :active true))
    (run-network-state-effects!)
    (time/start)
