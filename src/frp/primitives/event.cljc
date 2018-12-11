@@ -469,16 +469,16 @@
    (activate #?(:clj  Double/POSITIVE_INFINITY
                 :cljs js/Number.POSITIVE_INFINITY)))
   ([rate]
-   (swap! network-state
-          (append-cancellation (if (= rate
-                                      #?(:clj  Double/POSITIVE_INFINITY
-                                         :cljs js/Number.POSITIVE_INFINITY))
-                                 aid/nop
-                                 #?(:clj  (-> rate
-                                              get-periods
-                                              (chime/chime-at handle))
-                                    :cljs (->> (js/setInterval handle rate)
-                                               (partial js/clearInterval))))))
+   (->> (aid/case-eval rate #?(:clj  Double/POSITIVE_INFINITY
+                               :cljs js/Number.POSITIVE_INFINITY)
+                       aid/nop
+                       #?(:clj  (-> rate
+                                    get-periods
+                                    (chime/chime-at handle))
+                          :cljs (->> (js/setInterval handle rate)
+                                     (partial js/clearInterval))))
+        append-cancellation
+        (swap! network-state))
    (swap! network-state (partial s/setval* :active true))
    (run-network-state-effects!)
    (time/start)
