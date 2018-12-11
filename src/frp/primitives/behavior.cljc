@@ -75,7 +75,7 @@
 (def stop
   #((->> @event/network-state
          :cancellations
-         (apply juxt))))
+         (apply juxt aid/nop))))
 
 (def rename-id
   (comp ((aid/curry 3 s/transform*)
