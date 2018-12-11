@@ -1,5 +1,6 @@
 (ns frp.browser
-  (:require [aid.core :as aid]
+  (:require [clojure.string :as str]
+            [aid.core :as aid]
             [frp.derived :as derived]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]))
@@ -20,23 +21,31 @@
         event/->Event))
 
 (defn add-remove-listener
-  [event-type listener]
+  [target event-type listener]
   #?(:cljs
      (do
-       (js/addEventListener event-type listener)
+       (.addEventListener target event-type listener)
        (swap!
          event/network-state
          (event/append-cancellation (fn [_]
-                                      (js/removeEventListener event-type
-                                                              listener)))))))
+                                      (.removeEventListener target
+                                                            event-type
+                                                            listener)))))))
 
 (defn listen
   [f e]
-  (behavior/register! #(-> e
-                           :id
-                           name
-                           (add-remove-listener (comp e
-                                                      f))))
+  #?(:cljs
+     (behavior/register!
+       #(add-remove-listener (aget js/window (-> e
+                                                 :id
+                                                 namespace
+                                                 (str/split #"\.")
+                                                 last))
+                             (-> e
+                                 :id
+                                 name)
+                             (comp e
+                                   f))))
   e)
 
 (aid/defcurried make-redef-behavior
