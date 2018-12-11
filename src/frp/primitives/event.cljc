@@ -319,7 +319,7 @@
 
 (defn merge-one
   [parent merged]
-  (s/setval s/END [(first parent)] merged))
+  (s/setval s/AFTER-ELEM (first parent) merged))
 
 (defn merge-occs*
   [merged left right]
