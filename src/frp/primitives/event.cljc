@@ -76,9 +76,9 @@
 
 (defn call-functions
   ;TODO delete network
-  [fs network]
+  [fs]
   (call-functions* (interleave fs (repeat (partial reset! network-state)))
-                   network))
+                   @network-state))
 
 (defn modify-network!
   [occ id network]
@@ -91,13 +91,11 @@
                                 ;TODO clear cache
                                 (partial s/setval* :time (tuple/fst occ))
                                 (set-occs [occ] id)
-                                (partial s/setval* [:modified id] true)]))
-                  network))
+                                (partial s/setval* [:modified id] true)]))))
 
 (def run-effects!
-  (aid/build call-functions
-             :effects
-             identity))
+  (comp call-functions
+        :effects))
 
 (def run-network-state-effects!
   (partial swap! network-state run-effects!))
@@ -207,8 +205,7 @@
   [id fs network]
   ;TODO add a node to dependency
   (call-functions (cons (set-occs [] id)
-                        (map ((aid/curry 3 (aid/flip aid/funcall)) id) fs))
-                  network)
+                        (map ((aid/curry 3 (aid/flip aid/funcall)) id) fs)))
   (Event. id))
 
 (def event*
@@ -303,17 +300,17 @@
 
 (aid/defcurried modify-join
   [parent-id initial child-id network]
-  (call-functions (map (comp (fn [parent-id*]
-                               (partial call-functions
-                                        ((juxt add-edge
-                                               insert-merge-sync
-                                               delay-sync)
-                                          parent-id*
-                                          child-id)))
-                             :id
-                             tuple/snd)
-                       ((make-get-occs-or-latests initial) parent-id network))
-                  network))
+  (->> network
+       ((make-get-occs-or-latests initial) parent-id)
+       (map (comp (aid/curriedfn [parent-id* _]
+                                 (call-functions ((juxt add-edge
+                                                        insert-merge-sync
+                                                        delay-sync)
+                                                   parent-id*
+                                                   child-id)))
+                  :id
+                  tuple/snd))
+       call-functions))
 
 
 (defn merge-one
