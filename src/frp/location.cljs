@@ -7,6 +7,5 @@
 
 (browser/defbehavior pathname
   #(->> (m/<> window/popstate history/pushstate)
-        (m/<$> (comp :pathname
-                     :location))
+        (m/<$> :pathname)
         (behavior/stepper js/location.pathname)))

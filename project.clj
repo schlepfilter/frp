@@ -22,6 +22,8 @@
                                   [org.clojure/test.check "0.9.0"]
                                   [org.clojure/tools.namespace "0.2.11"]
                                   [spyscope "0.1.6"]]}}
+  :test-selectors {:default (complement :integration)
+                   :integration :integration}
   :cljsbuild
   {:builds {:test {:source-paths ["src" "test"]
                    :compiler     {:output-to  "dev-resources/public/js/main.js"
