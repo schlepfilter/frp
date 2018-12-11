@@ -29,15 +29,14 @@
   (aid/if-else event/event?
                event))
 
+(def multiton?
+  (comp (partial < 1)
+        count))
+
 (def has-argument?
   (aid/build and
              seq?
-             (comp (partial not= 1)
-                   count)))
-
-(def singleton?
-  (comp (partial = 1)
-        count))
+             multiton?))
 
 (def event-only?
   (aid/build and
