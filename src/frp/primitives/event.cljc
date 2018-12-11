@@ -262,10 +262,10 @@
             network))
 
 (defn make-set-modify-modify
-  [modify*]
+  [modify!]
   [(fn [id network]
-     (set-modify id (modify* false id) network))
-   (modify* true)])
+     (set-modify id (modify! false id) network))
+   (modify! true)])
 
 (def snth
   (comp (partial apply s/srange)
