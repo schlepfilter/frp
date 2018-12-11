@@ -38,16 +38,18 @@
   [b network]
   (behavior/get-value b (:time network) network))
 
+(defn set-cache
+  [b network]
+  (s/setval [:cache (:id b)] (get-network-value b network) network))
+
 (defcurriedmethod get-effect! :behavior
                   [f! b network]
-                  ;TODO don't use maybe
-                  (if (= (maybe/just (get-network-value b network))
+                  (if (= (get-network-value b network)
+                         ;TODO consider cases where the cache is nil
                          ((:id b) (:cache network)))
                     network
                     (do (f! (get-network-value b network))
-                        (s/setval [:cache (:id b)]
-                                  (maybe/just (get-network-value b network))
-                                  network))))
+                        (set-cache b network))))
 
 (def on
   (comp (partial swap! event/network-state)
