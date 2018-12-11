@@ -296,14 +296,13 @@
   [t occs]
   (map (partial m/<*> (tuple/tuple t identity)) occs))
 
-(aid/defcurried
-  delay-sync
-  [parent-id child-id network]
-  (set-occs (->> network
-                 (get-occs parent-id)
-                 (delay-time-occs (:time network)))
-            child-id
-            network))
+(aid/defcurried delay-sync
+                [parent-id child-id network]
+                (set-occs (->> network
+                               (get-occs parent-id)
+                               (delay-time-occs (:time network)))
+                          child-id
+                          network))
 
 (aid/defcurried modify-join
                 [parent-id initial child-id network]
