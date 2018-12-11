@@ -8,8 +8,7 @@
   [f]
   (fn [url option]
     (browser/effect #(->> option
-                          (merge {:handler identity})
-                          (s/transform :handler (partial comp %))
+                          (s/setval :handler %)
                           (f url))
                     (derived/event))))
 
