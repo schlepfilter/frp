@@ -55,8 +55,7 @@
 
 (declare event?)
 
-(aid/defcurried
-  set-occs
+(aid/defcurried set-occs
   [occs id network]
   (run! #(-> %
              ;TODO consider cases where event is inside a collection
@@ -282,8 +281,7 @@
             [(make-call-once id modify!)]
             network))
 
-(aid/defcurried
-  insert-merge-sync
+(aid/defcurried insert-merge-sync
   [parent-id child-id network]
   (insert-modify (fn [network*]
                    (set-occs (get-latests parent-id network*)
