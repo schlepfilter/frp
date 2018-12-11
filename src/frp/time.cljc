@@ -63,8 +63,7 @@
        time))
 
 (def to-real-time
-  #(m/<$> (partial + @real-epoch-state)
-          %))
+  #(m/<$> (partial + @real-epoch-state) %))
 
 (def epoch
   (time 0))
