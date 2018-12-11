@@ -45,9 +45,8 @@
 
 (defn function
   [generator]
-  (gen/fmap (fn [n]
-              (memoize (fn [& more]
-                         (generate generator {:seed (+ n (hash more))}))))
+  (gen/fmap #(memoize (fn [& more]
+                        (generate generator {:seed (+ % (hash more))})))
             gen/int))
 
 (def simple-type-equal
