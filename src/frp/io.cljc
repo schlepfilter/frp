@@ -51,6 +51,5 @@
 
 (def on
   (comp (partial swap! event/network-state)
-        ((aid/curry 3 s/setval*) [:effects s/END])
-        vector
+        ((aid/curry 3 s/setval*) [:effects s/AFTER-ELEM])
         get-effect!))
