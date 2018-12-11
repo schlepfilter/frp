@@ -206,10 +206,9 @@
 (defn event**
   [id fs network]
   ;TODO add a node to dependency
-  (->> network
-       (call-functions
-         (concat [(set-occs [] id)]
-                 (map ((aid/curry 3 (aid/flip aid/funcall)) id) fs))))
+  (call-functions (cons (set-occs [] id)
+                        (map ((aid/curry 3 (aid/flip aid/funcall)) id) fs))
+                  network)
   (Event. id))
 
 (def event*
