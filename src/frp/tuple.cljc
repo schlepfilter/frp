@@ -1,6 +1,7 @@
 ;TODO use cats.data when pair implements monad
 (ns frp.tuple
-  (:require [cats.context :as ctx]
+  (:require [aid.core :as aid]
+            [cats.context :as ctx]
             [cats.core :as m]
             [cats.protocols :as p]
             [cats.util :as util]
@@ -20,13 +21,11 @@
       (partial ->Tuple (-> fst
                            ctx/infer
                            m/mempty))
-      (fn [ma]
-        (Tuple. (m/<> fst (-> ma
-                              :snd
-                              :fst))
-                (-> ma
-                    :snd
-                    :snd)))))
+      (comp (aid/build Tuple.
+                       (comp (partial m/<> fst)
+                             :fst)
+                       :snd)
+            :snd)))
   p/Printable
   (-repr [_]
     (str "#[tuple " (pr-str fst) " " (pr-str snd) "]")))
