@@ -419,21 +419,20 @@
                                                reduction)
                              element)]))
 
-(defn make-modify-transduce
-  [xform]
+(def make-modify-transduce
   ;TODO refactor
-  (let [step! (xform (comp maybe/just
-                           second
-                           vector))]
-    (aid/curriedfn [f! init parent-id initial child-id network]
-                   (set-occs (reduce (get-accumulator f! init child-id network)
-                                     []
-                                     (get-elements step!
-                                                   parent-id
-                                                   initial
-                                                   network))
-                             child-id
-                             @network-state))))
+  #(let [step! (% (comp maybe/just
+                        second
+                        vector))]
+     (aid/curriedfn [f! init parent-id initial child-id network]
+                    (set-occs (reduce (get-accumulator f! init child-id network)
+                                      []
+                                      (get-elements step!
+                                                    parent-id
+                                                    initial
+                                                    network))
+                              child-id
+                              @network-state))))
 
 (defn transduce
   ([xform f e]
