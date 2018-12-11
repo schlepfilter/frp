@@ -23,8 +23,7 @@
 
 (test/use-fixtures :each test-helpers/fixture)
 
-(clojure-test/defspec
-  call-inactive
+(clojure-test/defspec call-inactive
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all [as (gen/vector test-helpers/any-equal)]
                                 (let [e (frp/event)]
@@ -49,8 +48,7 @@
                          (partial map last)))
         vector))
 
-(clojure-test/defspec
-  call-active
+(clojure-test/defspec call-active
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all [as (gen/vector test-helpers/any-equal)]
                                 (let [e (frp/event)]
@@ -58,8 +56,7 @@
                                   (run! e as)
                                   (last-equal (map tuple/snd @e) as))))
 
-(clojure-test/defspec
-  <$>-identity
+(clojure-test/defspec <$>-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all
     [input-event test-helpers/any-event
@@ -74,8 +71,7 @@
       (last-equal (map tuple/snd @fmapped-event)
                   (map f (concat (map tuple/snd occs) as))))))
 
-(clojure-test/defspec
-  pure-identity
+(clojure-test/defspec pure-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all [a test-helpers/any-equal]
                                 (= (last @(-> (frp/event)
@@ -105,8 +101,7 @@
                (gen/return inner-events)
                (gen/return calls))))
 
-(clojure-test/defspec
-  join-identity
+(clojure-test/defspec join-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all
     [[outer-event inner-events calls] join-generator]
@@ -135,8 +130,7 @@
                (gen/return (apply m/<> input-events))
                (gen/return calls))))
 
-(clojure-test/defspec
-  <>-identity
+(clojure-test/defspec <>-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all [[input-events mappended-event calls]
                                  <>-generator]
@@ -196,8 +190,7 @@
                             aid/nothing)
                    (concat earliests as)))
 
-(clojure-test/defspec
-  transduce-identity
+(clojure-test/defspec transduce-identity
   test-helpers/cljc-num-tests
   ;TODO refactor
   (test-helpers/restart-for-all
@@ -218,8 +211,7 @@
            rest
            (last-equal (map tuple/snd @transduced-event))))))
 
-(clojure-test/defspec
-  cat-identity
+(clojure-test/defspec cat-identity
   test-helpers/cljc-num-tests
   ;TODO refactor
   (test-helpers/restart-for-all
@@ -242,8 +234,7 @@
       (run! input-event as)
       (last-equal @cat-event @map-event))))
 
-(clojure-test/defspec
-  snapshot-identity
+(clojure-test/defspec snapshot-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all
     ;TODO generate a behavior by stepper and call the event

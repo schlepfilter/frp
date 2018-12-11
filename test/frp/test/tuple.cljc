@@ -49,16 +49,14 @@
   (gen/one-of (map (partial (aid/flip gen/vector) n)
                    scalar-monoids)))
 
-(clojure-test/defspec
-  monad-right-identity-law
+(clojure-test/defspec monad-right-identity-law
   helpers/cljc-num-tests
   (prop/for-all [a helpers/any-equal
                  mempty* mempty]
     (= (m/>>= (tuple/tuple mempty* a) m/return)
        (tuple/tuple mempty* a))))
 
-(clojure-test/defspec
-  monad-left-identity-law
+(clojure-test/defspec monad-left-identity-law
   helpers/cljc-num-tests
   (prop/for-all [a helpers/any-equal
                  f* (helpers/function helpers/any-equal)
@@ -72,8 +70,7 @@
                 f)
          (f a)))))
 
-(clojure-test/defspec
-  monad-associativity-law
+(clojure-test/defspec monad-associativity-law
   helpers/cljc-num-tests
   (prop/for-all [a helpers/any-equal
                  monoids (scalar-monoid-vector 3)

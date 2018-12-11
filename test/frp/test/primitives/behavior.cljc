@@ -17,8 +17,7 @@
 
 (test/use-fixtures :each test-helpers/fixture)
 
-(clojure-test/defspec
-  time-increasing
+(clojure-test/defspec time-increasing
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all [advance1 test-helpers/advance
                                  advance2 test-helpers/advance]
@@ -28,8 +27,7 @@
                                   (advance2)
                                   (helpers/<= t @frp/time))))
 
-(clojure-test/defspec
-  <$>-identity
+(clojure-test/defspec <$>-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all
     ;TODO generate a behavior by stepper and call the event
@@ -39,8 +37,7 @@
       (frp/activate)
       (= @fmapped-behavior (f @input-behavior)))))
 
-(clojure-test/defspec
-  pure-identity
+(clojure-test/defspec pure-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all [a test-helpers/any-equal]
                                 (= @(-> unit/unit
@@ -73,8 +70,7 @@
                (gen/return outer-behavior)
                (gen/return calls))))
 
-(clojure-test/defspec
-  join-identity
+(clojure-test/defspec join-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all
     [[inner-behaviors outer-behavior calls] (gen/no-shrink join-generator)]
@@ -84,8 +80,7 @@
       (= @joined-behavior @(last inner-behaviors)))))
 
 
-(clojure-test/defspec
-  stepper-identity
+(clojure-test/defspec stepper-identity
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all [a test-helpers/any-equal
                                  as (gen/vector test-helpers/any-equal)

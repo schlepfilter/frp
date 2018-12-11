@@ -7,8 +7,7 @@
             [frp.time :as time]
             [frp.test.helpers :as test-helpers]))
 
-(clojure-test/defspec
-  time-increasing
+(clojure-test/defspec time-increasing
   test-helpers/cljc-num-tests
   (prop/for-all []
     (helpers/<= (time/now)

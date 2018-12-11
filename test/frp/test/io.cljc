@@ -30,8 +30,7 @@
                   (cons `do body))
                @exits-state##))))
 
-(clojure-test/defspec
-  with-exitv-identity
+(clojure-test/defspec with-exitv-identity
   helpers/cljc-num-tests
   (prop/for-all [as (gen/vector helpers/any-equal)
                  b helpers/any-equal]
@@ -42,8 +41,7 @@
                    b)
        as)))
 
-(clojure-test/defspec
-  event-on
+(clojure-test/defspec event-on
   helpers/cljc-num-tests
   (helpers/restart-for-all
     [e helpers/any-event
@@ -55,8 +53,7 @@
                    (frp/activate)
                    (run! e as)))))
 
-(clojure-test/defspec
-  behavior-on
+(clojure-test/defspec behavior-on
   helpers/cljc-num-tests
   (helpers/restart-for-all
     [e helpers/any-event

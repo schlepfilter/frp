@@ -10,8 +10,7 @@
 
 (test/use-fixtures :each helpers/fixture)
 
-(clojure-test/defspec
-  location
+(clojure-test/defspec location
   helpers/cljs-num-tests
   (helpers/restart-for-all [advance* helpers/advance]
                            (frp/activate)
