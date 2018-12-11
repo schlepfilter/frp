@@ -82,15 +82,16 @@
 (defn modify-network!
   [occ id network]
   ;TODO advance
-  (call-functions! (->> network
-                        :dependency
-                        alg/topsort
-                        (mapcat (:modifications network))
-                        (concat [(partial s/setval* [:modified s/MAP-VALS] false)
-                                 ;TODO clear cache
-                                 (partial s/setval* :time (tuple/fst occ))
-                                 (set-occs [occ] id)
-                                 (partial s/setval* [:modified id] true)]))))
+  (->> network
+       :dependency
+       alg/topsort
+       (mapcat (:modifications network))
+       (concat [(partial s/setval* [:modified s/MAP-VALS] false)
+                ;TODO clear cache
+                (partial s/setval* :time (tuple/fst occ))
+                (set-occs [occ] id)
+                (partial s/setval* [:modified id] true)])
+       call-functions!))
 
 (def run-effects!
   (comp call-functions!
@@ -201,14 +202,16 @@
              (get-id-number :function)))
 
 (defn event**
-  [id fs network]
+  [id fs]
   ;TODO add a node to dependency
-  (call-functions! (cons (set-occs [] id)
-                         (map ((aid/curry 3 (aid/flip aid/funcall)) id) fs)))
+  (->> fs
+       (map ((aid/curry 3 (aid/flip aid/funcall)) id))
+       (cons (set-occs [] id))
+       call-functions!)
   (Event. id))
 
 (def event*
-  #(event** (get-id @network-state) % @network-state))
+  #(event** (get-id @network-state) %))
 
 (def get-unit
   (partial tuple/tuple time/epoch))
