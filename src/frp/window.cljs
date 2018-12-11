@@ -6,14 +6,13 @@
             [frp.browser :as browser :include-macros true]
             [frp.primitives.behavior :as behavior :include-macros true]))
 
-(defn get-coordinate
-  [event*]
-  (->> #{:page-x :page-y :movement-x :movement-y}
-       (mapcat (aid/build vector
-                          identity
-                          (comp (partial aget event*)
-                                cuerdas/camel)))
-       (apply array-map)))
+(def get-coordinate
+  #(->> #{:page-x :page-y :movement-x :movement-y}
+        (mapcat (aid/build vector
+                           identity
+                           (comp (partial aget %)
+                                 cuerdas/camel)))
+        (apply array-map)))
 
 (browser/defevent dragstart
   get-coordinate)
