@@ -71,12 +71,11 @@
                 :min  0
                 :NaN? false}))
 
-(defn probabilities
-  [n]
-  (gen/sized (comp (partial gen/vector
-                            probability
-                            n)
-                   (partial + n))))
+(def probabilities
+  #(gen/sized (comp (partial gen/vector
+                             probability
+                             %)
+                    (partial + %))))
 
 (def mempty-event
   ;gen/fmap ensures a new event is returned
