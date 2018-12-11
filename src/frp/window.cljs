@@ -29,7 +29,7 @@
 
 (browser/defevent popstate
   (fn [_]
-    {:location {:pathname js/location.pathname}}))
+    {:pathname js/location.pathname}))
 
 (browser/defevent resize
   (fn [_]
