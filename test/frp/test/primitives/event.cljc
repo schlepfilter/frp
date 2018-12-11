@@ -31,12 +31,11 @@
                                   (run! e as)
                                   (empty? @e))))
 
-(defn recursively-get-occs
-  [x]
-  (walk/postwalk (aid/if-then event/event?
-                              (comp recursively-get-occs
-                                    deref))
-                 x))
+(def recursively-get-occs
+  #(walk/postwalk (aid/if-then event/event?
+                               (comp recursively-get-occs
+                                     deref))
+                  %))
 
 (def equal
   (comp (partial apply =)
