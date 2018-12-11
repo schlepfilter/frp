@@ -1,6 +1,5 @@
 (ns frp.browser
   (:require [aid.core :as aid]
-            [com.rpl.specter :as s]
             [frp.derived :as derived]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]))
