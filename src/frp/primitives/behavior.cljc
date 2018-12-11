@@ -59,17 +59,16 @@
         constantly))
 
 (def context
-  (helpers/reify-monad
-    (fn [f fa]
-      (behavior* (fn [t]
-                   (-> fa
-                       (get-value t @event/network-state)
-                       f))))
-    pure
-    #(behavior* (fn [t]
-                  (-> %
-                      (get-value t @event/network-state)
-                      (get-value t @event/network-state))))))
+  (helpers/reify-monad (fn [f fa]
+                         (behavior* (fn [t]
+                                      (-> fa
+                                          (get-value t @event/network-state)
+                                          f))))
+                       pure
+                       #(behavior* (fn [t]
+                                     (-> %
+                                         (get-value t @event/network-state)
+                                         (get-value t @event/network-state))))))
 
 (def stop
   #((->> @event/network-state
