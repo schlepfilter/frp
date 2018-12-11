@@ -75,6 +75,7 @@
   (aid/flip (partial reduce (aid/flip aid/funcall))))
 
 (defn call-functions
+  ;TODO delete network
   [fs network]
   (call-functions* (interleave fs (repeat (partial reset! network-state)))
                    network))
