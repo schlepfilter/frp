@@ -454,7 +454,7 @@
          get-new-time
          (partial s/setval* :time)
          (swap! network-state))
-    (run-effects! @network-state)))
+    (run-network-state-effects!)))
 
 (def append-cancellation
   (aid/curry 2 (partial s/setval* [:cancellations s/AFTER-ELEM])))
