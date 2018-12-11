@@ -42,12 +42,11 @@
       :occs
       id))
 
-(defn get-new-time
-  [past]
-  (let [current (time/now)]
-    (if (= past current)
-      (recur past)
-      current)))
+(def get-new-time
+  #(let [current (time/now)]
+     (if (= % current)
+       (recur %)
+       current)))
 
 (def get-times
   #((juxt identity
