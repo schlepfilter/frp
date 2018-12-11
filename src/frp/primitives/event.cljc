@@ -192,10 +192,10 @@
                    recur)))
 
 (aid/defcurried get-id-number
-                [k network]
-                (-> network
-                    k
-                    get-id-number*))
+  [k network]
+  (-> network
+      k
+      get-id-number*))
 
 (def get-id
   (aid/build (comp keyword
@@ -220,11 +220,11 @@
   (partial tuple/tuple time/epoch))
 
 (aid/defcurried add-edge
-                [parent-id child-id network]
-                (s/transform :dependency
-                             (partial (aid/flip graph/add-edges)
-                                      [parent-id child-id])
-                             network))
+  [parent-id child-id network]
+  (s/transform :dependency
+               (partial (aid/flip graph/add-edges)
+                        [parent-id child-id])
+               network))
 
 (defn get-latests
   [id network]
@@ -239,14 +239,14 @@
      get-latests))
 
 (aid/defcurried modify-<$>
-                [f! parent-id initial child-id network]
-                ;TODO refactor
-                (reset! network-state network)
-                (set-occs (->> network
-                               ((make-get-occs-or-latests initial) parent-id)
-                               (mapv (partial m/<$> f!)))
-                          child-id
-                          @network-state))
+  [f! parent-id initial child-id network]
+  ;TODO refactor
+  (reset! network-state network)
+  (set-occs (->> network
+                 ((make-get-occs-or-latests initial) parent-id)
+                 (mapv (partial m/<$> f!)))
+            child-id
+            @network-state))
 
 (defn make-call-once
   [id modify!]
@@ -297,17 +297,16 @@
   (map (partial m/<*> (tuple/tuple t identity)) occs))
 
 (aid/defcurried delay-sync
-                [parent-id child-id network]
-                (set-occs (->> network
-                               (get-occs parent-id)
-                               (delay-time-occs (:time network)))
-                          child-id
-                          network))
+  [parent-id child-id network]
+  (set-occs (->> network
+                 (get-occs parent-id)
+                 (delay-time-occs (:time network)))
+            child-id
+            network))
 
 (aid/defcurried modify-join
-                [parent-id initial child-id network]
-                (call-functions
-                  (map (comp (fn [parent-id*]
+  [parent-id initial child-id network]
+  (call-functions (map (comp (fn [parent-id*]
                                (partial call-functions
                                         ((juxt add-edge
                                                insert-merge-sync
@@ -340,15 +339,15 @@
   (partial merge-occs* []))
 
 (aid/defcurried modify-<>
-                [left-id right-id initial child-id network]
-                (set-occs (merge-occs ((make-get-occs-or-latests initial)
-                                        left-id
-                                        network)
-                                      ((make-get-occs-or-latests initial)
-                                        right-id
-                                        network))
-                          child-id
+  [left-id right-id initial child-id network]
+  (set-occs (merge-occs ((make-get-occs-or-latests initial)
+                          left-id
+                          network)
+                        ((make-get-occs-or-latests initial)
+                          right-id
                           network))
+            child-id
+            network))
 
 (def pure
   (comp event*
@@ -406,14 +405,14 @@
       last))
 
 (aid/defcurried get-accumulator
-                [f! init id network reduction element]
-                (s/setval s/END
-                          reduction
-                          [((aid/lift-a f!)
-                             (get-transduction init
-                                               (get-occs id network)
-                                               reduction)
-                             element)]))
+  [f! init id network reduction element]
+  (s/setval s/END
+            reduction
+            [((aid/lift-a f!)
+               (get-transduction init
+                                 (get-occs id network)
+                                 reduction)
+               element)]))
 
 (def make-modify-transduce
   ;TODO refactor

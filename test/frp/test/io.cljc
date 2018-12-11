@@ -35,12 +35,12 @@
   helpers/cljc-num-tests
   (prop/for-all [as (gen/vector helpers/any-equal)
                  b helpers/any-equal]
-                (= (with-exitv exit
-                               (->> as
-                                    (map exit)
-                                    doall)
-                               b)
-                   as)))
+    (= (with-exitv exit
+                   (->> as
+                        (map exit)
+                        doall)
+                   b)
+       as)))
 
 (clojure-test/defspec
   event-on

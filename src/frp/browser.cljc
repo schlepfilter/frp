@@ -6,9 +6,9 @@
             [frp.primitives.event :as event]))
 
 (aid/defcurried effect
-                [f x]
-                (f x)
-                x)
+  [f x]
+  (f x)
+  x)
 
 (defn make-redef-event
   [e]
@@ -49,8 +49,8 @@
   e)
 
 (aid/defcurried make-redef-behavior
-                [f b]
-                #(behavior/redef b (f)))
+  [f b]
+  #(behavior/redef b (f)))
 
 (defn get-behavior
   [f k]

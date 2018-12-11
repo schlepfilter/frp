@@ -6,11 +6,11 @@
             [frp.derived :as derived]))
 
 (aid/defcurried request
-                [f url option]
-                (browser/effect #(->> option
-                                      (s/setval :handler %)
-                                      (f url))
-                                (derived/event)))
+  [f url option]
+  (browser/effect #(->> option
+                        (s/setval :handler %)
+                        (f url))
+                  (derived/event)))
 
 (def GET
   (request ajax/GET))
