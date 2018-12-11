@@ -238,7 +238,6 @@
 (aid/defcurried modify-<$>
   [f! parent-id initial child-id network]
   ;TODO refactor
-  (reset! network-state network)
   (set-occs (->> network
                  ((make-get-occs-or-latests initial) parent-id)
                  (mapv (partial m/<$> f!)))
