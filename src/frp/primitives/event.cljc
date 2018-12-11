@@ -358,32 +358,31 @@
   #(event* []))
 
 (def context
-  (helpers/reify-monad
-    (fn [f! fa]
-      (->> fa
-           :id
-           (modify-<$> f!)
-           make-set-modify-modify
-           (cons (add-edge (:id fa)))
-           event*))
-    pure
-    #(->> (modify-join (:id %))
-          make-set-modify-modify
-          (cons (add-edge (:id %)))
-          event*)
-    protocols/Semigroup
-    (-mappend [_ left-event right-event]
-              (-> (modify-<> (:id left-event)
-                             (:id right-event))
-                  make-set-modify-modify
-                  (concat (map (comp add-edge
-                                     :id)
-                               [left-event right-event]))
-                  event*))
-    ;TODO delete Monoid
-    protocols/Monoid
-    (-mempty [_]
-             (mempty))))
+  (helpers/reify-monad (fn [f! fa]
+                         (->> fa
+                              :id
+                              (modify-<$> f!)
+                              make-set-modify-modify
+                              (cons (add-edge (:id fa)))
+                              event*))
+                       pure
+                       #(->> (modify-join (:id %))
+                             make-set-modify-modify
+                             (cons (add-edge (:id %)))
+                             event*)
+                       protocols/Semigroup
+                       (-mappend [_ left-event right-event]
+                                 (-> (modify-<> (:id left-event)
+                                                (:id right-event))
+                                     make-set-modify-modify
+                                     (concat (map (comp add-edge
+                                                        :id)
+                                                  [left-event right-event]))
+                                     event*))
+                       ;TODO delete Monoid
+                       protocols/Monoid
+                       (-mempty [_]
+                                (mempty))))
 
 (defn get-elements
   [step! id initial network]
