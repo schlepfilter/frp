@@ -49,10 +49,10 @@
       (recur past)
       current)))
 
-(defn get-times
-  []
-  (let [past (time/now)]
-    [past (get-new-time past)]))
+(def get-times
+  #((juxt identity
+          get-new-time)
+     (time/now)))
 
 (declare event?)
 
