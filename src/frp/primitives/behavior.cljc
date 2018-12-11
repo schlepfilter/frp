@@ -75,10 +75,13 @@
          (apply juxt aid/nop))))
 
 (def rename-id
-  (comp ((aid/curry 3 s/transform*)
-          (apply s/multi-path
-                 (map s/must
-                      [:dependency :function :modifications :modified :occs])))
+  (comp ((aid/curry 3 s/transform*) (->> [:dependency
+                                          :function
+                                          :modifications
+                                          :modified
+                                          :occs]
+                                         (map s/must)
+                                         (apply s/multi-path)))
         (aid/flip (aid/curry 2 set/rename-keys))
         (partial apply array-map)
         reverse
