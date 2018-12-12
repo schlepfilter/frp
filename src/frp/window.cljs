@@ -8,6 +8,7 @@
 (def get-coordinate
   #(->> #{:page-x :page-y :movement-x :movement-y}
         (mapcat (juxt identity
+                      ;TODO don't use aget
                       (comp (partial aget %)
                             cuerdas/camel)))
         (apply array-map)))
