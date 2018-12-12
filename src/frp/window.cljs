@@ -43,7 +43,7 @@
 
 (browser/defevent resize
   (fn [_]
-    {:inner-height js/innerHeight}))
+    (convert js/window)))
 
 (browser/defbehavior inner-height
   #(->> resize
