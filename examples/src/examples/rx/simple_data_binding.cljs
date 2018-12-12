@@ -10,7 +10,7 @@
    [:input {:on-change   #(-> %
                               .-target.value
                               event)
-            :placeholder (str "Enter " label "...")}]])
+            :placeholder (str "Enter " label "Name...")}]])
 
 (def first-name
   (frp/event))
@@ -24,9 +24,9 @@
    [:h1 "Simple Data Binding Example"]
    [:p "Show simple concepts of data binding!"]
    [partial-name {:event first-name
-                  :label "First Name"}]
+                  :label "First"}]
    [partial-name {:event last-name
-                  :label "Last Name"}]
+                  :label "Last"}]
    [:div "Full Name"]
    [:div full-name*]])
 
