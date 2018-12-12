@@ -5,6 +5,7 @@
             [frp.browser :as browser :include-macros true]
             [frp.primitives.behavior :as behavior :include-macros true]))
 
+;TODO define a generic function that converts a JavaScript object to a ClojureScript one
 (def get-coordinate
   #(->> #{:page-x :page-y :movement-x :movement-y}
         (mapcat (juxt identity
