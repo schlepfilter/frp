@@ -25,7 +25,6 @@
 
 (defn drag-n-drop-component
   [origin* height]
-  ;TODO use window/dragover
   [:div {:on-drag-over #(.preventDefault %)
          :style        {:position "absolute"
                         :top      0
