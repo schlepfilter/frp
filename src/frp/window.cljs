@@ -2,29 +2,32 @@
   (:refer-clojure :exclude [drop])
   (:require [cats.core :as m]
             [cuerdas.core :as cuerdas]
+            [goog]
+            [goog.object :as object]
+            [oops.core :refer [oget+ ocall+]]
             [frp.browser :as browser :include-macros true]
             [frp.primitives.behavior :as behavior :include-macros true]))
 
-;TODO define a generic function that converts a JavaScript object to a ClojureScript one
-(def get-coordinate
-  #(->> #{:page-x :page-y :movement-x :movement-y}
-        (mapcat (juxt identity
-                      ;TODO don't use aget
-                      (comp (partial aget %)
-                            cuerdas/camel)))
-        (apply array-map)))
+(defn convert
+  [x]
+  (->> x
+       object/getKeys
+       (mapcat (juxt (comp keyword
+                           cuerdas/kebab)
+                     #(oget+ x %)))
+       (apply hash-map)))
 
 (browser/defevent dragstart
-  get-coordinate)
+  convert)
 
 (browser/defevent drop
-  get-coordinate)
+  convert)
 
 (browser/defevent pointermove
-  get-coordinate)
+  convert)
 
 (browser/defevent pointerup
-  get-coordinate)
+  convert)
 
 (browser/defevent popstate
   (fn [_]
