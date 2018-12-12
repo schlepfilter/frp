@@ -24,6 +24,9 @@
        (m/<$> (partial (aid/flip set/rename-keys) {:page-x :left
                                                    :page-y :top}))))
 
+(def square-height
+  200)
+
 (defn drag-n-drop-component
   [origin* height]
   ;TODO use window/dragover
@@ -39,9 +42,9 @@
                              :background-position "center"
                              :background-color    black
                              :color               white
-                             :height              200
+                             :height              square-height
                              :position            "absolute"
-                             :width               200})}
+                             :width               square-height})}
     "Drag Me!"]
    [:h1 "Drag and Drop Example"]
    [:p "Example to show coordinating events to perform drag and drop"]])
