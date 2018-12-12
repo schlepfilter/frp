@@ -9,12 +9,12 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - examples/resources/public/js
+            - examples/resources/public
+            - script
   deploy:
     docker:
       - image: circleci/clojure:lein-2.8.1-node-browsers
     steps:
-      - checkout
       - attach_workspace:
           at: .
       - run: script/circleci/deploy.sh
