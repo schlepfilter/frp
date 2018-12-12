@@ -316,7 +316,7 @@
   [parent merged]
   (s/setval s/AFTER-ELEM (first parent) merged))
 
-(defn merge-occs*
+(aid/defcurried merge-occs*
   [merged left right]
   (cond (empty? left) (s/setval s/END right merged)
         (empty? right) (s/setval s/END left merged)
@@ -329,7 +329,7 @@
         (recur (merge-one right merged) left (rest right))))
 
 (def merge-occs
-  (partial merge-occs* []))
+  (merge-occs* []))
 
 (aid/defcurried modify-<>
   [left-id right-id initial child-id network]
