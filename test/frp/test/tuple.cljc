@@ -44,10 +44,9 @@
   (gen/fmap (comp m/mempty ctx/infer)
             monoid))
 
-(defn scalar-monoid-vector
-  [n]
-  (gen/one-of (map (partial (aid/flip gen/vector) n)
-                   scalar-monoids)))
+(def scalar-monoid-vector
+  #(gen/one-of (map (partial (aid/flip gen/vector) %)
+                    scalar-monoids)))
 
 (clojure-test/defspec monad-right-identity-law
   helpers/cljc-num-tests
