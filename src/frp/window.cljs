@@ -1,17 +1,15 @@
 (ns frp.window
   (:refer-clojure :exclude [drop])
-  (:require [aid.core :as aid]
-            [cats.core :as m]
+  (:require [cats.core :as m]
             [cuerdas.core :as cuerdas]
             [frp.browser :as browser :include-macros true]
             [frp.primitives.behavior :as behavior :include-macros true]))
 
 (def get-coordinate
   #(->> #{:page-x :page-y :movement-x :movement-y}
-        (mapcat (aid/build vector
-                           identity
-                           (comp (partial aget %)
-                                 cuerdas/camel)))
+        (mapcat (juxt identity
+                      (comp (partial aget %)
+                            cuerdas/camel)))
         (apply array-map)))
 
 (browser/defevent dragstart
