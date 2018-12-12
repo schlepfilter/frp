@@ -1,8 +1,26 @@
 version: 2
 jobs:
-  build:
+  integrate:
     docker:
       - image: circleci/clojure:lein-2.8.1-node-browsers
     steps:
       - checkout
-      - run: script/circleci.sh
+      - run: script/circleci/integrate.sh
+      - persist_to_workspace:
+          root: .
+          paths:
+            - examples/resources/public/js
+  deploy:
+    docker:
+      - image: circleci/clojure:lein-2.8.1-node-browsers
+    steps:
+      - checkout
+      - run: script/circleci/deploy.sh
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - integrate
+      - deploy:
+          requires:
+            - integrate
