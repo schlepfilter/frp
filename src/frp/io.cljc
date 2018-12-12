@@ -44,10 +44,7 @@
 
 (defcurriedmethod get-effect! :behavior
                   [f! b network]
-                  (if (= (get-network-value b network)
-                         ;TODO consider cases where the cache is nil
-                         ((:id b) (:cache network)))
-                    network
+                  (if (not= (set-cache b network) network)
                     (f! (get-network-value b network)))
                   (set-cache b network))
 
