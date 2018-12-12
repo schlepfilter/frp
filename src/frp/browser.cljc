@@ -22,15 +22,13 @@
 
 (defn add-remove-listener
   [target event-type listener]
-  #?(:cljs
-     (do
-       (.addEventListener target event-type listener)
-       (swap!
-         event/network-state
-         (event/append-cancellation (fn [_]
-                                      (.removeEventListener target
-                                                            event-type
-                                                            listener)))))))
+  #?@(:cljs
+      [(.addEventListener target event-type listener)
+       (swap! event/network-state
+              (event/append-cancellation (fn [_]
+                                           (.removeEventListener target
+                                                                 event-type
+                                                                 listener))))]))
 
 (defn listen
   [f e]
