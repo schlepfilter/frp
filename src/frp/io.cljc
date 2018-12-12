@@ -34,7 +34,7 @@
                         (event/get-latests (:id e) network))
                   network)
 
-(defn get-network-value
+(aid/defcurried get-network-value
   [b network]
   (behavior/get-value b (:time network) network))
 
@@ -53,8 +53,7 @@
                        (set-cache b)
                        (effect (aid/if-else (partial = network)
                                             (comp f!
-                                                  (partial get-network-value
-                                                           b))))))
+                                                  (get-network-value b))))))
 
 (def on
   (comp (partial swap! event/network-state)
