@@ -2,13 +2,9 @@
   (:require [clojure.string :as str]
             [aid.core :as aid]
             [frp.derived :as derived]
+            [frp.io :as io]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]))
-
-(aid/defcurried effect
-  [f x]
-  (f x)
-  x)
 
 (defn make-redef-event
   [e]
@@ -16,8 +12,8 @@
                    (derived/event)))
 
 (def get-event
-  (comp (effect (comp behavior/register!
-                      make-redef-event))
+  (comp (io/effect (comp behavior/register!
+                         make-redef-event))
         event/->Event))
 
 (defn add-remove-listener
@@ -54,9 +50,10 @@
 
 (defn get-behavior
   [f k]
-  (effect (comp behavior/register!
-                (make-redef-behavior f))
-          (behavior/->Behavior k)))
+  (->> k
+       behavior/->Behavior
+       (io/effect (comp behavior/register!
+                        (make-redef-behavior f)))))
 
 (def get-caller-keyword
   #(->> %
