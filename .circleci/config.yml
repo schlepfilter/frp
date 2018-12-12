@@ -15,6 +15,7 @@ jobs:
     docker:
       - image: circleci/clojure:lein-2.8.1-node-browsers
     steps:
+      - run: git clone "https://schlepfilterdeployment:$GITHUB_TOKEN@github.com/frpexamples/frpexamples.github.io.git" examples/resources/public
       - attach_workspace:
           at: .
       - run: script/circleci/deploy.sh
