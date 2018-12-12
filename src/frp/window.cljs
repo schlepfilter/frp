@@ -1,48 +1,32 @@
 (ns frp.window
   (:refer-clojure :exclude [drop])
   (:require [cats.core :as m]
-            [cuerdas.core :as cuerdas]
-            [goog.object :as object]
-            [oops.core :refer [oget+]]
             [frp.browser :as browser :include-macros true]
             [frp.primitives.behavior :as behavior :include-macros true]))
-
-(defn convert
-  [x]
-  (->> x
-       object/getKeys
-       (mapcat (juxt (comp keyword
-                           cuerdas/kebab)
-                     #(case (-> x
-                                (oget+ %)
-                                goog/typeOf)
-                        "function" (partial js-invoke x %)
-                        (oget+ x %))))
-       (apply hash-map)))
 
 ;Defining dragover is visiliby slower possibly because it fires every few milliseconds.
 ;(browser/defevent dragover
 ;  convert)
 
 (browser/defevent dragstart
-  convert)
+  browser/convert)
 
 (browser/defevent drop
-  convert)
+  browser/convert)
 
 (browser/defevent pointermove
-  convert)
+  browser/convert)
 
 (browser/defevent pointerup
-  convert)
+  browser/convert)
 
 (browser/defevent popstate
   (fn [_]
-    (convert js/location)))
+    (browser/convert js/location)))
 
 (browser/defevent resize
   (fn [_]
-    (convert js/window)))
+    (browser/convert js/window)))
 
 (browser/defbehavior inner-height
   #(->> resize

@@ -1,6 +1,9 @@
 (ns frp.browser
   (:require [clojure.string :as str]
             [aid.core :as aid]
+            [cuerdas.core :as cuerdas]
+            [goog.object :as object]
+            [oops.core :refer [oget+]]
             [frp.derived :as derived]
             [frp.io :as io]
             [frp.primitives.behavior :as behavior]
@@ -72,4 +75,17 @@
          ([expr f]
           `(def ~expr
              (get-behavior ~f ~(get-caller-keyword expr)))))))
+
+(defn convert
+  [x]
+  (->> x
+       object/getKeys
+       (mapcat (juxt (comp keyword
+                           cuerdas/kebab)
+                     #(case (-> x
+                                (oget+ %)
+                                goog/typeOf)
+                        "function" (partial js-invoke x %)
+                        (oget+ x %))))
+       (apply hash-map)))
 

@@ -6,4 +6,4 @@
 (defn push-state
   [state title url-string]
   (js/history.pushState state title url-string)
-  (pushstate {:pathname js/location.pathname}))
+  (pushstate (browser/convert js/location)))
