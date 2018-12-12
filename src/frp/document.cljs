@@ -5,7 +5,7 @@
 
 (browser/defevent visibilitychange
   (fn [_]
-    {:hidden js/document.hidden}))
+    (browser/convert js/document)))
 
 (browser/defbehavior hidden
   #(->> visibilitychange
