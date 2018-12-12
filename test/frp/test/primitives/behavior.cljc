@@ -46,11 +46,13 @@
                                         (m/pure a))
                                    a)))
 
-(defn get-behaviors
-  [es]
-  (gen/let [bs (gen/sized (partial gen/vector test-helpers/any-behavior))
-            as (gen/vector test-helpers/any-equal (count es))]
-    (gen/shuffle (concat bs (map frp/stepper as es)))))
+(def get-behaviors
+  #(gen/let [bs (gen/sized (partial gen/vector test-helpers/any-behavior))
+             as (gen/vector test-helpers/any-equal (count %))]
+     (->> %
+          (map frp/stepper as)
+          (concat bs)
+          gen/shuffle)))
 
 (def join-generator
   (gen/let [probabilities* (test-helpers/probabilities 1)
