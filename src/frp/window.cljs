@@ -3,7 +3,7 @@
   (:require [cats.core :as m]
             [cuerdas.core :as cuerdas]
             [goog.object :as object]
-            [oops.core :refer [oget+ ocall+]]
+            [oops.core :refer [oget+]]
             [frp.browser :as browser :include-macros true]
             [frp.primitives.behavior :as behavior :include-macros true]))
 
