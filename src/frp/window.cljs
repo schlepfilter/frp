@@ -5,8 +5,7 @@
             [goog.object :as object]
             [oops.core :refer [oget+]]
             [frp.browser :as browser :include-macros true]
-            [frp.primitives.behavior :as behavior :include-macros true])
-  (:import [goog]))
+            [frp.primitives.behavior :as behavior :include-macros true]))
 
 (defn convert
   [x]
