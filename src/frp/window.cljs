@@ -2,7 +2,6 @@
   (:refer-clojure :exclude [drop])
   (:require [cats.core :as m]
             [cuerdas.core :as cuerdas]
-            [goog]
             [goog.object :as object]
             [oops.core :refer [oget+ ocall+]]
             [frp.browser :as browser :include-macros true]
