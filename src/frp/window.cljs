@@ -21,6 +21,10 @@
                         (oget+ x %))))
        (apply hash-map)))
 
+;dragover is visiliby slower possibly because it fires every few milliseconds.
+;(browser/defevent dragover
+;  convert)
+
 (browser/defevent dragstart
   convert)
 
