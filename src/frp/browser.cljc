@@ -88,4 +88,3 @@
                            "function" (partial js-invoke x %)
                            (oget+ x %))))
           (apply hash-map))))
-
