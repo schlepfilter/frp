@@ -39,7 +39,7 @@
 
 (browser/defevent popstate
   (fn [_]
-    {:pathname js/location.pathname}))
+    (convert js/location)))
 
 (browser/defevent resize
   (fn [_]
