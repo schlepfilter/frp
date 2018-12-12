@@ -7,10 +7,6 @@
             [frp.core :as frp]
             [frp.window :as window]))
 
-(def black "black")
-
-(def white "white")
-
 (def initialize
   (partial frp/stepper (s/setval (s/multi-path :page-x :page-y) 0 {})))
 
@@ -40,8 +36,8 @@
                             {:background-image    "url(/img/logo.png)"
                              :background-repeat   "no-repeat"
                              :background-position "center"
-                             :background-color    black
-                             :color               white
+                             :background-color    "black"
+                             :color               "white"
                              :height              square-height
                              :position            "absolute"
                              :width               square-height})}
