@@ -2,11 +2,11 @@
   (:refer-clojure :exclude [drop])
   (:require [cats.core :as m]
             [cuerdas.core :as cuerdas]
-            [goog]
             [goog.object :as object]
             [oops.core :refer [oget+]]
             [frp.browser :as browser :include-macros true]
-            [frp.primitives.behavior :as behavior :include-macros true]))
+            [frp.primitives.behavior :as behavior :include-macros true])
+  (:import [goog]))
 
 (defn convert
   [x]
