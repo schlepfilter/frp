@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [drop])
   (:require [cats.core :as m]
             [cuerdas.core :as cuerdas]
+            [goog]
             [goog.object :as object]
             [oops.core :refer [oget+]]
             [frp.browser :as browser :include-macros true]
@@ -13,7 +14,11 @@
        object/getKeys
        (mapcat (juxt (comp keyword
                            cuerdas/kebab)
-                     #(oget+ x %)))
+                     #(case (-> x
+                                (oget+ %)
+                                goog/typeOf)
+                        "function" (partial js-invoke x %)
+                        (oget+ x %))))
        (apply hash-map)))
 
 (browser/defevent dragstart
