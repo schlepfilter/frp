@@ -10,17 +10,19 @@
           `(reify
              p/Context
              p/Functor
-             (-fmap [_# f# fa#]
+             ;Method signatures are quoted to avoid warnings.
+             ;WARNING: Bad method signature in protocol implementation, cats.protocols/Functor does not declare method called frp.helpers/-fmap
+             (~'-fmap [_# f# fa#]
                (~fmap f# fa#))
              p/Applicative
-             (-pure [_# v#]
+             (~'-pure [_# v#]
                (~pure v#))
-             (-fapply [_# fab# fa#]
+             (~'-fapply [_# fab# fa#]
                (aid/ap fab# fa#))
              p/Monad
-             (-mreturn [_# a#]
+             (~'-mreturn [_# a#]
                (~pure a#))
-             (-mbind [_# ma# f#]
+             (~'-mbind [_# ma# f#]
                (~join (m/<$> f# ma#)))
              ~@more)))
 
