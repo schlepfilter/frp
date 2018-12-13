@@ -7,6 +7,9 @@
 (browser/defevent blur
   browser/convert)
 
+(browser/defevent change
+  browser/convert)
+
 (browser/defevent copy
   browser/convert)
 
@@ -26,6 +29,9 @@
 (browser/defevent focus
   browser/convert)
 
+(browser/defevent input
+  browser/convert)
+
 (browser/defevent paste
   browser/convert)
 
@@ -42,6 +48,9 @@
 (browser/defevent resize
   (fn [_]
     (browser/convert js/window)))
+
+(browser/defevent submit
+  browser/convert)
 
 (browser/defbehavior inner-height
   #(->> resize
