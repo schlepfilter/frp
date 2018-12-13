@@ -34,11 +34,11 @@
   [f e]
   #?(:cljs
      (behavior/register!
-       #(add-remove-listener (aget js/window (-> e
-                                                 :id
-                                                 namespace
-                                                 (str/split #"\.")
-                                                 last))
+       #(add-remove-listener (oget+ js/window (-> e
+                                                  :id
+                                                  namespace
+                                                  (str/split #"\.")
+                                                  last))
                              (-> e
                                  :id
                                  name)
