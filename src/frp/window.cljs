@@ -1,8 +1,6 @@
 (ns frp.window
   (:refer-clojure :exclude [drop])
-  (:require [cats.core :as m]
-            [frp.browser :as browser :include-macros true]
-            [frp.primitives.behavior :as behavior :include-macros true]))
+  (:require [frp.browser :as browser :include-macros true]))
 
 (browser/defevent blur
   browser/convert)
@@ -86,6 +84,4 @@
   browser/convert)
 
 (browser/defbehavior inner-height
-  #(->> resize
-        (m/<$> :inner-height)
-        (behavior/stepper js/innerHeight)))
+  resize)

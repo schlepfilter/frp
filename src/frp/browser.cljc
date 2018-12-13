@@ -1,6 +1,7 @@
 (ns frp.browser
   (:require [clojure.string :as str]
             [aid.core :as aid]
+            [cats.core :as m]
             [cuerdas.core :as cuerdas]
             #?@(:cljs
                 [[goog.object :as object]
@@ -30,15 +31,18 @@
                                                                  event-type
                                                                  listener))))]))
 
+(def get-property-name
+  (comp last
+        (partial (aid/flip str/split) #"\.")
+        namespace))
+
 (defn listen
   [f e]
   #?(:cljs
      (behavior/register!
        #(add-remove-listener (oget+ js/window (-> e
                                                   :id
-                                                  namespace
-                                                  (str/split #"\.")
-                                                  last))
+                                                  get-property-name))
                              (-> e
                                  :id
                                  name)
@@ -46,16 +50,30 @@
                                    f))))
   e)
 
+(def disqualify
+  (comp keyword
+        name))
+
 (aid/defcurried make-redef-behavior
-  [f b]
-  #(behavior/redef b (f)))
+  [f k b]
+  #?(:cljs
+     #(behavior/redef
+        b
+        (->> (f)
+             (m/<$> (disqualify k))
+             (behavior/stepper (->> k
+                                    disqualify
+                                    cuerdas/camel
+                                    (oget+ js/window
+                                           (get-property-name k))))))))
 
 (defn get-behavior
   [f k]
-  (->> k
-       behavior/->Behavior
-       (io/effect (comp behavior/register!
-                        (make-redef-behavior f)))))
+  #?(:cljs
+     (->> k
+          behavior/->Behavior
+          (io/effect (comp behavior/register!
+                           (make-redef-behavior f k))))))
 
 (def get-caller-keyword
   #(->> %
@@ -71,9 +89,11 @@
           `(listen ~f (defevent ~expr))))
 
        (defmacro defbehavior
-         ([expr f]
+         ([expr e]
           `(def ~expr
-             (get-behavior ~f ~(get-caller-keyword expr)))))))
+             (get-behavior (fn []
+                             ~e)
+                           ~(get-caller-keyword expr)))))))
 
 (def memoized-keyword
   (memoize cuerdas/keyword))
