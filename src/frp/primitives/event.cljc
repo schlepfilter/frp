@@ -73,7 +73,6 @@
   (aid/flip (partial reduce (aid/flip aid/funcall))))
 
 (def call-functions!
-  ;TODO delete network
   #(call-functions (interleave % (repeat (partial reset! network-state)))
                    @network-state))
 
