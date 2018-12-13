@@ -76,6 +76,9 @@
   #(merge (browser/convert %)
           (browser/convert js/window)))
 
+(browser/defevent scroll
+  browser/convert)
+
 (browser/defevent submit
   browser/convert)
 
