@@ -80,6 +80,7 @@
      [x]
      (->> x
           object/getKeys
+          ;TODO possibly memoize cuerdas/keyword
           (mapcat (juxt cuerdas/keyword
                         #(case (-> x
                                    (oget+ %)
