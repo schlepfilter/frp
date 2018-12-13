@@ -67,12 +67,10 @@
   browser/convert)
 
 (browser/defevent popstate
-  #(merge (browser/convert %)
-          (browser/convert js/location)))
+  (browser/make-convert-merge js/location))
 
 (browser/defevent resize
-  #(merge (browser/convert %)
-          (browser/convert js/window)))
+  (browser/make-convert-merge js/window))
 
 (browser/defevent scroll
   browser/convert)

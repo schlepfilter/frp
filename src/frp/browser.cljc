@@ -98,16 +98,21 @@
 (def memoized-keyword
   (memoize cuerdas/keyword))
 
-#?(:cljs
-   (defn convert
+(defn convert
+  [x]
+  #?(:cljs (->> x
+                object/getKeys
+                ;Not memoizing keyword is visibly slower.
+                (mapcat (juxt memoized-keyword
+                              #(case (-> x
+                                         (oget+ %)
+                                         goog/typeOf)
+                                 "function" (partial js-invoke x %)
+                                 (oget+ x %))))
+                (apply hash-map))))
+
+#?(:clj
+   (defmacro make-convert-merge
      [x]
-     (->> x
-          object/getKeys
-          ;Not memoizing keyword is visibly slower.
-          (mapcat (juxt memoized-keyword
-                        #(case (-> x
-                                   (oget+ %)
-                                   goog/typeOf)
-                           "function" (partial js-invoke x %)
-                           (oget+ x %))))
-          (apply hash-map))))
+     `#(merge (convert %)
+              (convert ~x))))
