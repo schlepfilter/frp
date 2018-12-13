@@ -82,6 +82,9 @@
 (browser/defevent submit
   browser/convert)
 
+(browser/defevent wheel
+  browser/convert)
+
 (browser/defbehavior inner-height
   #(->> resize
         (m/<$> :inner-height)
