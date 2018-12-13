@@ -80,8 +80,7 @@
      [x]
      (->> x
           object/getKeys
-          (mapcat (juxt (comp keyword
-                              cuerdas/kebab)
+          (mapcat (juxt cuerdas/keyword
                         #(case (-> x
                                    (oget+ %)
                                    goog/typeOf)
