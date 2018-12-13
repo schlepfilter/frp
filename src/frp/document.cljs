@@ -6,3 +6,6 @@
 
 (browser/defbehavior hidden
   visibilitychange)
+
+(browser/defbehavior visibility-state
+  visibilitychange)

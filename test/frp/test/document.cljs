@@ -15,4 +15,6 @@
   (helpers/restart-for-all [advance* helpers/advance]
                            (frp/activate)
                            (advance*)
-                           (= @document/hidden js/document.hidden)))
+                           (and (= @document/hidden js/document.hidden)
+                                (= @document/visibility-state
+                                   js/document.visibilityState))))
