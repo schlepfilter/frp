@@ -15,4 +15,9 @@
   (helpers/restart-for-all [advance* helpers/advance]
                            (frp/activate)
                            (advance*)
-                           (= @window/inner-height js/window.innerHeight)))
+                           (and (= @window/inner-height js/window.innerHeight)
+                                (= @window/inner-width js/window.innerWidth)
+                                (= @window/outer-height js/window.outerHeight)
+                                (= @window/outer-width js/window.outerWidth)
+                                (= @window/scroll-x js/window.scrollX)
+                                (= @window/scroll-y js/window.scrollY))))

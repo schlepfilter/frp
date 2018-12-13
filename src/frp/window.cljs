@@ -83,3 +83,18 @@
 
 (browser/defbehavior inner-height
   resize)
+
+(browser/defbehavior inner-width
+  resize)
+
+(browser/defbehavior outer-width
+  resize)
+
+(browser/defbehavior outer-height
+  resize)
+
+(browser/defbehavior scroll-x
+  resize)
+
+(browser/defbehavior scroll-y
+  resize)
