@@ -75,13 +75,16 @@
           `(def ~expr
              (get-behavior ~f ~(get-caller-keyword expr)))))))
 
+(def memoized-keyword
+  (memoize cuerdas/keyword))
+
 #?(:cljs
    (defn convert
      [x]
      (->> x
           object/getKeys
-          ;TODO possibly memoize cuerdas/keyword
-          (mapcat (juxt cuerdas/keyword
+          ;Not memoizing keyword is visibly slower.
+          (mapcat (juxt memoized-keyword
                         #(case (-> x
                                    (oget+ %)
                                    goog/typeOf)
