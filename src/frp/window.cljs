@@ -8,10 +8,19 @@
 ;(browser/defevent dragover
 ;  convert)
 
+(browser/defevent copy
+  browser/convert)
+
+(browser/defevent cut
+  browser/convert)
+
 (browser/defevent dragstart
   browser/convert)
 
 (browser/defevent drop
+  browser/convert)
+
+(browser/defevent paste
   browser/convert)
 
 (browser/defevent pointermove
