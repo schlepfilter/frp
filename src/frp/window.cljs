@@ -53,7 +53,16 @@
 (browser/defevent paste
   browser/convert)
 
+(browser/defevent pointerdown
+  browser/convert)
+
 (browser/defevent pointermove
+  browser/convert)
+
+(browser/defevent pointerout
+  browser/convert)
+
+(browser/defevent pointerover
   browser/convert)
 
 (browser/defevent pointerup
