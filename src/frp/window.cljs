@@ -32,6 +32,15 @@
 (browser/defevent input
   browser/convert)
 
+(browser/defevent keydown
+  browser/convert)
+
+(browser/defevent keypress
+  browser/convert)
+
+(browser/defevent keyup
+  browser/convert)
+
 (browser/defevent paste
   browser/convert)
 
