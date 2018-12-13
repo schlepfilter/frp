@@ -4,7 +4,6 @@
             [frp.browser :as browser :include-macros true]
             [frp.primitives.behavior :as behavior :include-macros true]))
 
-
 (browser/defevent blur
   browser/convert)
 
