@@ -4,9 +4,9 @@
             [frp.browser :as browser :include-macros true]
             [frp.primitives.behavior :as behavior :include-macros true]))
 
-;Defining dragover is visiliby slower possibly because it fires every few milliseconds.
-;(browser/defevent dragover
-;  convert)
+
+(browser/defevent blur
+  browser/convert)
 
 (browser/defevent copy
   browser/convert)
@@ -14,10 +14,17 @@
 (browser/defevent cut
   browser/convert)
 
+;Defining dragover is visiliby slower possibly because it fires every few milliseconds.
+;(browser/defevent dragover
+;  convert)
+
 (browser/defevent dragstart
   browser/convert)
 
 (browser/defevent drop
+  browser/convert)
+
+(browser/defevent focus
   browser/convert)
 
 (browser/defevent paste
