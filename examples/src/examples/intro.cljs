@@ -1,9 +1,10 @@
 (ns examples.intro
   (:require [clojure.walk :as walk]
             [aid.core :as aid :include-macros true]
-            [aid.unit :as unit]
-            [ajax.core :refer [GET POST]]
+            [cats.core :as m]
             [com.rpl.specter :as s]
+            [examples.helpers :as helpers]
+            [frp.ajax :refer [GET]]
             [frp.clojure.core :as core]
             [frp.core :as frp]))
 
@@ -29,18 +30,25 @@
    [:a {:href     "#"
         :on-click (fn [event*]
                     (.preventDefault event*)
-                    (click unit/unit))
+                    (click))
         :style    link-style}
     "x"]])
 
 (def grey
-  "hsl(0, 0%, 93%)")
-
-(def response
-  (frp/event))
+  (helpers/get-color 0 0 0.93))
 
 (def beginning
   (frp/event 0))
+
+(def endpoint
+  "https://api.github.com/users")
+
+(def response
+  (m/=<< (comp (partial GET endpoint)
+               (partial assoc-in
+                        {:handler walk/keywordize-keys}
+                        [:params :since]))
+         beginning))
 
 (def suggestion-number
   3)
@@ -61,20 +69,21 @@
        (quot user-number)
        (range 0 user-number)
        (map (fn [click-count offset]
-              (aid/<$> (partial + offset) click-count))
+              (m/<$> (partial + offset) click-count))
             closing-counts)))
 
 (def users
   (apply (aid/lift-a (fn [response* & offset-counts*]
-                        (map (partial nth (cycle response*))
-                             offset-counts*)))
+                       (map (partial nth (cycle response*)) offset-counts*)))
          (frp/stepper (repeat user-number {}) response)
          offset-counts))
 
 (defn handle-click
   [event*]
   (.preventDefault event*)
-  (response (repeat user-number {}))
+  (->> {}
+       (repeat user-number)
+       response)
   (->> (js/Math.random)
        (* 500)
        int
@@ -97,16 +106,4 @@
                "refresh"]]]))
 
 (def intro
-  (aid/<$> intro-component users))
-
-(def endpoint
-  "https://api.github.com/users")
-
-(def option
-  (aid/<$> (partial assoc-in
-                    {:handler (comp response
-                                     walk/keywordize-keys)}
-                    [:params :since])
-           beginning))
-
-(frp/on (partial GET endpoint) option)
+  (m/<$> intro-component users))

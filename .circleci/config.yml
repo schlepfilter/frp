@@ -1,0 +1,29 @@
+version: 2
+jobs:
+  integrate:
+    docker:
+      - image: circleci/clojure:lein-2.8.1-node-browsers
+    steps:
+      - checkout
+      - run: script/circleci/integrate.sh
+      - persist_to_workspace:
+          root: .
+          paths:
+            - examples/resources/public
+            - script
+  deploy:
+    docker:
+      - image: circleci/clojure:lein-2.8.1-node-browsers
+    steps:
+      - run: git clone "https://schlepfilterdeployment:$GITHUB_TOKEN@github.com/frpexamples/frpexamples.github.io.git" examples/resources/public
+      - attach_workspace:
+          at: .
+      - run: script/circleci/deploy.sh
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - integrate
+      - deploy:
+          requires:
+            - integrate

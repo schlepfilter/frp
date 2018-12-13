@@ -8,7 +8,10 @@
 \newcommand{\any}[3]{&\ \textit{#1}\ (#2 \rightarrow #3)}
 \begin{document}
 \begin{align*}
-  occs\ (>>= e\ f) = foldr\ merge\ []\circ map\ delayOccs\circ map\ (\backslash(\hat{t}_a, a) \rightarrow (\hat{t}_a , f\ a))\ \$ \ occs\ e
+  \mathbf{type}\ E_a = [(\hat{T}, a)] \text{ -- for non-decreasing times where } a \text{ is not } E_a
+\end{align*}
+\begin{align*}
+  \mathbf{type}\ E_{E_a} = [(\hat{T}_{outer}, [\hat{T}_{inner}, a])] \text{ -- for non-decreasing times where } \hat{T}_{outer} \leq \hat{T}_{inner}
 \end{align*}
 \begin{align*}
   %mapcat is composed of map and cat
@@ -31,21 +34,21 @@
   |&\ interpose\ o
 \end{align*}
 \begin{align*}
-  data\ Xform = foldl\ comp\ [Xform*]
+  \mathbf{data}\ Xform = foldl\ comp\ [Xform*]
 \end{align*}
 \begin{align*}
   %TODO add the 3 arity version of transduce
-  transduce : Xform \rightarrow (a \rightarrow b \rightarrow a) \rightarrow a \rightarrow Event\ b \rightarrow Event\ a
+  transduce :: Xform \rightarrow (a \rightarrow b \rightarrow a) \rightarrow a \rightarrow Event\ b \rightarrow Event\ a
 \end{align*}
 \begin{align*}
   &occs\ (transduce\ xform\ f\ a\ e)\\
   &\quad= scanl\ (liftA2\ f)\ a\ \$\ mapMaybe\ (unreduced\ .\ (xform\ (\backslash\_\ x\rightarrow just\ x))\ nothing)\ \$\ occs\ e
 \end{align*}
 \begin{align*}
-  >>=\ : Behavior\ a \rightarrow f \rightarrow Behavior\ b
+  join_B :: Behavior\ (Behavior\ a) \rightarrow Behavior\ a
 \end{align*}
 \begin{align*}
-  at\ \$>>= b\ f =\backslash t \rightarrow f\ (b\ `at` \ t)\ `at` \ t
+  at\ \$join\ b =\backslash t \rightarrow (b\ `at` \ t)\ `at` \ t
 \end{align*}
 %TODO add toTime and fromTime
 \begin{align*}
@@ -56,7 +59,7 @@
 \end{align*}
 \begin{align*}
   &\mathbf{class}\ Entity\ e\ \mathbf{where}\\
-  &\quad on : (a\rightarrow IO\ ())\rightarrow e \rightarrow IO\ ()
+  &\quad on :: (a\rightarrow IO\ ())\rightarrow e \rightarrow IO\ ()
 \end{align*}
 \begin{align*}
   &\mathbf{instance_{sem}}\ Entity\ (Event\ a)\ \mathbf{where}\\
@@ -69,6 +72,6 @@
   &\mathbf{instance_{sem}}\ Entity\ (Behavior\ a)\ \mathbf{where}\\
   &\quad occs\ \$\ on\ f\ b = map\ ((fmap\ f)\ .\ dedupe)\ \$\ (map\ (\backslash (t, x)\rightarrow(inc\ t, x))\ \$\ biasedOccs\ e)\\
   &\qquad\oplus((\backslash t\rightarrow (t, (at\ b)\ t))\ {<}\${>}\ [time\ \$\ n * internal + error_n])\\
-  &\qquad\ \text{-- where }b = (a\ stepper\ e)\wedge (n\geq 0)\wedge (interval > 0)\wedge (n * internal + error_n) < ((n + 1) * internal + error_{n+1})
+  &\qquad\text{ -- where }b = (a\ stepper\ e)\wedge (n\geq 0)\wedge (interval > 0)\wedge (n * internal + error_n) < ((n + 1) * internal + error_{n+1})
 \end{align*}
 \end{document}

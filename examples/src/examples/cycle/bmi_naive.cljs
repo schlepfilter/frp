@@ -14,37 +14,38 @@
   (frp/stepper 170 height-event))
 
 (def bmi
-  ;TODO thread forms
-  (frp/transparent (int (/ weight-behavior
-                           (js/Math.pow (/ height-behavior 100) 2)))))
+  (-> weight-behavior
+      (/ (js/Math.pow (/ height-behavior 100) 2))
+      int
+      frp/transparent))
 
-(defn weight-component
-  [weight]
-  [:div "Weight " (str weight) "kg"
-   [:input {:max       140
-            :min       40
-            :on-change (fn [event*]
-                         (-> event*
-                             .-target.value
-                             weight-event))
-            :type      "range"
-            :value     weight}]])
+(defn get-measurement-component
+  [m]
+  (fn [value]
+    [:div (str (:label m) value (:unit m))
+     [:input (merge m
+                    {:on-change #(->> %
+                                      .-target.value
+                                      ((:event m)))
+                     :type      "range"
+                     :value     value})]]))
 
-(defn height-component
-  [height]
-  [:div "Height " (str height) "cm"
-   [:input {:max       210
-            :min       140
-            :on-change (fn [event*]
-                         (-> event*
-                             .-target.value
-                             height-event))
-            :type      "range"
-            :value     height}]])
+(def weight-component
+  (get-measurement-component {:event weight-event
+                              :label "Weight "
+                              :max   140
+                              :min   40
+                              :unit  "kg"}))
 
-(defn bmi-component
-  [bmi*]
-  [:h2 "BMI is " bmi*])
+(def height-component
+  (get-measurement-component {:event height-event
+                              :label "Height "
+                              :max   210
+                              :min   140
+                              :unit  "cm"}))
+
+(def bmi-component
+  (partial vector :h2 "BMI is "))
 
 (def bmi-naive
   (frp/transparent (vector :div

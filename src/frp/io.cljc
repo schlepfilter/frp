@@ -13,7 +13,6 @@
 (defmulti get-effect! (comp protocols/-get-keyword
                             second
                             vector))
-
 ;This definition of get-effect! produces the following failure in :advanced.
 ;Reloading Clojure file "/nodp/hfdp/observer/synchronization.clj" failed.
 ;clojure.lang.Compiler$CompilerException: java.lang.IllegalArgumentException: No method in multimethod 'get-effect!' for dispatch value
@@ -35,27 +34,28 @@
                         (event/get-latests (:id e) network))
                   network)
 
-(defn get-network-value
+(aid/defcurried get-network-value
   [b network]
   (behavior/get-value b (:time network) network))
 
+(defn set-cache
+  [b network]
+  (s/setval [:cache (:id b)] (get-network-value b network) network))
+
+(aid/defcurried effect
+  [f x]
+  (f x)
+  x)
+
 (defcurriedmethod get-effect! :behavior
                   [f! b network]
-                  (if (= (maybe/just (get-network-value b network))
-                         ((:id b) (:cache network)))
-                    network
-                    (do (f! (get-network-value b network))
-                        (s/setval [:cache (:id b)]
-                                  (maybe/just (get-network-value b network))
-                                  network))))
+                  (->> network
+                       (set-cache b)
+                       (effect (aid/if-else (partial = network)
+                                            (comp f!
+                                                  (get-network-value b))))))
 
 (def on
   (comp (partial swap! event/network-state)
-        ((aid/curry 3 s/setval*) [:effects s/END])
-        vector
+        ((aid/curry 3 s/setval*) [:effects s/AFTER-ELEM])
         get-effect!))
-
-(def redef-events
-  (partial run! (fn [from]
-                  (behavior/redef from
-                                  (derived/event)))))

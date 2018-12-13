@@ -1,6 +1,5 @@
 (ns examples.cycle.checkbox
-  (:require [aid.core :as aid]
-            [aid.unit :as unit]
+  (:require [cats.core :as m]
             [frp.clojure.core :as core]
             [frp.core :as frp]))
 
@@ -10,13 +9,13 @@
 (def checked
   (->> check
        core/count
-       (aid/<$> odd?)
+       (m/<$> odd?)
        (frp/stepper false)))
 
 (defn checkbox-component
   [checked*]
   [:div
-   [:input {:on-change #(check unit/unit)
+   [:input {:on-change #(check)
             :type      "checkbox"}]
    "Toggle me"
    [:p (if checked*
@@ -24,4 +23,4 @@
          "off")]])
 
 (def checkbox
-  (aid/<$> checkbox-component checked))
+  (m/<$> checkbox-component checked))

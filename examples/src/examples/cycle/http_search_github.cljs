@@ -1,30 +1,36 @@
 (ns examples.cycle.http-search-github
   (:require [clojure.walk :as walk]
-            [aid.core :as aid]
-            [ajax.core :refer [GET]]
+            [cats.core :as m]
+            [frp.ajax :refer [GET]]
             [frp.clojure.core :as core]
             [frp.core :as frp]))
 
 (def term
   (frp/event))
 
+(def endpoint
+  "https://api.github.com/search/repositories")
+
 (def response
-  ;TODO use >>= and ajax event
-  (frp/event))
+  (->> term
+       (core/remove empty?)
+       (m/=<< (comp (partial GET endpoint)
+                    (partial assoc-in
+                             {:handler walk/keywordize-keys}
+                             [:params :q])))))
 
 (def users
   (->> response
-       (aid/<$> :items)
+       (m/<$> :items)
        (frp/stepper [])))
 
 (defn http-search-github-component
   [users*]
   [:div
    [:label "Search:"]
-   [:input {:on-change (fn [event*]
-                         (-> event*
-                             .-target.value
-                             term))
+   [:input {:on-change #(-> %
+                            .-target.value
+                            term)
             :type      "text"}]
    (->> users*
         (map (fn [user*]
@@ -35,17 +41,4 @@
         vec)])
 
 (def http-search-github
-  (aid/<$> http-search-github-component users))
-
-(def endpoint
-  "https://api.github.com/search/repositories")
-
-(def option
-  (->> term
-       (core/remove empty?)
-       (aid/<$> (partial assoc-in
-                         {:handler (comp response
-                                          walk/keywordize-keys)}
-                         [:params :q]))))
-
-(frp/on (partial GET endpoint) option)
+  (m/<$> http-search-github-component users))

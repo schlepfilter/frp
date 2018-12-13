@@ -1,56 +1,100 @@
 (ns frp.window
-  (:require [aid.core :as aid]
-            [com.rpl.specter :as s]
-            [frp.io :as io]
-            [frp.primitives.behavior :as behavior :include-macros true]
-            [frp.primitives.event :as event]))
+  (:refer-clojure :exclude [drop])
+  (:require [frp.browser :as browser :include-macros true]))
 
-(def mousemove
-  (event/->Event ::mousemove))
+(browser/defevent blur
+  browser/convert)
 
-(def mouseup
-  (event/->Event ::mouseup))
+(browser/defevent click
+  browser/convert)
 
-(def popstate
-  (event/->Event ::popstate))
+(browser/defevent contextmenu
+  browser/convert)
 
-(def resize
-  (event/->Event ::resize))
+(browser/defevent copy
+  browser/convert)
 
-(def inner-height
-  (behavior/->Behavior ::inner-height))
+(browser/defevent cut
+  browser/convert)
 
-(defn add-remove-listener
-  [event-type listener]
-  (js/addEventListener event-type listener)
-  (swap! event/network-state
-         (partial s/setval*
-                  :cancel
-                  (fn [_]
-                    (js/removeEventListener event-type listener)))))
+(browser/defevent dragend
+  browser/convert)
 
-(behavior/register
-  (io/redef-events [popstate resize mousemove mouseup])
+;Defining dragover is visiliby slower possibly because it fires every few milliseconds.
+;(browser/defevent dragover
+;  convert)
 
-  (behavior/redef inner-height
-                  (->> resize
-                       (aid/<$> :inner-height)
-                       (behavior/stepper js/innerHeight)))
+(browser/defevent dragleave
+  browser/convert)
 
-  ;TODO define a macro to define behaviors and add and remove event listeners
-  (add-remove-listener
-    "popstate"
-    #(popstate {:location {:pathname js/location.pathname}}))
+(browser/defevent dragstart
+  browser/convert)
 
-  (add-remove-listener "resize"
-                       #(resize {:inner-height js/innerHeight}))
+(browser/defevent drop
+  browser/convert)
 
-  (add-remove-listener "mousemove"
-                       (fn [event*]
-                         ;(.-movementX event*) is undefined in :advanced.
-                         (mousemove {:movement-x (aget event* "movementX")
-                                     :movement-y (aget event* "movementY")})))
+(browser/defevent focus
+  browser/convert)
 
-  (add-remove-listener "mouseup"
-                       (fn [event*]
-                         (mouseup {}))))
+(browser/defevent input
+  browser/convert)
+
+(browser/defevent keydown
+  browser/convert)
+
+(browser/defevent keypress
+  browser/convert)
+
+(browser/defevent keyup
+  browser/convert)
+
+(browser/defevent paste
+  browser/convert)
+
+(browser/defevent pointerdown
+  browser/convert)
+
+(browser/defevent pointermove
+  browser/convert)
+
+(browser/defevent pointerout
+  browser/convert)
+
+(browser/defevent pointerover
+  browser/convert)
+
+(browser/defevent pointerup
+  browser/convert)
+
+(browser/defevent popstate
+  (browser/make-convert-merge js/location))
+
+(browser/defevent resize
+  (browser/make-convert-merge js/window))
+
+(browser/defevent scroll
+  browser/convert)
+
+(browser/defevent submit
+  browser/convert)
+
+(browser/defevent wheel
+  browser/convert)
+
+(browser/defbehavior inner-height
+  resize)
+
+(browser/defbehavior inner-width
+  resize)
+
+(browser/defbehavior outer-width
+  resize)
+
+(browser/defbehavior outer-height
+  resize)
+
+(browser/defbehavior scroll-x
+  resize)
+
+(browser/defbehavior scroll-y
+  resize)

@@ -12,8 +12,8 @@
             [frp.core :as frp]
             [frp.tuple :as tuple]
             [frp.test.helpers :as helpers :include-macros true]
-    #?(:clj
-            [riddley.walk :as walk]))
+            #?(:clj
+               [riddley.walk :as walk]))
   #?(:cljs (:require-macros [frp.test.io :refer [with-exitv]])))
 
 (test/use-fixtures :each helpers/fixture)
@@ -30,23 +30,21 @@
                   (cons `do body))
                @exits-state##))))
 
-(clojure-test/defspec
-  with-exitv-identity
+(clojure-test/defspec with-exitv-identity
   helpers/cljc-num-tests
   (prop/for-all [as (gen/vector helpers/any-equal)
                  b helpers/any-equal]
-                (= (with-exitv exit
-                               (->> as
-                                    (map exit)
-                                    doall)
-                               b)
-                   as)))
+    (= (with-exitv exit
+                   (->> as
+                        (map exit)
+                        doall)
+                   b)
+       as)))
 
-(clojure-test/defspec
-  event-on
+(clojure-test/defspec event-on
   helpers/cljc-num-tests
   (helpers/restart-for-all
-    [e helpers/event
+    [e helpers/any-event
      as (gen/vector helpers/any-equal)]
     (= (vec (concat (map tuple/snd @e)
                     as))
@@ -55,11 +53,10 @@
                    (frp/activate)
                    (run! e as)))))
 
-(clojure-test/defspec
-  behavior-on
+(clojure-test/defspec behavior-on
   helpers/cljc-num-tests
   (helpers/restart-for-all
-    [e helpers/event
+    [e helpers/any-event
      a helpers/any-equal
      as (gen/vector helpers/any-equal)]
     (let [b (frp/stepper a e)]

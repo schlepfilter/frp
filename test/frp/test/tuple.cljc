@@ -7,6 +7,8 @@
     ;Compiling "resources/public/test/js/main.js" from ["src" "test"]...
     ;WARNING: Use of undeclared Var clojure.test.check/quick-check
             [cats.builtin]
+            [cats.context :as ctx]
+            [cats.core :as m]
             [cats.monad.maybe :as maybe]
             [clojure.test.check]
             [clojure.test.check.clojure-test
@@ -39,49 +41,45 @@
                (gen/recursive-gen maybe scalar-monoid)]))
 
 (def mempty
-  (gen/fmap (comp aid/mempty aid/infer)
+  (gen/fmap (comp m/mempty ctx/infer)
             monoid))
 
-(defn scalar-monoid-vector
-  [n]
-  (gen/one-of (map (partial (aid/flip gen/vector) n)
-                   scalar-monoids)))
+(def scalar-monoid-vector
+  #(gen/one-of (map (partial (aid/flip gen/vector) %)
+                    scalar-monoids)))
 
-(clojure-test/defspec
-  monad-right-identity-law
+(clojure-test/defspec monad-right-identity-law
   helpers/cljc-num-tests
   (prop/for-all [a helpers/any-equal
                  mempty* mempty]
-                (= (aid/>>= (tuple/tuple mempty* a) aid/return)
-                   (tuple/tuple mempty* a))))
+    (= (m/>>= (tuple/tuple mempty* a) m/return)
+       (tuple/tuple mempty* a))))
 
-(clojure-test/defspec
-  monad-left-identity-law
+(clojure-test/defspec monad-left-identity-law
   helpers/cljc-num-tests
   (prop/for-all [a helpers/any-equal
                  f* (helpers/function helpers/any-equal)
                  monoid* monoid]
-                (let [f (comp (partial tuple/tuple monoid*)
-                              f*)]
-                  (= (aid/>>= (tuple/tuple (-> monoid*
-                                               aid/infer
-                                               aid/mempty)
-                                           a)
-                              f)
-                     (f a)))))
+    (let [f (comp (partial tuple/tuple monoid*)
+                  f*)]
+      (= (m/>>= (tuple/tuple (-> monoid*
+                                 ctx/infer
+                                 m/mempty)
+                             a)
+                f)
+         (f a)))))
 
-(clojure-test/defspec
-  monad-associativity-law
+(clojure-test/defspec monad-associativity-law
   helpers/cljc-num-tests
   (prop/for-all [a helpers/any-equal
                  monoids (scalar-monoid-vector 3)
                  f* (helpers/function helpers/any-equal)
                  g* (helpers/function helpers/any-equal)]
-                (let [f (comp (partial tuple/tuple (second monoids))
-                              f*)
-                      g (comp (partial tuple/tuple (last monoids))
-                              g*)
-                      ma (tuple/tuple (first monoids) a)]
-                  (= (aid/->= ma f g)
-                     (aid/>>= ma (comp (partial aid/=<< g)
-                                       f))))))
+    (let [f (comp (partial tuple/tuple (second monoids))
+                  f*)
+          g (comp (partial tuple/tuple (last monoids))
+                  g*)
+          ma (tuple/tuple (first monoids) a)]
+      (= (m/->= ma f g)
+         (m/>>= ma (comp (partial m/=<< g)
+                         f))))))

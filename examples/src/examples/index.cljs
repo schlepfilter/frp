@@ -1,8 +1,8 @@
 (ns examples.index
-  (:require [aid.core :as aid]
-            [bidi.bidi :as bidi]
-            [clojure.string :as str]
+  (:require [bidi.bidi :as bidi]
             [com.rpl.specter :as s]
+            [frp.core :as frp]
+            [frp.history :as history]
             [examples.cycle.autocomplete-search :as autocomplete-search]
             [examples.cycle.bmi-naive :as bmi-naive]
             [examples.cycle.checkbox :as checkbox]
@@ -11,9 +11,7 @@
             [examples.intro :as intro]
             [examples.rx.drag-n-drop :as drag-n-drop]
             [examples.rx.letter-count :as letter-count]
-            [examples.rx.simple-data-binding :as simple-data-binding]
-            [frp.core :as frp]
-            [frp.history :as history]))
+            [examples.rx.simple-data-binding :as simple-data-binding]))
 
 (def route-function
   {:autocomplete-search autocomplete-search/autocomplete-search
@@ -29,20 +27,11 @@
 (def route-keywords
   (keys route-function))
 
-(defn unkebab
-  [s]
-  (str/replace s #"-" ""))
-
 (def example-route
-  (zipmap (map (comp unkebab
-                     (partial (aid/flip subs) 1)
-                     str)
-               route-keywords)
-          route-keywords))
+  (zipmap (map name route-keywords) route-keywords))
 
 (def route
-  ["/" (merge {"" :index}
-              example-route)])
+  ["/" (merge {"" :index} example-route)])
 
 (defn example-component
   [path]
