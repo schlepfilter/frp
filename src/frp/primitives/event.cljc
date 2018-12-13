@@ -103,15 +103,13 @@
   (partial s/transform*
            [:occs s/MAP-VALS]
            ;TODO starting from the leaves of the dependency recursively delete events that have past occurrences and do not have any children or effects
-           #(->> %
-                 (filter (comp (conj (aid/casep %
-                                                empty? #{}
-                                                #{(-> %
-                                                      last
-                                                      tuple/fst)})
-                                     time/epoch)
-                               tuple/fst))
-                 vec)))
+           #(filter (comp (conj (aid/casep %
+                                           empty? #{}
+                                           #{(-> %
+                                                 last
+                                                 tuple/fst)})
+                                time/epoch)
+                          tuple/fst) %)))
 
 (def garbage-collect!
   (partial swap! network-state garbage-collect))
