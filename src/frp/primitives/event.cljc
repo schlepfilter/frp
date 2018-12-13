@@ -122,13 +122,9 @@
     (let [[past current] (get-times)]
       ;Not doing garbage collection is visibly slower.
       (garbage-collect!)
-      (reset! network-state
-              (modify-network! (tuple/tuple past a)
-                               id
-                               @network-state))
+      (modify-network! (tuple/tuple past a) id @network-state)
       (run-network-state-effects!)
-      (->> (partial s/setval* :time current)
-           (swap! network-state))
+      (swap! network-state (partial s/setval* :time current))
       (run-network-state-effects!))))
 
 (defrecord Event
