@@ -69,12 +69,12 @@
   browser/convert)
 
 (browser/defevent popstate
-  (fn [_]
-    (browser/convert js/location)))
+  #(merge (browser/convert %)
+          (browser/convert js/location)))
 
 (browser/defevent resize
-  (fn [_]
-    (browser/convert js/window)))
+  #(merge (browser/convert %)
+          (browser/convert js/window)))
 
 (browser/defevent submit
   browser/convert)

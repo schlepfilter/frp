@@ -4,8 +4,8 @@
             [frp.primitives.behavior :as behavior]))
 
 (browser/defevent visibilitychange
-  (fn [_]
-    (browser/convert js/document)))
+  #(merge (browser/convert %)
+          (browser/convert js/document)))
 
 (browser/defbehavior hidden
   #(->> visibilitychange
