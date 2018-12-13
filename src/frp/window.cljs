@@ -7,7 +7,10 @@
 (browser/defevent blur
   browser/convert)
 
-(browser/defevent change
+(browser/defevent click
+  browser/convert)
+
+(browser/defevent contextmenu
   browser/convert)
 
 (browser/defevent copy
@@ -16,9 +19,15 @@
 (browser/defevent cut
   browser/convert)
 
+(browser/defevent dragend
+  browser/convert)
+
 ;Defining dragover is visiliby slower possibly because it fires every few milliseconds.
 ;(browser/defevent dragover
 ;  convert)
+
+(browser/defevent dragleave
+  browser/convert)
 
 (browser/defevent dragstart
   browser/convert)
