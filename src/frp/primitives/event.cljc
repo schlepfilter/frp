@@ -109,7 +109,8 @@
                                                  last
                                                  tuple/fst)})
                                 time/epoch)
-                          tuple/fst) %)))
+                          tuple/fst)
+                    %)))
 
 (def garbage-collect!
   (partial swap! network-state garbage-collect))
