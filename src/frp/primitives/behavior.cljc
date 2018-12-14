@@ -4,7 +4,7 @@
             [aid.core :as aid]
             [cats.builtin]
             [cats.core :as m]
-            [cats.protocols :as protocols]
+            [cats.protocols :as cats-protocols]
             [cats.util :as util]
             [com.rpl.specter :as s]
             [frp.helpers :as helpers :include-macros true]
@@ -17,7 +17,7 @@
 
 (defrecord Behavior
   [id]
-  protocols/Contextual
+  cats-protocols/Contextual
   (-get-context [_]
     context)
   entity-protocols/Entity
@@ -30,7 +30,7 @@
                   :function)
             :time)
       @event/network-state))
-  protocols/Printable
+  cats-protocols/Printable
   (-repr [_]
     (str "#[behavior " id "]")))
 

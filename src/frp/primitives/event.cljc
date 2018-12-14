@@ -6,7 +6,7 @@
             [cats.context :as ctx]
             [cats.core :as m]
             [cats.monad.maybe :as maybe]
-            [cats.protocols :as protocols]
+            [cats.protocols :as cats-protocols]
             [cats.util :as util]
             [com.rpl.specter :as s :include-macros true]
             [linked.core :as linked]
@@ -126,7 +126,7 @@
 
 (defrecord Event
   [id]
-  protocols/Contextual
+  cats-protocols/Contextual
   (-get-context [_]
     ;If context is inlined, the following error seems to occur.
     ;java.lang.LinkageError: loader (instance of clojure/lang/DynamicClassLoader): attempted duplicate class definition for name: "nodp/helpers/primitives/event/Event"
@@ -146,7 +146,7 @@
   (#?(:clj  deref
       :cljs -deref) [_]
     (get-occs id @network-state))
-  protocols/Printable
+  cats-protocols/Printable
   (-repr [_]
     (str "#[event " id "]")))
 
@@ -358,7 +358,7 @@
                              make-set-modify-modify
                              (cons (add-edge (:id %)))
                              event*)
-                       protocols/Semigroup
+                       cats-protocols/Semigroup
                        (-mappend [_ left-event right-event]
                                  (-> (modify-<> (:id left-event)
                                                 (:id right-event))
@@ -368,7 +368,7 @@
                                                   [left-event right-event]))
                                      event*))
                        ;TODO delete Monoid
-                       protocols/Monoid
+                       cats-protocols/Monoid
                        (-mempty [_]
                                 (mempty))))
 
