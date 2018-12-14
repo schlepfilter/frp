@@ -58,16 +58,43 @@
   (comp behavior*
         constantly))
 
+
+(def join
+  (fn [f]
+    (behavior* #(-> f
+                    (get-value % @event/network-state)
+                    (get-value % @event/network-state)))))
+
+;Calling ap in -fapply is visibly slower.
+;(def context
+;  (helpers/reify-monad (fn [f fa]
+;                         (behavior* #(-> fa
+;                                         (get-value % @event/network-state)
+;                                         f)))
+;                       pure
+;                       (fn [f]
+;                         (behavior* #(-> f
+;                                         (get-value % @event/network-state)
+;                                         (get-value % @event/network-state))))))
 (def context
-  (helpers/reify-monad (fn [f fa]
-                         (behavior* #(-> fa
-                                         (get-value % @event/network-state)
-                                         f)))
-                       pure
-                       (fn [f]
-                         (behavior* #(-> f
-                                         (get-value % @event/network-state)
-                                         (get-value % @event/network-state))))))
+  (reify
+    cats-protocols/Context
+    cats-protocols/Functor
+    (-fmap [_ f fa]
+      (behavior* #(-> fa
+                      (get-value % @event/network-state)
+                      f)))
+    cats-protocols/Applicative
+    (-pure [_ v]
+      (pure v))
+    (-fapply [_ fab fa]
+      (behavior* #((get-value fab % @event/network-state)
+                    (get-value fa % @event/network-state))))
+    cats-protocols/Monad
+    (-mreturn [_ a]
+      (pure a))
+    (-mbind [_ ma f]
+      (join (m/<$> f ma)))))
 
 (def stop
   #((->> @event/network-state
