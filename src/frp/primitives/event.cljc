@@ -99,6 +99,7 @@
   (partial swap! network-state run-effects!))
 
 (def garbage-collect
+  ;TODO garbage collect in set-occs
   (partial s/transform*
            [:occs s/MAP-VALS]
            ;TODO starting from the leaves of the dependency recursively delete events that have past occurrences and do not have any children or effects
