@@ -2,6 +2,7 @@
 (ns ^:figwheel-always frp.primitives.event
   (:refer-clojure :exclude [transduce])
   (:require [cljs.analyzer.api :as ana-api]
+            #?(:cljs [goog.object :as object])
             #?(:cljs [cljs.reader :as reader])
             [aid.core :as aid :include-macros true]
             [aid.unit :as unit]
@@ -22,7 +23,7 @@
             [frp.time :as time]
             [frp.tuple :as tuple]
             [clojure.set :as set])
-  #?(:cljs (:require-macros [frp.primitives.event :refer [get-all-ns]]))
+  #?(:cljs (:require-macros [frp.primitives.event :refer [get-all-ns get-id-alias*]]))
   #?(:clj (:import [clojure.lang IDeref IFn])))
 
 (declare context)
@@ -124,22 +125,30 @@
           (map str)
           vec)))
 
+#?(:clj (defmacro get-id-alias*
+          []
+          (vec (map (fn [x]
+                      `(try (do ~x
+                                [~(str x)
+                                 ~x])
+                            (catch js/Error _# {})))
+                    (ana-api/all-ns)))))
+
 #?(:cljs
    (when goog/DEBUG
      (def get-id-alias
-       #(->> (get-all-ns)
-             (map symbol)
-             (filter find-ns)
-             (mapcat ns-interns*)
-             (map second)
+       #(->> (get-id-alias*)
+             (remove (comp nil?
+                           second))
+             (mapcat (fn [[s x]]
+                       (map (fn [k v]
+                              [(keyword (str s "/" k)) v])
+                            (object/getKeys x)
+                            (object/getValues x))))
              (filter (comp event?
-                           deref))
-             (mapcat (juxt (comp :id
-                                 deref)
-                           (comp keyword
-                                 (partial (aid/flip subs) 2)
-                                 str)))
-             (apply hash-map)))
+                           last))
+             (into {})
+             (s/transform s/MAP-VALS :id)))
 
      (def memoized-get-id-alias
        (memoize get-id-alias))
