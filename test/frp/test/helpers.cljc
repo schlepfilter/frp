@@ -8,13 +8,6 @@
             [frp.core :as frp]
             [frp.primitives.event :as event]))
 
-(defn fixture
-  [f]
-  (reset! event/network-state (event/get-initial-network))
-  ;TODO redefine event/queue
-  ;TODO redefine get-new-time
-  (f))
-
 (def cljc-num-tests
   #?(:clj  10
      :cljs 2))
