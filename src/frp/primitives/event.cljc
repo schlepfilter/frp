@@ -1,7 +1,8 @@
 ;event and behavior namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
 (ns frp.primitives.event
   (:refer-clojure :exclude [transduce])
-  (:require [aid.core :as aid :include-macros true]
+  (:require #?(:cljs [cljs.reader :as reader])
+            [aid.core :as aid :include-macros true]
             [aid.unit :as unit]
             [cats.context :as ctx]
             [cats.core :as m]
@@ -15,7 +16,6 @@
             #?@(:clj [[chime :as chime]
                       [clj-time.core :as t]
                       [clj-time.periodic :as periodic]])
-            #?(:cljs [cljs.reader :as reader])
             [frp.helpers :as helpers :include-macros true]
             [frp.protocols :as entity-protocols]
             [frp.time :as time]
