@@ -1,12 +1,13 @@
 ;event and behavior namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
 (ns frp.primitives.event
   (:refer-clojure :exclude [transduce])
-  (:require [aid.core :as aid :include-macros true]
+  (:require #?(:cljs [cljs.reader :as reader])
+            [aid.core :as aid :include-macros true]
             [aid.unit :as unit]
             [cats.context :as ctx]
             [cats.core :as m]
             [cats.monad.maybe :as maybe]
-            [cats.protocols :as protocols]
+            [cats.protocols :as cats-protocols]
             [cats.util :as util]
             [com.rpl.specter :as s :include-macros true]
             [linked.core :as linked]
@@ -15,7 +16,6 @@
             #?@(:clj [[chime :as chime]
                       [clj-time.core :as t]
                       [clj-time.periodic :as periodic]])
-            #?(:cljs [cljs.reader :as reader])
             [frp.helpers :as helpers :include-macros true]
             [frp.protocols :as entity-protocols]
             [frp.time :as time]
@@ -73,7 +73,6 @@
   (aid/flip (partial reduce (aid/flip aid/funcall))))
 
 (def call-functions!
-  ;TODO delete network
   #(call-functions (interleave % (repeat (partial reset! network-state)))
                    @network-state))
 
@@ -100,18 +99,18 @@
   (partial swap! network-state run-effects!))
 
 (def garbage-collect
+  ;TODO garbage collect in set-occs
   (partial s/transform*
            [:occs s/MAP-VALS]
            ;TODO starting from the leaves of the dependency recursively delete events that have past occurrences and do not have any children or effects
-           #(->> %
-                 (filter (comp (conj (->> %
-                                          ;TODO don't use take-last
-                                          (take-last 1)
-                                          (map tuple/fst)
-                                          set)
-                                     time/epoch)
-                               tuple/fst))
-                 vec)))
+           #(filter (comp (conj (aid/casep %
+                                           empty? #{}
+                                           #{(-> %
+                                                 last
+                                                 tuple/fst)})
+                                time/epoch)
+                          tuple/fst)
+                    %)))
 
 (def garbage-collect!
   (partial swap! network-state garbage-collect))
@@ -122,18 +121,14 @@
     (let [[past current] (get-times)]
       ;Not doing garbage collection is visibly slower.
       (garbage-collect!)
-      (reset! network-state
-              (modify-network! (tuple/tuple past a)
-                               id
-                               @network-state))
+      (modify-network! (tuple/tuple past a) id @network-state)
       (run-network-state-effects!)
-      (->> (partial s/setval* :time current)
-           (swap! network-state))
+      (swap! network-state (partial s/setval* :time current))
       (run-network-state-effects!))))
 
 (defrecord Event
   [id]
-  protocols/Contextual
+  cats-protocols/Contextual
   (-get-context [_]
     ;If context is inlined, the following error seems to occur.
     ;java.lang.LinkageError: loader (instance of clojure/lang/DynamicClassLoader): attempted duplicate class definition for name: "nodp/helpers/primitives/event/Event"
@@ -153,7 +148,7 @@
   (#?(:clj  deref
       :cljs -deref) [_]
     (get-occs id @network-state))
-  protocols/Printable
+  cats-protocols/Printable
   (-repr [_]
     (str "#[event " id "]")))
 
@@ -365,7 +360,7 @@
                              make-set-modify-modify
                              (cons (add-edge (:id %)))
                              event*)
-                       protocols/Semigroup
+                       cats-protocols/Semigroup
                        (-mappend [_ left-event right-event]
                                  (-> (modify-<> (:id left-event)
                                                 (:id right-event))
@@ -375,7 +370,7 @@
                                                   [left-event right-event]))
                                      event*))
                        ;TODO delete Monoid
-                       protocols/Monoid
+                       cats-protocols/Monoid
                        (-mempty [_]
                                 (mempty))))
 

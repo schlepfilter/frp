@@ -1,5 +1,6 @@
 (ns examples.cycle.bmi-naive
-  (:require [frp.core :as frp :include-macros true]))
+  (:require [aid.core :as aid :include-macros true]
+            [frp.core :as frp :include-macros true]))
 
 (def weight-event
   (frp/event))
@@ -19,16 +20,15 @@
       int
       frp/transparent))
 
-(defn get-measurement-component
-  [m]
-  (fn [value]
-    [:div (str (:label m) value (:unit m))
-     [:input (merge m
-                    {:on-change #(->> %
-                                      .-target.value
-                                      ((:event m)))
-                     :type      "range"
-                     :value     value})]]))
+(aid/defcurried get-measurement-component
+  [m value]
+  [:div (str (:label m) value (:unit m))
+   [:input (merge m
+                  {:on-change #(->> %
+                                    .-target.value
+                                    ((:event m)))
+                   :type      "range"
+                   :value     value})]])
 
 (def weight-component
   (get-measurement-component {:event weight-event

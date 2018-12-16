@@ -23,6 +23,7 @@
              (~'-mreturn [_# a#]
                (~pure a#))
              (~'-mbind [_# ma# f#]
+               ;TODO thread this form
                (~join (m/<$> f# ma#)))
              ~@more)))
 
