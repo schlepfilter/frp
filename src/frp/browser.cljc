@@ -102,7 +102,7 @@
   [x]
   #?(:cljs (->> x
                 object/getKeys
-                ;Not memoizing keyword is visibly slower.
+                ;Doing memoization is visibly faster.
                 (mapcat (juxt memoized-keyword
                               #(case (-> x
                                          (oget+ %)

@@ -1,7 +1,8 @@
 ;event and behavior namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
-(ns frp.primitives.event
+(ns ^:figwheel-always frp.primitives.event
   (:refer-clojure :exclude [transduce])
-  (:require #?(:cljs [cljs.reader :as reader])
+  (:require [cljs.analyzer.api :as ana-api]
+            #?(:cljs [cljs.reader :as reader])
             [aid.core :as aid :include-macros true]
             [aid.unit :as unit]
             [cats.context :as ctx]
@@ -19,7 +20,9 @@
             [frp.helpers :as helpers :include-macros true]
             [frp.protocols :as entity-protocols]
             [frp.time :as time]
-            [frp.tuple :as tuple])
+            [frp.tuple :as tuple]
+            [clojure.set :as set])
+  #?(:cljs (:require-macros [frp.primitives.event :refer [get-all-ns]]))
   #?(:clj (:import [clojure.lang IDeref IFn])))
 
 (declare context)
@@ -115,16 +118,57 @@
 (def garbage-collect!
   (partial swap! network-state garbage-collect))
 
+#?(:clj
+   (defmacro get-all-ns
+     []
+     (->> (ana-api/all-ns)
+          (map str)
+          vec)))
+
+#?(:cljs
+   (when goog/DEBUG
+     (def get-id-alias
+       #(->> (get-all-ns)
+             (map symbol)
+             (filter find-ns)
+             (mapcat ns-interns*)
+             (map second)
+             (filter (comp event?
+                           deref))
+             (mapcat (juxt (comp :id
+                                 deref)
+                           (comp keyword
+                                 (partial (aid/flip subs) 2)
+                                 str)))
+             (apply hash-map)))
+
+     (def memoized-get-id-alias
+       (memoize get-id-alias))
+
+     (defonce invocations
+       (atom []))))
+
+(defn invoke**
+  [id a]
+  (let [[past current] (get-times)]
+    ;Doing garbage collection is visibly faster.
+    (garbage-collect!)
+    (modify-network! (tuple/tuple past a) id @network-state)
+    (run-network-state-effects!)
+    (swap! network-state (partial s/setval* :time current))
+    (run-network-state-effects!)))
+
 (defn invoke*
   [id a]
   (when (:active @network-state)
-    (let [[past current] (get-times)]
-      ;Not doing garbage collection is visibly slower.
-      (garbage-collect!)
-      (modify-network! (tuple/tuple past a) id @network-state)
-      (run-network-state-effects!)
-      (swap! network-state (partial s/setval* :time current))
-      (run-network-state-effects!))))
+    #?(:cljs
+       (if (and goog/DEBUG
+                ;Doing memoization is visibly faster.
+                ((memoized-get-id-alias) id))
+         (swap! invocations (partial s/setval*
+                                     s/AFTER-ELEM
+                                     [((memoized-get-id-alias) id) a]))))
+    (invoke** id a)))
 
 (defrecord Event
   [id]
@@ -477,4 +521,11 @@
         get-new-time
         (partial s/setval* :time)
         (swap! network-state))
-   (run-network-state-effects!)))
+   (run-network-state-effects!)
+    #?(:cljs
+       (when goog/DEBUG
+         (run! (comp (partial apply invoke**)
+                     (partial s/transform*
+                              s/FIRST
+                              (set/map-invert (memoized-get-id-alias))))
+               @invocations)))))
