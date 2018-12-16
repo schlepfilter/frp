@@ -118,14 +118,14 @@
 (def garbage-collect!
   (partial swap! network-state garbage-collect))
 
-#?(:clj (defmacro get-id-alias*
-          []
-          (vec (map (fn [x]
-                      `(try (do ~x
-                                [~(str x)
-                                 ~x])
-                            (catch js/Error _# {})))
-                    (ana-api/all-ns)))))
+(defmacro get-id-alias*
+  []
+  (vec (map (fn [x]
+              `(try (do ~x
+                        [~(str x)
+                         ~x])
+                    (catch js/Error _# {})))
+            (ana-api/all-ns))))
 
 #?(:cljs
    (when goog/DEBUG

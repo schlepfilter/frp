@@ -80,20 +80,19 @@
         (str *ns* "/")
         keyword))
 
-#?(:clj
-   (do (defmacro defevent
-         ([expr]
-          `(def ~expr
-             (get-event ~(get-caller-keyword expr))))
-         ([expr f]
-          `(listen ~f (defevent ~expr))))
+(defmacro defevent
+  ([expr]
+   `(def ~expr
+      (get-event ~(get-caller-keyword expr))))
+  ([expr f]
+   `(listen ~f (defevent ~expr))))
 
-       (defmacro defbehavior
-         ([expr e]
-          `(def ~expr
-             (get-behavior (fn []
-                             ~e)
-                           ~(get-caller-keyword expr)))))))
+(defmacro defbehavior
+  ([expr e]
+   `(def ~expr
+      (get-behavior (fn []
+                      ~e)
+                    ~(get-caller-keyword expr)))))
 
 (def memoized-keyword
   (memoize cuerdas/keyword))
