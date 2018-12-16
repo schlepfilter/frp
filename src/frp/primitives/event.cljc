@@ -144,7 +144,7 @@
      (def memoized-get-id-alias
        (memoize get-id-alias))
 
-     (defonce invocations
+     (defonce invocations-state
        (atom []))))
 
 (defn invoke**
@@ -164,9 +164,9 @@
        (if (and goog/DEBUG
                 ;Doing memoization is visibly faster.
                 ((memoized-get-id-alias) id))
-         (swap! invocations (partial s/setval*
-                                     s/AFTER-ELEM
-                                     [((memoized-get-id-alias) id) a]))))
+         (swap! invocations-state (partial s/setval*
+                                           s/AFTER-ELEM
+                                           [((memoized-get-id-alias) id) a]))))
     (invoke** id a)))
 
 (defrecord Event
@@ -527,4 +527,4 @@
                      (partial s/transform*
                               s/FIRST
                               (set/map-invert (memoized-get-id-alias))))
-               @invocations)))))
+               @invocations-state)))))
