@@ -143,9 +143,6 @@
              (into {})
              (s/transform s/MAP-VALS :id)))
 
-     (def memoized-get-id-alias
-       (memoize get-id-alias))
-
      (def initial-invocations
        [])
 
@@ -166,12 +163,10 @@
   [id a]
   (when (:active @network-state)
     #?(:cljs
-       (if (and goog/DEBUG
-                ;Doing memoization is visibly faster.
-                ((memoized-get-id-alias) id))
+       (if goog/DEBUG
          (swap! invocations-state (partial s/setval*
                                            s/AFTER-ELEM
-                                           [((memoized-get-id-alias) id) a]))))
+                                           [id a]))))
     (invoke** id a)))
 
 (defrecord Event
@@ -531,5 +526,5 @@
          (run! (comp (partial apply invoke**)
                      (partial s/transform*
                               s/FIRST
-                              (set/map-invert (memoized-get-id-alias))))
+                              (set/map-invert (get-id-alias))))
                @invocations-state)))))
