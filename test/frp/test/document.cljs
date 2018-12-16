@@ -9,9 +9,9 @@
 
 (clojure-test/defspec document
   helpers/cljs-num-tests
-  (helpers/restart-for-all [advance* helpers/advance]
-                           (frp/activate)
-                           (advance*)
-                           (and (= @document/hidden js/document.hidden)
-                                (= @document/visibility-state
-                                   js/document.visibilityState))))
+  (helpers/set-up-for-all [advance* helpers/advance]
+                          (frp/activate)
+                          (advance*)
+                          (and (= @document/hidden js/document.hidden)
+                               (= @document/visibility-state
+                                  js/document.visibilityState))))

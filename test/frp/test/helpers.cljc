@@ -15,15 +15,17 @@
 (def cljs-num-tests
   10)
 
-(def restart
+(def set-up
   (gen/fmap (fn [_]
+              #?(:cljs
+                 (reset! event/invocations-state event/initial-invocations))
               (frp/restart))
             (gen/return unit/unit)))
 
-#?(:clj (defmacro restart-for-all
+#?(:clj (defmacro set-up-for-all
           [bindings & body]
           ;TODO generate times and redefine get-new-time
-          `(prop/for-all ~(concat `[_# restart]
+          `(prop/for-all ~(concat `[_# set-up]
                                   bindings)
              ~@body)))
 

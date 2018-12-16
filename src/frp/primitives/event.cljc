@@ -144,8 +144,11 @@
      (def memoized-get-id-alias
        (memoize get-id-alias))
 
+     (def initial-invocations
+       [])
+
      (defonce invocations-state
-       (atom []))))
+       (atom initial-invocations))))
 
 (defn invoke**
   [id a]

@@ -23,10 +23,10 @@
 
 (clojure-test/defspec call-inactive
   test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all [as (gen/vector test-helpers/any-equal)]
-                                (let [e (frp/event)]
-                                  (run! e as)
-                                  (empty? @e))))
+  (test-helpers/set-up-for-all [as (gen/vector test-helpers/any-equal)]
+                               (let [e (frp/event)]
+                                 (run! e as)
+                                 (empty? @e))))
 
 (def recursively-get-occs
   #(walk/postwalk (aid/if-then event/event?
@@ -48,15 +48,15 @@
 
 (clojure-test/defspec call-active
   test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all [as (gen/vector test-helpers/any-equal)]
-                                (let [e (frp/event)]
-                                  (frp/activate)
-                                  (run! e as)
-                                  (last-equal (map tuple/snd @e) as))))
+  (test-helpers/set-up-for-all [as (gen/vector test-helpers/any-equal)]
+                               (let [e (frp/event)]
+                                 (frp/activate)
+                                 (run! e as)
+                                 (last-equal (map tuple/snd @e) as))))
 
 (clojure-test/defspec <$>-identity
   test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all
+  (test-helpers/set-up-for-all
     [input-event test-helpers/any-event
      ;TODO consider cases where f has side effects
      f (gen/one-of [(gen/return frp/event)
@@ -71,11 +71,11 @@
 
 (clojure-test/defspec pure-identity
   test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all [a test-helpers/any-equal]
-                                (= (last @(-> (frp/event)
-                                              ctx/infer
-                                              (m/pure a)))
-                                   (tuple/tuple time/epoch a))))
+  (test-helpers/set-up-for-all [a test-helpers/any-equal]
+                               (= (last @(-> (frp/event)
+                                             ctx/infer
+                                             (m/pure a)))
+                                  (tuple/tuple time/epoch a))))
 
 (def join-generator
   ;TODO refactor
@@ -101,7 +101,7 @@
 
 (clojure-test/defspec join-identity
   test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all
+  (test-helpers/set-up-for-all
     [[outer-event inner-events calls] join-generator]
     (let [joined-event (m/join outer-event)]
       (frp/activate)
@@ -130,14 +130,14 @@
 
 (clojure-test/defspec <>-identity
   test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all [[input-events mappended-event calls]
-                                 <>-generator]
-                                (frp/activate)
-                                (test-helpers/run-calls! calls)
-                                (->> input-events
-                                     (map deref)
-                                     (apply event/merge-occs)
-                                     (last-equal @mappended-event))))
+  (test-helpers/set-up-for-all [[input-events mappended-event calls]
+                                <>-generator]
+                               (frp/activate)
+                               (test-helpers/run-calls! calls)
+                               (->> input-events
+                                    (map deref)
+                                    (apply event/merge-occs)
+                                    (last-equal @mappended-event))))
 
 (test/deftest event-mempty
   (-> @(-> (frp/event)
@@ -191,7 +191,7 @@
 (clojure-test/defspec transduce-identity
   test-helpers/cljc-num-tests
   ;TODO refactor
-  (test-helpers/restart-for-all
+  (test-helpers/set-up-for-all
     [input-event test-helpers/any-event
      xf xform
      f (gen/one-of [(test-helpers/function test-helpers/any-equal)
@@ -212,7 +212,7 @@
 (clojure-test/defspec cat-identity
   test-helpers/cljc-num-tests
   ;TODO refactor
-  (test-helpers/restart-for-all
+  (test-helpers/set-up-for-all
     ;TODO generate an event with pure
     [input-event test-helpers/mempty-event
      f! (gen/one-of [(test-helpers/function test-helpers/any-equal)
@@ -234,7 +234,7 @@
 
 (clojure-test/defspec snapshot-identity
   test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all
+  (test-helpers/set-up-for-all
     ;TODO generate a behavior by stepper and call the event
     [input-behavior test-helpers/any-behavior
      input-event test-helpers/any-event
