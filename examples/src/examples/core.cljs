@@ -4,9 +4,9 @@
             [cats.core :as m]
             [com.rpl.specter :as s]
             [reagent.core :as r]
-            [examples.index :as index]
             [frp.core :as frp]
-            [frp.location :as location]))
+            [frp.location :as location]
+            [examples.index :as index]))
 
 (def app
   (m/=<< (comp (s/setval :index index/index index/route-function)
