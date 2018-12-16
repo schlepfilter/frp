@@ -15,8 +15,6 @@
             [frp.tuple :as tuple]
             [frp.test.helpers :as test-helpers :include-macros true]))
 
-(test/use-fixtures :each test-helpers/fixture)
-
 (clojure-test/defspec time-increasing
   test-helpers/cljc-num-tests
   (test-helpers/restart-for-all [advance1 test-helpers/advance

@@ -16,8 +16,6 @@
                [riddley.walk :as walk]))
   #?(:cljs (:require-macros [frp.test.io :refer [with-exitv]])))
 
-(test/use-fixtures :each helpers/fixture)
-
 #?(:clj (defmacro with-exitv
           [exit-name & body]
           (potemkin/unify-gensyms
