@@ -23,7 +23,6 @@
   10)
 
 (def restart
-  ;TODO call restart
   (gen/fmap (fn [_]
               (frp/restart))
             (gen/return unit/unit)))
