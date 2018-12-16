@@ -23,7 +23,7 @@
             [frp.time :as time]
             [frp.tuple :as tuple]
             [clojure.set :as set])
-  #?(:cljs (:require-macros [frp.primitives.event :refer [get-all-ns get-id-alias*]]))
+  #?(:cljs (:require-macros [frp.primitives.event :refer [get-id-alias*]]))
   #?(:clj (:import [clojure.lang IDeref IFn])))
 
 (declare context)
@@ -117,13 +117,6 @@
 
 (def garbage-collect!
   (partial swap! network-state garbage-collect))
-
-#?(:clj
-   (defmacro get-all-ns
-     []
-     (->> (ana-api/all-ns)
-          (map str)
-          vec)))
 
 #?(:clj (defmacro get-id-alias*
           []
