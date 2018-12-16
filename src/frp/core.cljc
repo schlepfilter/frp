@@ -31,8 +31,11 @@
 (def snapshot
   event/snapshot)
 
-(def activate
-  event/activate)
+(defmacro activate
+  ([]
+   `(event/activate))
+  ([rate]
+   `(event/activate ~rate)))
 
 (def on
   io/on)

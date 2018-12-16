@@ -42,18 +42,14 @@
   [b network]
   (s/setval [:cache (:id b)] (get-network-value b network) network))
 
-(aid/defcurried effect
-  [f x]
-  (f x)
-  x)
-
-(defcurriedmethod get-effect! :behavior
-                  [f! b network]
-                  (->> network
-                       (set-cache b)
-                       (effect (aid/if-else (partial = network)
-                                            (comp f!
-                                                  (get-network-value b))))))
+(defcurriedmethod
+  get-effect! :behavior
+  [f! b network]
+  (->> network
+       (set-cache b)
+       (event/effect (aid/if-else (partial = network)
+                                  (comp f!
+                                        (get-network-value b))))))
 
 (def on
   (comp (partial swap! event/network-state)

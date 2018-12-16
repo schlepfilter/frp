@@ -7,7 +7,6 @@
                 [[goog.object :as object]
                  [oops.core :refer [oget+]]])
             [frp.derived :as derived]
-            [frp.io :as io]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]))
 
@@ -17,8 +16,8 @@
                    (derived/event)))
 
 (def get-event
-  (comp (io/effect (comp behavior/register!
-                         make-redef-event))
+  (comp (event/effect (comp behavior/register!
+                            make-redef-event))
         event/->Event))
 
 (defn add-remove-listener
@@ -72,8 +71,8 @@
   #?(:cljs
      (->> k
           behavior/->Behavior
-          (io/effect (comp behavior/register!
-                           (make-redef-behavior f k))))))
+          (event/effect (comp behavior/register!
+                              (make-redef-behavior f k))))))
 
 (def get-caller-keyword
   #(->> %

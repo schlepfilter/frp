@@ -23,7 +23,7 @@
             [frp.time :as time]
             [frp.tuple :as tuple]
             [clojure.set :as set])
-  #?(:cljs (:require-macros [frp.primitives.event :refer [get-id-alias*]]))
+  #?(:cljs (:require-macros [frp.primitives.event :refer [get-namespaces]]))
   #?(:clj (:import [clojure.lang IDeref IFn])))
 
 (declare context)
@@ -118,36 +118,36 @@
 (def garbage-collect!
   (partial swap! network-state garbage-collect))
 
-(defmacro get-id-alias*
+(defmacro get-namespaces
   []
-  (vec (map (fn [x]
+  (->> (ana-api/all-ns)
+       (map (fn [x]
               `(try (do ~x
                         [~(str x)
                          ~x])
-                    (catch js/Error _# {})))
-            (ana-api/all-ns))))
+                    (catch js/Error _# {}))))
+       vec))
 
-#?(:cljs
-   (when goog/DEBUG
-     (def get-id-alias
-       #(->> (get-id-alias*)
-             (remove (comp nil?
-                           second))
-             (mapcat (fn [[s x]]
-                       (map (fn [k v]
-                              [(keyword (str s "/" k)) v])
-                            (object/getKeys x)
-                            (object/getValues x))))
-             (filter (comp event?
-                           last))
-             (into {})
-             (s/transform s/MAP-VALS :id)))
+(defn get-alias-id
+  [x]
+  #?(:cljs (->> x
+                (remove (comp nil?
+                              second))
+                (mapcat (fn [[s x]]
+                          (map (fn [k v]
+                                 [(keyword (str s "/" k)) v])
+                               (object/getKeys x)
+                               (object/getValues x))))
+                (filter (comp event?
+                              last))
+                (into {})
+                (s/transform s/MAP-VALS :id))))
 
-     (def initial-invocations
-       [])
+(def initial-reloading
+  {})
 
-     (defonce invocations-state
-       (atom initial-invocations))))
+(defonce reloading-state
+  (atom initial-reloading))
 
 (defn invoke**
   [id a]
@@ -159,14 +159,16 @@
     (swap! network-state (partial s/setval* :time current))
     (run-network-state-effects!)))
 
+(def debugging
+  #?(:clj  false
+     :cljs goog/DEBUG))
+
 (defn invoke*
   [id a]
   (when (:active @network-state)
-    #?(:cljs
-       (if goog/DEBUG
-         (swap! invocations-state (partial s/setval*
-                                           s/AFTER-ELEM
-                                           [id a]))))
+    (if debugging
+      (swap! reloading-state
+             (partial s/setval* [:id-invocations s/AFTER-ELEM] [id a])))
     (invoke** id a)))
 
 (defrecord Event
@@ -497,34 +499,69 @@
 (def append-cancellation
   (aid/curry 2 (partial s/setval* [:cancellations s/AFTER-ELEM])))
 
-(defn activate
+(defn activate*
+  [rate]
+  (->> (aid/case-eval rate
+                      #?(:clj  Double/POSITIVE_INFINITY
+                         :cljs js/Number.POSITIVE_INFINITY)
+                      aid/nop
+                      #?(:clj  (-> rate
+                                   get-periods
+                                   (chime/chime-at handle))
+                         :cljs (->> (js/setInterval handle rate)
+                                    (partial js/clearInterval))))
+       append-cancellation
+       (swap! network-state))
+  (swap! network-state (partial s/setval* :active true))
+  (run-network-state-effects!)
+  (time/start)
+  (->> (time/now)
+       get-new-time
+       (partial s/setval* :time)
+       (swap! network-state))
+  (run-network-state-effects!))
+
+(aid/defcurried effect
+  [f x]
+  (f x)
+  x)
+
+(defn reload*
+  [alias-id]
+  (if debugging
+    (swap! reloading-state
+           (comp (effect (comp (partial run!
+                                        (comp (partial apply invoke**)
+                                              (partial s/transform*
+                                                       s/FIRST
+                                                       alias-id)))
+                               :alias-invocations))
+                 (partial s/setval* :id-invocations [])
+                 (partial s/setval* :id alias-id)
+                 #(s/setval [:alias-invocations s/END]
+                            (->> %
+                                 :id-invocations
+                                 (filter (comp (-> %
+                                                   :id
+                                                   set/map-invert)
+                                               first))
+                                 (s/transform [s/ALL s/FIRST]
+                                              (-> %
+                                                  :id
+                                                  set/map-invert)))
+                            %)))))
+
+(def reload
+  (comp reload*
+        get-alias-id))
+
+(def infinity
+  #?(:clj  Double/POSITIVE_INFINITY
+     :cljs js/Number.POSITIVE_INFINITY))
+
+(defmacro activate
   ([]
-   (activate #?(:clj  Double/POSITIVE_INFINITY
-                :cljs js/Number.POSITIVE_INFINITY)))
+   `(activate infinity))
   ([rate]
-   (->> (aid/case-eval rate
-                       #?(:clj  Double/POSITIVE_INFINITY
-                          :cljs js/Number.POSITIVE_INFINITY)
-                       aid/nop
-                       #?(:clj  (-> rate
-                                    get-periods
-                                    (chime/chime-at handle))
-                          :cljs (->> (js/setInterval handle rate)
-                                     (partial js/clearInterval))))
-        append-cancellation
-        (swap! network-state))
-   (swap! network-state (partial s/setval* :active true))
-   (run-network-state-effects!)
-   (time/start)
-   (->> (time/now)
-        get-new-time
-        (partial s/setval* :time)
-        (swap! network-state))
-   (run-network-state-effects!)
-    #?(:cljs
-       (when goog/DEBUG
-         (run! (comp (partial apply invoke**)
-                     (partial s/transform*
-                              s/FIRST
-                              (set/map-invert (get-id-alias))))
-               @invocations-state)))))
+   `(do (activate* ~rate)
+        (reload (get-namespaces)))))

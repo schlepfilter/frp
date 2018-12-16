@@ -18,7 +18,7 @@
 (def set-up
   (gen/fmap (fn [_]
               #?(:cljs
-                 (reset! event/invocations-state event/initial-invocations))
+                 (reset! event/reloading-state event/initial-reloading))
               (frp/restart))
             (gen/return unit/unit)))
 
