@@ -134,7 +134,7 @@
 
 (defn start
   []
-  (reset! event/network-state (event/get-initial-network))
+  (reset! event/network-state event/initial-network)
   (redef time
          (behavior* identity))
   (run! aid/funcall @registry))

@@ -27,15 +27,14 @@
 
 (declare context)
 
-(defn get-initial-network
-  []
+(def initial-network
   {:dependency (graph/digraph)
    :function   (linked/map)
    :occs       (linked/map)
    :time       time/epoch})
 
 (def network-state
-  (atom (get-initial-network)))
+  (atom initial-network))
 
 (defn get-occs
   [id network]
