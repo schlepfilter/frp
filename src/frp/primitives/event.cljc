@@ -57,6 +57,16 @@
 
 (declare event?)
 
+(def garbage-collect
+  #(filter (comp (conj (aid/casep %
+                                  empty? #{}
+                                  #{(-> %
+                                        last
+                                        tuple/fst)})
+                       time/epoch)
+                 tuple/fst)
+           %))
+
 (aid/defcurried set-occs
   [occs id network]
   (run! #(-> %
@@ -71,7 +81,11 @@
                                deref)))
              assert)
         occs)
-  (s/setval [:occs id s/END] occs network))
+  (s/transform [:occs id]
+               (comp (partial s/setval* s/END occs)
+                     ;Doing garbage collection is visibly faster.
+                     garbage-collect)
+               network))
 
 (def call-functions
   (aid/flip (partial reduce (aid/flip aid/funcall))))
@@ -130,23 +144,6 @@
 (def run-network-state-effects!
   (partial swap! network-state run-effects!))
 
-(def garbage-collect
-  ;TODO garbage collect in set-occs
-  (partial s/transform*
-           [:occs s/MAP-VALS]
-           ;TODO starting from the leaves of the dependency recursively delete events that have past occurrences and do not have any children or effects
-           #(filter (comp (conj (aid/casep %
-                                           empty? #{}
-                                           #{(-> %
-                                                 last
-                                                 tuple/fst)})
-                                time/epoch)
-                          tuple/fst)
-                    %)))
-
-(def garbage-collect!
-  (partial swap! network-state garbage-collect))
-
 (defmacro get-namespaces
   []
   (->> (try (ana-api/all-ns)
@@ -179,8 +176,6 @@
 (defn invoke**
   [id a]
   (let [[past current] (get-times)]
-    ;Doing garbage collection is visibly faster.
-    (garbage-collect!)
     (modify-network! (tuple/tuple past a) id @network-state)
     (run-network-state-effects!)
     (swap! network-state (partial s/setval* :time current))
