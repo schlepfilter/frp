@@ -95,13 +95,17 @@
        ;            (doall (repeatedly 100 #(m/<$> identity frp/event)))
        ;            (frp/activate)
        ;            (p :invoke (run! e (repeat 100 0))))))
+       ;
+       ;If a subgraph is taken, it's faster.
+       ;
        ;{:id :invoke, :n-calls 5, :min "216ms", :max "349ms", :mad "39.04ms", :mean "251.4ms", :time% 39, :time "1.26s "}
        ;
        ;Clock Time: (100%) 3.25s
        ;Accounted Time: (39%) 1.26s
        ;nil
-       ;test:frp.test.core=>
-
+       ;
+       ;If a subgraph is not taken, it's slower.
+       ;
        ;{:id :invoke, :n-calls 5, :min "347ms", :max "578ms", :mad "69.44ms", :mean "414.2ms", :time% 54, :time "2.07s "}
        ;
        ;Clock Time: (100%) 3.85s
