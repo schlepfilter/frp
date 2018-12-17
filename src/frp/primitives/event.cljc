@@ -2,8 +2,9 @@
 (ns ^:figwheel-always frp.primitives.event
   (:refer-clojure :exclude [transduce])
   (:require [cljs.analyzer.api :as ana-api]
-            #?@(:cljs [[cljs.reader :as reader]
-                       [goog.object :as object]])
+            #?(:cljs [cljs.reader :as reader])
+            [clojure.set :as set]
+            #?(:cljs [goog.object :as object])
             [aid.core :as aid :include-macros true]
             [aid.unit :as unit]
             [cats.context :as ctx]
@@ -21,8 +22,7 @@
             [frp.helpers :as helpers :include-macros true]
             [frp.protocols :as entity-protocols]
             [frp.time :as time]
-            [frp.tuple :as tuple]
-            [clojure.set :as set])
+            [frp.tuple :as tuple])
   #?(:cljs (:require-macros [frp.primitives.event :refer [get-namespaces]]))
   #?(:clj (:import [clojure.lang IDeref IFn])))
 
