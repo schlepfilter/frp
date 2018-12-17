@@ -2,8 +2,8 @@
 (ns ^:figwheel-always frp.primitives.event
   (:refer-clojure :exclude [transduce])
   (:require [cljs.analyzer.api :as ana-api]
-            #?(:cljs [goog.object :as object])
-            #?(:cljs [cljs.reader :as reader])
+            #?@(:cljs [[cljs.reader :as reader]
+                       [goog.object :as object]])
             [aid.core :as aid :include-macros true]
             [aid.unit :as unit]
             [cats.context :as ctx]
