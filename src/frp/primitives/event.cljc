@@ -82,7 +82,7 @@
 (defn modify-network!
   [occ id network]
   ;TODO advance
-  ;TODO call modifications only of the events connected to the event with id
+  ;TODO only do topological sort on nodes that are connected to id
   (->> network
        :dependency
        alg/topsort
