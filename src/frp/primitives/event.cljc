@@ -120,7 +120,8 @@
 
 (defmacro get-namespaces
   []
-  (->> (ana-api/all-ns)
+  (->> (try (ana-api/all-ns)
+            (catch NullPointerException _ []))
        (map (fn [x]
               `(try (do ~x
                         [~(str x)
@@ -552,8 +553,9 @@
                             %)))))
 
 (def reload
-  (comp reload*
-        get-alias-id))
+  #?(:clj  aid/nop
+     :cljs (comp reload*
+                 get-alias-id)))
 
 (def infinity
   #?(:clj  Double/POSITIVE_INFINITY
@@ -563,5 +565,6 @@
   ([]
    `(activate infinity))
   ([rate]
-   `(do (activate* ~rate)
-        (reload (get-namespaces)))))
+   `(let [activation# (activate* ~rate)]
+      (reload (get-namespaces))
+      activation#)))
