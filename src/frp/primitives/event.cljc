@@ -85,6 +85,30 @@
   ;TODO only do topological sort on nodes that are connected to id
   (->> network
        :dependency
+       ;Taking a subgraph seems faster.
+       ;(tufte/add-basic-println-handler! {})
+       ;
+       ;(profile {}
+       ;         (dotimes [_ 5]
+       ;           (let [e (frp/event)]
+       ;            (doall (repeatedly 100 #(m/<$> identity frp/event)))
+       ;            (frp/activate)
+       ;            (p :invoke (run! e (repeat 100 0))))))
+       ;{:id :invoke, :n-calls 5, :min "216ms", :max "349ms", :mad "39.04ms", :mean "251.4ms", :time% 39, :time "1.26s "}
+       ;
+       ;Clock Time: (100%) 3.25s
+       ;Accounted Time: (39%) 1.26s
+       ;nil
+       ;test:frp.test.core=>
+
+       ;{:id :invoke, :n-calls 5, :min "347ms", :max "578ms", :mad "69.44ms", :mean "414.2ms", :time% 54, :time "2.07s "}
+       ;
+       ;Clock Time: (100%) 3.85s
+       ;Accounted Time: (54%) 2.07s
+       ;nil
+       ((aid/build graph/subgraph
+                   identity
+                   (partial (aid/flip alg/bf-traverse) id)))
        alg/topsort
        (mapcat (:modifications network))
        (concat [(partial s/setval* [:modified s/MAP-VALS] false)

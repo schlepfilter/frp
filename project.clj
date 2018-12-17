@@ -17,6 +17,8 @@
             [lein-doo "0.1.11"]
             [lein-npm "0.6.2"]]
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.10"]
+                                  ;https://github.com/ptaoussanis/tufte/issues/33
+                                  [com.taoensso/tufte "1.4.0"]
                                   [figwheel-sidecar "0.5.17"]
                                   [lein-doo "0.1.11"]
                                   [org.clojure/test.check "0.9.0"]
