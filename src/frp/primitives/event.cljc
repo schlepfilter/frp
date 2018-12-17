@@ -121,25 +121,24 @@
 (defmacro get-namespaces
   []
   (->> (ana-api/all-ns)
-       (map (fn [x]
-              `[~(str x) (try ~x
-                              (catch js/Error _# {}))]))
+       (map str)
        vec))
 
 (defn get-alias-id
   [x]
   #?(:cljs (->> x
-                (remove (comp nil?
-                              second))
-                (mapcat (fn [[s x]]
-                          (map (fn [k v]
-                                 [(keyword (str s "/" k)) v])
-                               (object/getKeys x)
-                               (object/getValues x))))
+                (map symbol)
+                (filter find-ns)
+                (mapcat ns-interns*)
+                (map second)
                 (filter (comp event?
-                              last))
-                (into {})
-                (s/transform s/MAP-VALS :id))))
+                              deref))
+                (mapcat (juxt (comp keyword
+                                    (partial (aid/flip subs) 2)
+                                    str)
+                              (comp :id
+                                    deref)))
+                (apply hash-map))))
 
 (def initial-reloading
   {})
