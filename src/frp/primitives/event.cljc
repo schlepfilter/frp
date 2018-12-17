@@ -121,7 +121,7 @@
 (defmacro get-namespaces
   []
   (->> (try (ana-api/all-ns)
-            (catch NullPointerException _ []))
+            #?(:clj (catch NullPointerException _ [])))
        (map str)
        vec))
 
