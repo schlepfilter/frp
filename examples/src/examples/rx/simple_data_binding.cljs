@@ -1,5 +1,6 @@
 (ns examples.rx.simple-data-binding
   (:require [aid.core :as aid]
+            [clojure.string :as str]
             [cats.core :as m]
             [frp.core :as frp :include-macros]))
 
@@ -12,11 +13,11 @@
 (defn partial-name
   [{:keys [event label]}]
   [:div
-   [:label label]
+   [:label (str label " Name")]
    [:input {:on-change   #(-> %
                               .-target.value
                               event)
-            :placeholder (str "Enter " label "Name...")}]])
+            :placeholder (str/join " " ["Enter" label "Name..."])}]])
 
 (def first-name-component
   (partial-name {:event first-name
