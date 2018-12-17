@@ -120,13 +120,10 @@
 
 (defmacro get-namespaces
   []
-  (->> (try (ana-api/all-ns)
-            (catch NullPointerException _ []))
+  (->> (ana-api/all-ns)
        (map (fn [x]
-              `(try (do ~x
-                        [~(str x)
-                         ~x])
-                    (catch js/Error _# {}))))
+              `[~(str x) (try ~x
+                              (catch js/Error _# {}))]))
        vec))
 
 (defn get-alias-id
