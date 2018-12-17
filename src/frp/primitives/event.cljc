@@ -120,7 +120,8 @@
 
 (defmacro get-namespaces
   []
-  (->> (ana-api/all-ns)
+  (->> (try (ana-api/all-ns)
+            (catch NullPointerException _ []))
        (map str)
        vec))
 
