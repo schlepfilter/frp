@@ -16,6 +16,7 @@
   :cljsbuild {:builds
               {:prod
                {:source-paths ["src"]
-                :compiler     {:output-to     "resources/public/js/main.js"
-                               :main          examples.core
-                               :optimizations :advanced}}}})
+                :compiler     {:output-to       "resources/public/js/main.js"
+                               :main            examples.core
+                               :optimizations   :advanced
+                               :closure-defines {goog.DEBUG false}}}}})
