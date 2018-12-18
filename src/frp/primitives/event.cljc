@@ -69,18 +69,6 @@
 
 (aid/defcurried set-occs
   [occs id network]
-  (run! #(-> %
-             ;TODO consider cases where event is inside a collection
-             tuple/snd
-             ((aid/build or
-                         (complement event?)
-                         (comp (partial every?
-                                        (comp (set [time/epoch
-                                                    (:time network)])
-                                              tuple/fst))
-                               deref)))
-             assert)
-        occs)
   (s/transform [:occs id]
                (comp (partial s/setval* s/END occs)
                      ;Doing garbage collection is visibly faster.
@@ -353,6 +341,12 @@
 
 (aid/defcurried delay-sync
   [parent-id child-id network]
+  (->> network
+       (get-occs parent-id)
+       (run! #(->> %
+                   tuple/fst
+                   ((set [time/epoch (:time network)]))
+                   assert)))
   (set-occs (->> network
                  (get-occs parent-id)
                  (delay-time-occs (:time network)))
