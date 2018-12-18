@@ -1,6 +1,7 @@
 (ns frp.clojure.core
   (:refer-clojure :exclude [+
                             count
+                            distinct
                             drop
                             filter
                             group-by
@@ -30,13 +31,13 @@
   ([f val e]
    (event/transduce (core/drop 0) f val e)))
 
+(def reduce*
+  (comp second
+        vector))
+
 (defn filter
   [pred e]
-  (event/transduce (core/filter pred)
-                   (comp second
-                         vector)
-                   unit/unit
-                   e))
+  (event/transduce (core/filter pred) reduce* unit/unit e))
 
 (defn remove
   [pred e]
@@ -57,10 +58,7 @@
 
 (defn drop
   [n e]
-  (event/transduce (core/drop n)
-                   (comp second
-                         vector)
-                   e))
+  (event/transduce (core/drop n) reduce* e))
 
 (defn merge-with
   [f e]
@@ -72,3 +70,6 @@
             (s/setval [(f element) s/AFTER-ELEM] element reduction))
           {}
           e))
+
+(def distinct
+  (partial event/transduce (core/distinct) reduce*))
