@@ -3,6 +3,7 @@
                             count
                             drop
                             filter
+                            group-by
                             max
                             merge-with
                             min
@@ -11,6 +12,7 @@
   (:require [clojure.core :as core]
             [aid.unit :as unit]
             [cats.core :as m]
+            [com.rpl.specter :as s]
             [frp.primitives.event :as event]))
 
 (defn reduce
@@ -64,3 +66,10 @@
 (defn merge-with
   [f e]
   (reduce (partial core/merge-with f) e))
+
+(defn group-by
+  [f e]
+  (reduce (fn [reduction element]
+            (s/setval [(f element) s/AFTER-ELEM] element reduction))
+          {}
+          e))
