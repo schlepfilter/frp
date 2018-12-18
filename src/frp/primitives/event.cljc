@@ -12,13 +12,13 @@
             [cats.monad.maybe :as maybe]
             [cats.protocols :as cats-protocols]
             [cats.util :as util]
+            #?@(:clj [[chime :as chime]
+                      [clj-time.core :as t]
+                      [clj-time.periodic :as periodic]])
             [com.rpl.specter :as s :include-macros true]
             [linked.core :as linked]
             [loom.alg :as alg]
             [loom.graph :as graph]
-            #?@(:clj [[chime :as chime]
-                      [clj-time.core :as t]
-                      [clj-time.periodic :as periodic]])
             [frp.helpers :as helpers :include-macros true]
             [frp.protocols :as entity-protocols]
             [frp.time :as time]
