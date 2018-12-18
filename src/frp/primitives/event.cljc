@@ -262,7 +262,9 @@
   (Event. id))
 
 (def event*
-  #(event** (get-id @network-state) %))
+  #(-> @network-state
+       get-id
+       (event** %)))
 
 (def get-unit
   (partial tuple/tuple time/epoch))
