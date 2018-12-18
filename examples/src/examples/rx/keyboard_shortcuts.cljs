@@ -1,17 +1,24 @@
 (ns examples.rx.keyboard-shortcuts
-  (:require [cats.core :as m]
+  (:require [clojure.string :as str]
+            [aid.core :as aid]
+            [cats.core :as m]
             [cljsjs.mousetrap]
             [com.rpl.specter :as s]
             [frp.core :as frp]
-            [frp.clojure.core :as core]
-            [aid.core :as aid]
-            [clojure.string :as str]))
+            [frp.clojure.core :as core]))
+
+(def combine
+  (comp (partial str/join "+")
+        vector))
+
+(def default
+  (combine "ctrl" "alt" "d"))
 
 (def typing
   (frp/event))
 
 (def registration
-  (frp/event))
+  (frp/event default (combine "ctrl" "alt" "s") "trash"))
 
 (def trigger
   (frp/event))
@@ -27,14 +34,14 @@
   [typing* counter*]
   [:div
    [:input {:type        "text"
-            :placeholder "ctrl+alt+d"
+            :placeholder default
             :value       typing*
             :on-change   #(-> %
                               .-target.value
                               typing)}]
    [:button {:on-click #(registration typing*)}
     "Add"]
-   [:p "Keyboard shortcuts"]
+   [:p "Keyboard shortcuts:"]
    (->> counter*
         (s/transform s/MAP-VALS str)
         (mapv (comp (partial vector :li)
