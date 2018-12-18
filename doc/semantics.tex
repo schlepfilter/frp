@@ -1,31 +1,33 @@
 \documentclass[fleqn]{amsart}
 \usepackage[margin={0.25in}]{geometry}
-\newcommand{\zeroarity}[1]{&\ \textit{#1*}\quad\text{-- where }\textit{#1*}\text{ is }(#1)}
-\newcommand{\positive}[1]{&\ \textit{#1}\ Int\quad\text{-- where }Int\text{ is positive}}
+\newcommand{\dash}{\quad\text{--}\ }
+\newcommand{\epoch}{t = 0}
+\newcommand{\zeroarity}[1]{&\ \textit{#1*} \dash \text{where }\textit{#1*}\text{ is }(#1)}
+\newcommand{\positive}[1]{&\ \textit{#1}\ Int \dash \text{where }Int\text{ is positive}}
 \newcommand{\integer}[1]{&\ #1\ Int}
 \newcommand{\predicate}[2]{&\ \textit{#1}\ (#2 \rightarrow Boolean)}
 \newcommand{\nonnillable}[3]{&\ \textit{#1}\ (#2 \rightarrow #3)\quad\text{-- where }#3\text{ is not nil}}
 \newcommand{\any}[3]{&\ \textit{#1}\ (#2 \rightarrow #3)}
 \begin{document}
 \begin{align*}
-  delayOccs(\hat{t}_e, e) = [(\hat{t}_e  'max' \hat{t}_a, a) | (\hat{t}_a, a) \leftarrow occs\ e] \quad \text{--}\ \hat{t}_a = 0 \lor \hat{t}_e \leq \hat{t}_a
+  delayOccs(\hat{t}_e, e) = [(\hat{t}_e  'max' \hat{t}_a, a) | (\hat{t}_a, a) \leftarrow occs\ e] \dash \hat{t}_a = 0 \lor \hat{t}_e \leq \hat{t}_a
 \end{align*}
 \begin{align*}
   %mapcat is composed of map and cat
-  \mathbf{data}\ Xform{*}\ a\ b\ c\ d\ e\ f\ g\ h\ i\ j\ k\ l\ m\ n\ o =&\ cat\\
-  |\zeroarity{dedupe}\\
-  |\zeroarity{distinct}\\
-  |\positive{take-nth}\\
-  |\positive{partition-all}\\
-  |\integer{drop}\\
-  |\integer{take}\\
+  \mathbf{data}\ Xform{*}\ a\ b\ c\ d\ e\ f\ g\ h\ i\ j\ k\ l\ m\ n\ o =&\ cat \dash \epoch\\
+  |\zeroarity{dedupe} \land \epoch\\
+  |\zeroarity{distinct} \land \epoch\\
+  |\positive{take-nth} \land \epoch\\
+  |\positive{partition-all} \land \epoch\\
+  |\integer{drop} \dash \epoch\\
+  |\integer{take} \dash \epoch\\
   |&\ replace\ Map\ a\ b\\
-  |\predicate{drop-while}{c}\\
+  |\predicate{drop-while}{c} \dash \epoch\\
   |\predicate{filter}{d}\\
   |\predicate{remove}{e}\\
-  |\predicate{take-while}{f}\\
+  |\predicate{take-while}{f} \dash \epoch\\
   |\nonnillable{map-index}{g}{h}\\
-  |\nonnillable{partition-by}{i}{j}\\
+  |\nonnillable{partition-by}{i}{j} \land \epoch\\
   |\any{keep}{k}{l}\\
   |\any{keep-indexed}{m}{n}\\
   |&\ interpose\ o
