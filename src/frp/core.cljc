@@ -1,4 +1,4 @@
-(ns ^:figwheel-always frp.core
+(ns frp.core
   (:refer-clojure :exclude [stepper time transduce])
   (:require [frp.derived :as derived :include-macros true]
             [frp.io :as io]
