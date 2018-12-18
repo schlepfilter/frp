@@ -108,8 +108,7 @@
                                  (oget+ x %))))
                 (apply hash-map))))
 
-#?(:clj
-   (defmacro make-convert-merge
-     [x]
-     `#(merge (convert %)
-              (convert ~x))))
+(defmacro make-convert-merge
+  [x]
+  `#(merge (convert %)
+           (convert ~x)))
