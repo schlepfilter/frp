@@ -10,6 +10,7 @@
             [examples.cycle.http-search-github :as http-search-github]
             [examples.intro :as intro]
             [examples.rx.drag-n-drop :as drag-n-drop]
+            [examples.rx.keyboard-shortcuts :as keyboard-shortcuts]
             [examples.rx.letter-count :as letter-count]
             [examples.rx.simple-data-binding :as simple-data-binding]))
 
@@ -21,6 +22,7 @@
    :drag-n-drop         drag-n-drop/drag-n-drop
    :http-search-github  http-search-github/http-search-github
    :intro               intro/intro
+   :keyboard-shortcuts  keyboard-shortcuts/keyboard-shortcuts
    :letter-count        letter-count/letter-count
    :simple-data-binding simple-data-binding/simple-data-binding})
 

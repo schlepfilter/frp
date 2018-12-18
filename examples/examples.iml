@@ -32,6 +32,7 @@
     <orderEntry type="library" name="Leiningen: clj-tuple:0.2.2" level="project" />
     <orderEntry type="library" name="Leiningen: cljs-ajax:0.8.0" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/create-react-class:15.6.3-0" level="project" />
+    <orderEntry type="library" name="Leiningen: cljsjs/mousetrap:1.5.3-0" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/react-dom-server:16.3.2-0" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/react-dom:16.3.2-0" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/react:16.3.2-0" level="project" />
