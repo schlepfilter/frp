@@ -125,6 +125,7 @@
 (def time
   (Behavior. ::time))
 
+;TODO only use registry for debugging
 (def registry
   (atom []))
 
