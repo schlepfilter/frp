@@ -67,16 +67,20 @@
                           identity)
                 f))))
 
-(defmacro transparent
-  [expr]
-  (->> expr
-       ;TODO macroexpand expr when ClojureScript starts supporting runtime macro expansion
-       ;macroexpand is only intended as a REPL utility
-       ;https://cljs.github.io/api/cljs.core/macroexpand
-       walk/macroexpand-all
-       (walk/postwalk #(aid/casep %
-                                  has-argument? `(apply transparent* ~(vec %))
-                                  %))))
+;The reader conditional avoids the following warning.
+;WARNING: Use of undeclared Var clojure.walk/macroexpand-all
+#?(:clj
+   (defmacro transparent
+     [expr]
+     (->> expr
+          ;TODO macroexpand expr when ClojureScript starts supporting runtime macro expansion
+          ;macroexpand is only intended as a REPL utility
+          ;https://cljs.github.io/api/cljs.core/macroexpand
+          walk/macroexpand-all
+          (walk/postwalk #(aid/casep %
+                                     has-argument? `(apply transparent*
+                                                           ~(vec %))
+                                     %)))))
 
 (def accum
   (partial core/reduce (aid/flip aid/funcall)))
