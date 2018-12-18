@@ -73,8 +73,7 @@
        ;https://cljs.github.io/api/cljs.core/macroexpand
        walk/macroexpand-all
        (walk/postwalk #(aid/casep %
-                                  has-argument? `(apply transparent*
-                                                        ~(vec %))
+                                  has-argument? `(apply transparent* ~(vec %))
                                   %))))
 
 (def accum

@@ -110,5 +110,4 @@
 
 (defmacro make-convert-merge
   [x]
-  `#(merge (convert %)
-           (convert ~x)))
+  `#(merge (convert %) (convert ~x)))
