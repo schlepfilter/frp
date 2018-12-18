@@ -454,12 +454,13 @@
 
 (aid/defcurried get-accumulator
   [f! init id network reduction element]
-  (cons ((aid/lift-a f!)
-          (get-transduction init
-                            (get-occs id network)
-                            reduction)
-          element)
-        reduction))
+  (s/setval s/AFTER-ELEM
+            ((aid/lift-a f!)
+              (get-transduction init
+                                (get-occs id network)
+                                reduction)
+              element)
+            reduction))
 
 (def make-modify-transduce
   ;TODO refactor
