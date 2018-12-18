@@ -3,9 +3,8 @@
             [aid.core :as aid]
             [cats.core :as m]
             [cuerdas.core :as cuerdas]
-            #?@(:cljs
-                [[goog.object :as object]
-                 [oops.core :refer [oget+]]])
+            #?@(:cljs [[goog.object :as object]
+                       [oops.core :refer [oget+]]])
             [frp.derived :as derived]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]))
