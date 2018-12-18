@@ -10,10 +10,12 @@
             #?(:clj [clojure.walk :as walk])))
 
 (defn event
-  ([]
-   (event/mempty))
-  ([a]
-   (event/pure a)))
+  ([& as]
+   (aid/casep as
+              empty? (event/mempty)
+              (->> as
+                   (map event/pure)
+                   (apply m/<>)))))
 
 (def behavior?
   (partial instance? frp.primitives.behavior.Behavior))
