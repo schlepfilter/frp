@@ -18,7 +18,7 @@
 
 (def counter
   (->> trigger
-       (m/<> registration)
+       (m/<> (core/distinct registration))
        (core/group-by identity)
        (m/<$> (partial s/transform* s/MAP-VALS (comp dec
                                                      count)))))
