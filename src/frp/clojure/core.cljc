@@ -8,9 +8,11 @@
                             max
                             merge-with
                             min
+                            partition
                             reduce
                             remove])
   (:require [clojure.core :as core]
+            [aid.core :as aid :include-macros true]
             [aid.unit :as unit]
             [cats.core :as m]
             [com.rpl.specter :as s]
@@ -73,3 +75,29 @@
 
 (def distinct
   (partial event/transduce (core/distinct) reduce*))
+
+(defn partition
+  ([n e]
+   (partition n n e))
+  ([n step e]
+   (->> e
+        (reduce (fn [reduction element]
+                  (->> reduction
+                       (aid/if-then (comp zero?
+                                          (partial (aid/flip mod) step)
+                                          :start)
+                                    (partial s/setval*
+                                             [:occs
+                                              s/AFTER-ELEM]
+                                             []))
+                       (s/setval [:occs s/ALL s/AFTER-ELEM] element)
+                       (s/transform :occs
+                                    (partial core/remove (comp (partial < n)
+                                                               core/count)))
+                       (s/transform :start inc)))
+                {:occs  []
+                 :start 0})
+        (m/<$> (comp first
+                     :occs))
+        (filter (comp (partial = n)
+                      core/count)))))

@@ -48,9 +48,6 @@
 (def accum
   derived/accum)
 
-(def buffer
-  derived/buffer)
-
 (def switcher
   derived/switcher)
 
