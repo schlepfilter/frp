@@ -35,7 +35,8 @@
    [:button {:on-click #(registration typing*)}
     "Add"]
    [:p "Keyboard shortcuts"]
-   (->> counter* (s/transform s/MAP-VALS str)
+   (->> counter*
+        (s/transform s/MAP-VALS str)
         (mapv (comp (partial vector :li)
                     (partial str/join ": ")))
         (s/setval s/BEFORE-ELEM :ul))])
