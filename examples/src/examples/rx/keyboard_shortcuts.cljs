@@ -1,6 +1,6 @@
 (ns examples.rx.keyboard-shortcuts
-  (:require [cljsjs.mousetrap]
-            [cats.core :as m]
+  (:require [cats.core :as m]
+            [cljsjs.mousetrap]
             [frp.core :as frp]))
 
 (def typing
