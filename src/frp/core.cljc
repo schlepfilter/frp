@@ -4,6 +4,7 @@
             [frp.io :as io]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]
+    ;TODO don't require browser namespaces
             #?@(:cljs [[frp.document]
                        [frp.location]])))
 
