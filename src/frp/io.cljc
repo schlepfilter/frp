@@ -23,9 +23,8 @@
 (defmacro defcurriedmethod
   [multifn dispatch-val bindings & body]
   `(aid/defpfmethod ~multifn ~dispatch-val
-                    (aid/curry ~(count bindings)
-                               (fn ~bindings
-                                 ~@body))))
+                    (aid/curry ~(count bindings) (fn ~bindings
+                                                   ~@body))))
 
 (defcurriedmethod get-effect! :event
                   [f! e network]
