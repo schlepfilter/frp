@@ -47,8 +47,7 @@
                               :cljs js/Number.NEGATIVE_INFINITY)))
 
 (def min
-  (partial reduce core/min #?(:clj  Double/POSITIVE_INFINITY
-                              :cljs js/Number.POSITIVE_INFINITY)))
+  (partial reduce core/min event/positive-infinity))
 
 (def +
   (partial reduce core/+))

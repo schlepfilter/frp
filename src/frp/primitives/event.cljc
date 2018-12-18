@@ -515,11 +515,14 @@
 (def append-cancellation
   (aid/curry 2 (partial s/setval* [:cancellations s/AFTER-ELEM])))
 
+(def positive-infinity
+  #?(:clj  Double/POSITIVE_INFINITY
+     :cljs js/Number.POSITIVE_INFINITY))
+
 (defn activate*
   [rate]
   (->> (aid/case-eval rate
-                      #?(:clj  Double/POSITIVE_INFINITY
-                         :cljs js/Number.POSITIVE_INFINITY)
+                      positive-infinity
                       aid/nop
                       #?(:clj  (-> rate
                                    get-periods
@@ -571,10 +574,6 @@
   #?(:clj  aid/nop
      :cljs (comp reload*
                  get-alias-id)))
-
-(def positive-infinity
-  #?(:clj  Double/POSITIVE_INFINITY
-     :cljs js/Number.POSITIVE_INFINITY))
 
 (defmacro activate
   ([]
