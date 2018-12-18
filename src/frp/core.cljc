@@ -51,9 +51,6 @@
 (def buffer
   derived/buffer)
 
-(def mean
-  derived/mean)
-
 (def switcher
   derived/switcher)
 

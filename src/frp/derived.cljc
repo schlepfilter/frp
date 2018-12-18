@@ -113,15 +113,6 @@
         (core/filter (comp (partial = size)
                            count)))))
 
-(def mean
-  (comp (m/<$> (partial apply /))
-        (partial core/reduce
-                 (fn [reduction element]
-                   (->> reduction
-                        (s/transform s/FIRST (partial + element))
-                        (s/transform s/LAST inc)))
-                 [0 0])))
-
 (def switcher
   (comp m/join
         behavior/stepper))
