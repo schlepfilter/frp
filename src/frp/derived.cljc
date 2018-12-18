@@ -1,5 +1,5 @@
 (ns frp.derived
-  (:require #?(:clj [clojure.walk :as walk])
+  (:require [clojure.walk :as walk]
             [aid.core :as aid :include-macros true]
             [cats.context :as ctx]
             [cats.core :as m]
