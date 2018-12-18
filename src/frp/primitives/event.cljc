@@ -572,13 +572,13 @@
      :cljs (comp reload*
                  get-alias-id)))
 
-(def infinity
+(def positive-infinity
   #?(:clj  Double/POSITIVE_INFINITY
      :cljs js/Number.POSITIVE_INFINITY))
 
 (defmacro activate
   ([]
-   `(activate infinity))
+   `(activate positive-infinity))
   ([rate]
    `(let [activation# (activate* ~rate)]
       (reload (get-namespaces))
