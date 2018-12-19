@@ -18,7 +18,7 @@
 (def redo
   (frp/event))
 
-(def todo
+(def todos
   (->> typing
        (frp/stepper "")
        (frp/snapshot addition)
@@ -29,7 +29,7 @@
 
 (defn todos-with-undo-component
   ;TODO implement this function
-  [todo*]
+  [todos*]
   [:div
    [:form {:on-submit #(addition)}
     [:input {:on-change #(-> %
@@ -37,7 +37,7 @@
                              typing)}]
     [:button {:type "submit"}
      "Add Todo"]]
-   (->> todo*
+   (->> todos*
         (mapv (partial vector :li))
         (s/setval s/BEFORE-ELEM :ul))
    [:div
@@ -48,7 +48,7 @@
      "redo"]]])
 
 (def todos-with-undo
-  (->> todo
+  (->> todos
        (frp/stepper [])
        (m/<$> todos-with-undo-component)))
 
