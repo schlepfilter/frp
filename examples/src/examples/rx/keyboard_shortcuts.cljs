@@ -1,6 +1,5 @@
 (ns examples.rx.keyboard-shortcuts
   (:require [clojure.string :as str]
-            [aid.core :as aid]
             [cats.core :as m]
             [cljsjs.mousetrap]
             [com.rpl.specter :as s]
@@ -11,34 +10,41 @@
   (comp (partial str/join "+")
         vector))
 
-(def default
+(def placeholder
   (combine "ctrl" "alt" "d"))
 
 (def typing
   (frp/event))
 
+(def addition
+  (frp/event))
+
 (def registration
-  (frp/event default (combine "ctrl" "alt" "s") "trash"))
+  (->> typing
+       (frp/stepper "")
+       (frp/snapshot addition)
+       (m/<$> second)
+       (m/<> (frp/event placeholder (combine "ctrl" "alt" "s") "trash"))
+       core/distinct))
 
 (def trigger
   (frp/event))
 
 (def counter
   (->> trigger
-       (m/<> (core/distinct registration))
+       (m/<> registration)
        (core/group-by identity)
        (m/<$> (partial s/transform* s/MAP-VALS (comp dec
                                                      count)))))
 
 (defn keyboard-shortcuts-component
-  [typing* counter*]
+  [counter*]
   [:div
    [:input {:on-change   #(-> %
                               .-target.value
                               typing)
-            :placeholder default
-            :value       typing*}]
-   [:button {:on-click #(registration typing*)}
+            :placeholder placeholder}]
+   [:button {:on-click #(addition)}
     "Add"]
    [:p "Keyboard shortcuts:"]
    (->> counter*
@@ -48,9 +54,9 @@
         (s/setval s/BEFORE-ELEM :ul))])
 
 (def keyboard-shortcuts
-  ((aid/lift-a keyboard-shortcuts-component)
-    (frp/stepper "" typing)
-    (frp/stepper {} counter)))
+  (->> counter
+       (frp/stepper {})
+       (m/<$> keyboard-shortcuts-component)))
 
 (frp/on (fn [registration*]
           (js/Mousetrap.bind registration* #(trigger registration*)))
