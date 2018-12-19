@@ -12,6 +12,9 @@
 (def addition
   (frp/event))
 
+(def undo
+  (frp/event))
+
 (def todo
   (->> typing
        (frp/stepper "")
@@ -33,7 +36,10 @@
      "Add Todo"]]
    (->> todo*
         (mapv (partial vector :li))
-        (s/setval s/BEFORE-ELEM :ul))])
+        (s/setval s/BEFORE-ELEM :ul))
+   [:div
+    [:button {:on-click #(undo)}
+     "undo"]]])
 
 (def todos-with-undo
   (->> todo
