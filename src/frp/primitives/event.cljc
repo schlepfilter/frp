@@ -283,16 +283,19 @@
        (filter (comp (partial = (:time network))
                      tuple/fst))))
 
-(def make-get-occs-or-latests
-  #(if %
+(defn get-occs-or-latests
+  [initial id network]
+  ((if initial
      get-occs
-     get-latests))
+     get-latests)
+    id
+    network))
 
 (aid/defcurried modify-<$>
   [f! parent-id initial child-id network]
   ;TODO refactor
   (set-occs (->> network
-                 ((make-get-occs-or-latests initial) parent-id)
+                 (get-occs-or-latests initial parent-id)
                  (mapv (partial m/<$> f!)))
             child-id
             @network-state))
@@ -358,7 +361,7 @@
 (aid/defcurried modify-join
   [parent-id initial child-id network]
   (->> network
-       ((make-get-occs-or-latests initial) parent-id)
+       (get-occs-or-latests initial parent-id)
        (map (comp (aid/curriedfn [parent-id* _]
                                  (call-functions! ((juxt add-edge
                                                          insert-merge-sync
@@ -391,12 +394,8 @@
 
 (aid/defcurried modify-<>
   [left-id right-id initial child-id network]
-  (set-occs (merge-occs ((make-get-occs-or-latests initial)
-                          left-id
-                          network)
-                        ((make-get-occs-or-latests initial)
-                          right-id
-                          network))
+  (set-occs (merge-occs (get-occs-or-latests initial left-id network)
+                        (get-occs-or-latests initial right-id network))
             child-id
             network))
 
@@ -440,7 +439,7 @@
 (defn get-elements
   [step! id initial network]
   (->> network
-       ((make-get-occs-or-latests initial) id)
+       (get-occs-or-latests initial id)
        (map (partial s/transform* :snd (comp unreduced
                                              (partial step! aid/nothing))))
        (filter (comp maybe/just?
