@@ -1,26 +1,44 @@
 (ns examples.redux.todos-with-undo
-  (:require [cats.core :as m]
+  (:require [aid.core :as aid]
+            [cats.core :as m]
+            [com.rpl.specter :as s]
+            [frp.clojure.core :as core]
             [frp.core :as frp]
-            [frp.window :as window]
-            [aid.core :as aid]))
+            [frp.window :as window]))
 
 (def typing
   (frp/event))
 
+(def addition
+  (frp/event))
+
+(def todo
+  (->> typing
+       (frp/stepper "")
+       (frp/snapshot addition)
+       (m/<$> second)
+       (core/remove empty?)
+       (m/<$> ((aid/curry 3 s/setval*) s/AFTER-ELEM))
+       (frp/accum [])))
+
 (defn todos-with-undo-component
   ;TODO implement this function
-  []
+  [todo*]
   [:div
-   [:form
+   [:form {:on-submit #(addition)}
     [:input {:on-change #(-> %
                              .-target.value
                              typing)}]
-    [:button
-     {:type "submit"}
-     "Add Todo"]]])
+    [:button {:type "submit"}
+     "Add Todo"]]
+   (->> todo*
+        (mapv (partial vector :li))
+        (s/setval s/BEFORE-ELEM :ul))])
 
 (def todos-with-undo
-  (m/<$> todos-with-undo-component (frp/stepper "" typing)))
+  (->> todo
+       (frp/stepper [])
+       (m/<$> todos-with-undo-component)))
 
 (frp/on (comp aid/funcall
               :prevent-default)
