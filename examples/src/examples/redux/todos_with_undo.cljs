@@ -15,6 +15,9 @@
 (def undo
   (frp/event))
 
+(def redo
+  (frp/event))
+
 (def todo
   (->> typing
        (frp/stepper "")
@@ -38,8 +41,11 @@
         (mapv (partial vector :li))
         (s/setval s/BEFORE-ELEM :ul))
    [:div
+    ;TODO extract a function that returns a button component
     [:button {:on-click #(undo)}
-     "undo"]]])
+     "undo"]
+    [:button {:on-click #(redo)}
+     "redo"]]])
 
 (def todos-with-undo
   (->> todo
