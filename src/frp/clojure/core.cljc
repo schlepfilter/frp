@@ -30,8 +30,8 @@
                          {:event-value unit/unit
                           :start       true})
         (m/<$> :event-value)))
-  ([f val e]
-   (event/transduce (core/drop 0) f val e)))
+  ([f x e]
+   (event/transduce (core/drop 0) f x e)))
 
 (def reduce*
   (comp second
