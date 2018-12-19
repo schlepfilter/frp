@@ -4,10 +4,6 @@
             [frp.window :as window]
             [aid.core :as aid]))
 
-(frp/on (comp aid/funcall
-              :prevent-default)
-        window/submit)
-
 (def typing
   (frp/event))
 
@@ -25,3 +21,7 @@
 
 (def todos-with-undo
   (m/<$> todos-with-undo-component (frp/stepper "" typing)))
+
+(frp/on (comp aid/funcall
+              :prevent-default)
+        window/submit)
