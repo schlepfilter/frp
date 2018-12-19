@@ -12,7 +12,8 @@
             [examples.rx.drag-n-drop :as drag-n-drop]
             [examples.rx.keyboard-shortcuts :as keyboard-shortcuts]
             [examples.rx.letter-count :as letter-count]
-            [examples.rx.simple-data-binding :as simple-data-binding]))
+            [examples.rx.simple-data-binding :as simple-data-binding]
+            [examples.redux.todos-with-undo :as todos-with-undo]))
 
 (def route-function
   {:autocomplete-search autocomplete-search/autocomplete-search
@@ -24,7 +25,8 @@
    :intro               intro/intro
    :keyboard-shortcuts  keyboard-shortcuts/keyboard-shortcuts
    :letter-count        letter-count/letter-count
-   :simple-data-binding simple-data-binding/simple-data-binding})
+   :simple-data-binding simple-data-binding/simple-data-binding
+   :todos-with-undo  todos-with-undo/todos-with-undo})
 
 (def route-keywords
   (keys route-function))
