@@ -33,12 +33,12 @@
 (defn keyboard-shortcuts-component
   [typing* counter*]
   [:div
-   [:input {:type        "text"
-            :placeholder default
-            :value       typing*
-            :on-change   #(-> %
+   [:input {:on-change   #(-> %
                               .-target.value
-                              typing)}]
+                              typing)
+            :placeholder default
+            :type        "text"
+            :value       typing*}]
    [:button {:on-click #(registration typing*)}
     "Add"]
    [:p "Keyboard shortcuts:"]
