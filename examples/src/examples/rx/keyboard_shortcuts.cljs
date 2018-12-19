@@ -37,7 +37,6 @@
                               .-target.value
                               typing)
             :placeholder default
-            :type        "text"
             :value       typing*}]
    [:button {:on-click #(registration typing*)}
     "Add"]
