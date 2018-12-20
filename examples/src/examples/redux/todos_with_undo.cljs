@@ -54,6 +54,14 @@
      [:del s]
      s)])
 
+(defn link-component
+  [s]
+  [:a {:href     "#"
+       :on-click (fn [event*]
+                   (.preventDefault event*)
+                   (view s))}
+   (capital s)])
+
 (defn todos-with-undo-component
   ;TODO implement this function
   [todos*]
@@ -74,12 +82,7 @@
     [:button {:on-click #(redo)}
      "redo"]]
    (->> [:all :active :completed]
-        (map (fn [s]
-               [:a {:href     "#"
-                    :on-click (fn [event*]
-                                (.preventDefault event*)
-                                (view s))}
-                (capital s)]))
+        (map link-component)
         (sequence-join ", ")
         vec
         (s/setval s/BEGINNING [:p "Show: "]))])
