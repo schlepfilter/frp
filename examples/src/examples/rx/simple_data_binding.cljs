@@ -2,7 +2,7 @@
   (:require [aid.core :as aid]
             [clojure.string :as str]
             [cats.core :as m]
-            [frp.core :as frp :include-macros true]))
+            [frp.core :as frp]))
 
 (frp/defe first-name last-name)
 

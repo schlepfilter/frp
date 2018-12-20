@@ -4,7 +4,7 @@
             [com.rpl.specter :as s]
             [frp.ajax :refer [GET]]
             [frp.clojure.core :as core]
-            [frp.core :as frp :include-macros true]
+            [frp.core :as frp]
             [examples.helpers :as helpers]))
 
 (frp/defe typing key-down)

@@ -1,6 +1,6 @@
 (ns examples.cycle.bmi-naive
-  (:require [aid.core :as aid :include-macros true]
-            [frp.core :as frp :include-macros true]))
+  (:require [aid.core :as aid]
+            [frp.core :as frp]))
 
 (frp/defe weight-event height-event)
 

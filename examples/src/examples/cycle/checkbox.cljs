@@ -1,7 +1,7 @@
 (ns examples.cycle.checkbox
   (:require [cats.core :as m]
             [frp.clojure.core :as core]
-            [frp.core :as frp :include-macros true]))
+            [frp.core :as frp]))
 
 (frp/defe check)
 

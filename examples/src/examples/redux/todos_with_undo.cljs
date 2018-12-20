@@ -4,7 +4,7 @@
             [cats.core :as m]
             [com.rpl.specter :as s]
             [frp.clojure.core :as core]
-            [frp.core :as frp :include-macros true]
+            [frp.core :as frp]
             [frp.window :as window]))
 
 (frp/defe typing addition toggle undo redo view)

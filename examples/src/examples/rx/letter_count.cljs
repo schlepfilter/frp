@@ -1,6 +1,6 @@
 (ns examples.rx.letter-count
   (:require [cats.core :as m]
-            [frp.core :as frp :include-macros true]))
+            [frp.core :as frp]))
 
 (frp/defe length)
 

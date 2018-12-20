@@ -3,7 +3,7 @@
             [cats.core :as m]
             [cljsjs.mousetrap]
             [com.rpl.specter :as s]
-            [frp.core :as frp :include-macros true]
+            [frp.core :as frp]
             [frp.clojure.core :as core]))
 
 (def combine

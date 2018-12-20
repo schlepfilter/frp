@@ -2,7 +2,7 @@
   (:require [aid.core :as aid]
             [cats.core :as m]
             [clojure.set :as set]
-            [com.rpl.specter :as s :include-macros true]
+            [com.rpl.specter :as s]
             [frp.clojure.core :as core]
             [frp.core :as frp]
             [frp.window :as window]))
