@@ -70,7 +70,9 @@
 (defn group-by
   [f e]
   (reduce (fn [reduction element]
-            (s/setval [(f element) s/AFTER-ELEM] element reduction))
+            (update reduction
+                    (f element)
+                    (partial s/setval* s/AFTER-ELEM element)))
           {}
           e))
 
