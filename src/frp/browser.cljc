@@ -3,11 +3,9 @@
             [aid.core :as aid]
             [cats.core :as m]
             [cuerdas.core :as cuerdas]
-            #?@(:cljs
-                [[goog.object :as object]
-                 [oops.core :refer [oget+]]])
+            #?@(:cljs [[goog.object :as object]
+                       [oops.core :refer [oget+]]])
             [frp.derived :as derived]
-            [frp.io :as io]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]))
 
@@ -17,8 +15,8 @@
                    (derived/event)))
 
 (def get-event
-  (comp (io/effect (comp behavior/register!
-                         make-redef-event))
+  (comp (event/effect (comp behavior/register!
+                            make-redef-event))
         event/->Event))
 
 (defn add-remove-listener
@@ -72,28 +70,27 @@
   #?(:cljs
      (->> k
           behavior/->Behavior
-          (io/effect (comp behavior/register!
-                           (make-redef-behavior f k))))))
+          (event/effect (comp behavior/register!
+                              (make-redef-behavior f k))))))
 
 (def get-caller-keyword
   #(->> %
         (str *ns* "/")
         keyword))
 
-#?(:clj
-   (do (defmacro defevent
-         ([expr]
-          `(def ~expr
-             (get-event ~(get-caller-keyword expr))))
-         ([expr f]
-          `(listen ~f (defevent ~expr))))
+(defmacro defevent
+  ([expr]
+   `(def ~expr
+      (get-event ~(get-caller-keyword expr))))
+  ([expr f]
+   `(listen ~f (defevent ~expr))))
 
-       (defmacro defbehavior
-         ([expr e]
-          `(def ~expr
-             (get-behavior (fn []
-                             ~e)
-                           ~(get-caller-keyword expr)))))))
+(defmacro defbehavior
+  ([expr e]
+   `(def ~expr
+      (get-behavior (fn []
+                      ~e)
+                    ~(get-caller-keyword expr)))))
 
 (def memoized-keyword
   (memoize cuerdas/keyword))
@@ -102,7 +99,7 @@
   [x]
   #?(:cljs (->> x
                 object/getKeys
-                ;Not memoizing keyword is visibly slower.
+                ;Doing memoization is visibly faster.
                 (mapcat (juxt memoized-keyword
                               #(case (-> x
                                          (oget+ %)
@@ -111,8 +108,6 @@
                                  (oget+ x %))))
                 (apply hash-map))))
 
-#?(:clj
-   (defmacro make-convert-merge
-     [x]
-     `#(merge (convert %)
-              (convert ~x))))
+(defmacro make-convert-merge
+  [x]
+  `#(merge (convert %) (convert ~x)))

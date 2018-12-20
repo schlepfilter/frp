@@ -16,8 +16,6 @@
                [riddley.walk :as walk]))
   #?(:cljs (:require-macros [frp.test.io :refer [with-exitv]])))
 
-(test/use-fixtures :each helpers/fixture)
-
 #?(:clj (defmacro with-exitv
           [exit-name & body]
           (potemkin/unify-gensyms
@@ -43,7 +41,7 @@
 
 (clojure-test/defspec event-on
   helpers/cljc-num-tests
-  (helpers/restart-for-all
+  (helpers/set-up-for-all
     [e helpers/any-event
      as (gen/vector helpers/any-equal)]
     (= (vec (concat (map tuple/snd @e)
@@ -55,7 +53,7 @@
 
 (clojure-test/defspec behavior-on
   helpers/cljc-num-tests
-  (helpers/restart-for-all
+  (helpers/set-up-for-all
     [e helpers/any-event
      a helpers/any-equal
      as (gen/vector helpers/any-equal)]

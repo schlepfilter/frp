@@ -8,13 +8,6 @@
             [frp.core :as frp]
             [frp.primitives.event :as event]))
 
-(defn fixture
-  [f]
-  (reset! event/network-state (event/get-initial-network))
-  ;TODO redefine event/queue
-  ;TODO redefine get-new-time
-  (f))
-
 (def cljc-num-tests
   #?(:clj  10
      :cljs 2))
@@ -22,16 +15,17 @@
 (def cljs-num-tests
   10)
 
-(def restart
-  ;TODO call restart
+(def set-up
   (gen/fmap (fn [_]
+              #?(:cljs
+                 (reset! event/reloading-state event/initial-reloading))
               (frp/restart))
             (gen/return unit/unit)))
 
-#?(:clj (defmacro restart-for-all
+#?(:clj (defmacro set-up-for-all
           [bindings & body]
           ;TODO generate times and redefine get-new-time
-          `(prop/for-all ~(concat `[_# restart]
+          `(prop/for-all ~(concat `[_# set-up]
                                   bindings)
              ~@body)))
 

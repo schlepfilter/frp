@@ -1,5 +1,5 @@
 (defproject frp "0.1.3"
-  :dependencies [[org.clojure/clojure "1.9.0"]
+  :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/clojurescript "1.10.439"]
                  [aid "0.1.2"]
                  [aysylu/loom "1.0.2"]
@@ -17,7 +17,8 @@
             [lein-doo "0.1.11"]
             [lein-npm "0.6.2"]]
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.10"]
-                                  [com.taoensso/encore "2.105.0"]
+                                  ;https://github.com/ptaoussanis/tufte/issues/33
+                                  [com.taoensso/tufte "1.4.0"]
                                   [figwheel-sidecar "0.5.17"]
                                   [lein-doo "0.1.11"]
                                   [org.clojure/test.check "0.9.0"]

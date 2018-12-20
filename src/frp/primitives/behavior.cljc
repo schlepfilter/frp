@@ -42,9 +42,7 @@
   (Behavior. id))
 
 (def behavior*
-  #(-> @event/network-state
-       event/get-id
-       (behavior** %)))
+  #(behavior** (event/get-id :function @event/network-state) %))
 
 (defn get-function
   [b network]
@@ -58,12 +56,11 @@
   (comp behavior*
         constantly))
 
-
-(def join
-  (fn [f]
-    (behavior* #(-> f
-                    (get-value % @event/network-state)
-                    (get-value % @event/network-state)))))
+(defn join
+  [b]
+  (behavior* #(-> b
+                  (get-value % @event/network-state)
+                  (get-value % @event/network-state))))
 
 ;Calling ap in -fapply is visibly slower.
 ;(def context
@@ -125,6 +122,7 @@
 (def time
   (Behavior. ::time))
 
+;TODO only use registry for debugging
 (def registry
   (atom []))
 
@@ -134,7 +132,7 @@
 
 (defn start
   []
-  (reset! event/network-state (event/get-initial-network))
+  (reset! event/network-state event/initial-network)
   (redef time
          (behavior* identity))
   (run! aid/funcall @registry))

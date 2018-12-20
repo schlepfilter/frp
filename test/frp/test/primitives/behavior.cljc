@@ -15,21 +15,19 @@
             [frp.tuple :as tuple]
             [frp.test.helpers :as test-helpers :include-macros true]))
 
-(test/use-fixtures :each test-helpers/fixture)
-
 (clojure-test/defspec time-increasing
   test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all [advance1 test-helpers/advance
-                                 advance2 test-helpers/advance]
-                                (frp/activate)
-                                (advance1)
-                                (let [t @frp/time]
-                                  (advance2)
-                                  (helpers/<= t @frp/time))))
+  (test-helpers/set-up-for-all [advance1 test-helpers/advance
+                                advance2 test-helpers/advance]
+                               (frp/activate)
+                               (advance1)
+                               (let [t @frp/time]
+                                 (advance2)
+                                 (helpers/<= t @frp/time))))
 
 (clojure-test/defspec <$>-identity
   test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all
+  (test-helpers/set-up-for-all
     ;TODO generate a behavior by stepper and call the event
     [input-behavior test-helpers/any-behavior
      f (test-helpers/function test-helpers/any-equal)]
@@ -39,12 +37,12 @@
 
 (clojure-test/defspec pure-identity
   test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all [a test-helpers/any-equal]
-                                (= @(-> unit/unit
-                                        frp/behavior
-                                        ctx/infer
-                                        (m/pure a))
-                                   a)))
+  (test-helpers/set-up-for-all [a test-helpers/any-equal]
+                               (= @(-> unit/unit
+                                       frp/behavior
+                                       ctx/infer
+                                       (m/pure a))
+                                  a)))
 
 (def get-behaviors
   #(gen/let [bs (gen/sized (partial gen/vector test-helpers/any-behavior))
@@ -74,7 +72,7 @@
 
 (clojure-test/defspec join-identity
   test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all
+  (test-helpers/set-up-for-all
     [[inner-behaviors outer-behavior calls] (gen/no-shrink join-generator)]
     (let [joined-behavior (m/join outer-behavior)]
       (frp/activate)
@@ -84,15 +82,15 @@
 
 (clojure-test/defspec stepper-identity
   test-helpers/cljc-num-tests
-  (test-helpers/restart-for-all [a test-helpers/any-equal
-                                 as (gen/vector test-helpers/any-equal)
-                                 e test-helpers/any-event]
-                                (let [b (frp/stepper a e)
-                                      occurrences (concat [a]
-                                                          (map tuple/snd @e)
-                                                          as)]
-                                  (frp/activate)
-                                  (run! e as)
-                                  (= @b (last occurrences)))))
+  (test-helpers/set-up-for-all [a test-helpers/any-equal
+                                as (gen/vector test-helpers/any-equal)
+                                e test-helpers/any-event]
+                               (let [b (frp/stepper a e)
+                                     occurrences (concat [a]
+                                                         (map tuple/snd @e)
+                                                         as)]
+                                 (frp/activate)
+                                 (run! e as)
+                                 (= @b (last occurrences)))))
 
 ;TODO test time-transform

@@ -1,9 +1,10 @@
-(ns ^:figwheel-always frp.core
+(ns frp.core
   (:refer-clojure :exclude [stepper time transduce])
   (:require [frp.derived :as derived :include-macros true]
             [frp.io :as io]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]
+    ;TODO don't require browser namespaces
             #?@(:cljs [[frp.document]
                        [frp.location]])))
 
@@ -31,8 +32,11 @@
 (def snapshot
   event/snapshot)
 
-(def activate
-  event/activate)
+(defmacro activate
+  ([]
+   `(event/activate))
+  ([rate]
+   `(event/activate ~rate)))
 
 (def on
   io/on)
@@ -44,13 +48,8 @@
 (def accum
   derived/accum)
 
-(def buffer
-  derived/buffer)
-
-(def mean
-  derived/mean)
-
 (def switcher
   derived/switcher)
 
+;TODO move this expression to behavior
 (restart)
