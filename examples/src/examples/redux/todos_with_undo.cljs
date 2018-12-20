@@ -62,6 +62,11 @@
                    (view s))}
    (capital s)])
 
+(defn history-component
+  [[e s]]
+  [:button {:on-click #(e)}
+   s])
+
 (defn todos-with-undo-component
   ;TODO implement this function
   [todos*]
@@ -75,12 +80,9 @@
    (->> todos*
         (mapv todo-component)
         (s/setval s/BEFORE-ELEM :ul))
-   [:div
-    ;TODO extract a function that returns a button component
-    [:button {:on-click #(undo)}
-     "undo"]
-    [:button {:on-click #(redo)}
-     "redo"]]
+   (->> [[undo "undo"] [redo "redo"]]
+        (mapv history-component)
+        (s/setval s/BEFORE-ELEM :div))
    (->> [:all :active :completed]
         (map link-component)
         (sequence-join ", ")
