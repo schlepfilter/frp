@@ -15,7 +15,7 @@
             #?@(:clj [[chime :as chime]
                       [clj-time.core :as t]
                       [clj-time.periodic :as periodic]])
-            [com.rpl.specter :as s :include-macros true]
+            [com.rpl.specter :as s]
             [linked.core :as linked]
             [loom.alg :as alg]
             [loom.graph :as graph]
