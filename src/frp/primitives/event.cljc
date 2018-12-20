@@ -215,8 +215,7 @@
 (def parse-keyword
   (comp #?(:clj  read-string
            :cljs reader/read-string)
-        (partial (aid/flip subs) 1)
-        str))
+        name))
 
 (def get-last-key
   (comp key
