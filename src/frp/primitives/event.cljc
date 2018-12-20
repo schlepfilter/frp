@@ -225,7 +225,7 @@
   (comp parse-keyword
         get-last-key))
 
-(def get-id-number*
+(def get-id-number
   #(aid/casep %
               empty? 0
               (comp number?
@@ -238,18 +238,11 @@
                    (dissoc %)
                    recur)))
 
-(aid/defcurried get-id-number
-  [k network]
-  (-> network
-      k
-      get-id-number*))
-
 (def get-id
-  (aid/build (comp keyword
-                   str
-                   max)
-             (get-id-number :occs)
-             (get-id-number :function)))
+  (comp keyword
+        str
+        get-id-number
+        aid/funcall))
 
 (defn event**
   [id fs]
@@ -261,9 +254,7 @@
   (Event. id))
 
 (def event*
-  #(-> @network-state
-       get-id
-       (event** %)))
+  #(event** (get-id :occs @network-state) %))
 
 (def get-unit
   (partial tuple/tuple time/epoch))

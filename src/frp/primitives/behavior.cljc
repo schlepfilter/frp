@@ -42,9 +42,7 @@
   (Behavior. id))
 
 (def behavior*
-  #(-> @event/network-state
-       event/get-id
-       (behavior** %)))
+  #(behavior** (event/get-id :function @event/network-state) %))
 
 (defn get-function
   [b network]
