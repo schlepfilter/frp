@@ -17,6 +17,13 @@
           (map event/pure)
           (apply m/<>)))))
 
+(defmacro defe
+  [& names]
+  `(do ~@(map (fn [x#]
+                `(def ~x#
+                   (event/mempty)))
+              names)))
+
 (def behavior?
   (partial instance? frp.primitives.behavior.Behavior))
 

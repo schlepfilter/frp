@@ -14,6 +14,10 @@
 (def event
   derived/event)
 
+(defmacro defe
+  [& names]
+  `(derived/defe ~@names))
+
 (def behavior
   derived/behavior)
 
