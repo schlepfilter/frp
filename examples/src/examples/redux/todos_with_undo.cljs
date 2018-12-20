@@ -24,8 +24,7 @@
        (frp/snapshot addition)
        (m/<$> second)
        (core/remove empty?)
-       (m/<$> ((aid/curry 3 s/setval*) s/AFTER-ELEM))
-       (frp/accum [])))
+       core/vector))
 
 (defn todos-with-undo-component
   ;TODO implement this function
