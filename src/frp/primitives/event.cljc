@@ -307,24 +307,24 @@
                      :modified)
                modify!))
 
-(defn set-modify
+(defn set-modification
   [id modify! network]
   (s/setval [:modifications id]
             [(make-call-once id modify!)
              (partial s/setval* [:modified id] true)]
             network))
 
-(defn make-set-modify-modify
+(defn make-set-modification-modification
   [modify!]
   [(fn [id network]
-     (set-modify id (modify! false id) network))
+     (set-modification id (modify! false id) network))
    (modify! true)])
 
 (def snth
   (comp (partial apply s/srange)
         (partial repeat 2)))
 
-(defn insert-modify
+(defn insert-modification
   [modify! id network]
   (s/setval [:modifications id (-> network
                                    :modifications
@@ -337,9 +337,9 @@
 
 (aid/defcurried insert-merge-sync
   [parent-id child-id network]
-  (insert-modify #(set-occs (get-latests parent-id %) child-id %)
-                 child-id
-                 network))
+  (insert-modification #(set-occs (get-latests parent-id %) child-id %)
+                       child-id
+                       network))
 
 (defn delay-time-occs
   [t occs]
@@ -415,19 +415,19 @@
                          (->> fa
                               :id
                               (modify-<$> f!)
-                              make-set-modify-modify
+                              make-set-modification-modification
                               (cons (add-edge (:id fa)))
                               event*))
                        pure
                        #(->> (modify-join (:id %))
-                             make-set-modify-modify
+                             make-set-modification-modification
                              (cons (add-edge (:id %)))
                              event*)
                        cats-protocols/Semigroup
                        (-mappend [_ left-event right-event]
                                  (-> (modify-<> (:id left-event)
                                                 (:id right-event))
-                                     make-set-modify-modify
+                                     make-set-modification-modification
                                      (concat (map (comp add-edge
                                                         :id)
                                                   [left-event right-event]))
@@ -488,7 +488,7 @@
    (->> e
         :id
         ((make-modify-transduce xform) f init)
-        make-set-modify-modify
+        make-set-modification-modification
         (cons (add-edge (:id e)))
         event*)))
 
