@@ -85,7 +85,6 @@
 (defn modify-network!
   [occ id network]
   ;TODO advance
-  ;TODO only do topological sort on nodes that are connected to id
   (->> network
        :dependency
        ;Taking a subgraph seems faster.
