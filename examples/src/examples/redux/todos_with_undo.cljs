@@ -1,12 +1,13 @@
 (ns examples.redux.todos-with-undo
-  (:require [aid.core :as aid]
+  (:require [clojure.string :as str]
+            [aid.core :as aid]
             [cats.core :as m]
             [com.rpl.specter :as s]
             [frp.clojure.core :as core]
             [frp.core :as frp :include-macros true]
             [frp.window :as window]))
 
-(frp/defe typing addition toggle undo redo)
+(frp/defe typing addition toggle undo redo view)
 
 (aid/defcurried transfer*
   [apath f m]
@@ -35,6 +36,17 @@
                                                        count)))
          (frp/stepper {}))))
 
+(defn sequence-join
+  [separator coll]
+  (->> coll
+       (interleave (repeat separator))
+       rest))
+
+(def capital
+  ;TODO fix cuerdas
+  (comp str/capitalize
+        name))
+
 (defn todos-with-undo-component
   ;TODO implement this function
   [todos*]
@@ -57,7 +69,17 @@
     [:button {:on-click #(undo)}
      "undo"]
     [:button {:on-click #(redo)}
-     "redo"]]])
+     "redo"]]
+   (->> [:all :active :completed]
+        (map (fn [s]
+               [:a {:href     "#"
+                    :on-click (fn [event*]
+                                (.preventDefault event*)
+                                (view s))}
+                (capital s)]))
+        (sequence-join ", ")
+        vec
+        (s/setval s/BEGINNING [:p "Show: "]))])
 
 (def todos-with-undo
   (m/<$> todos-with-undo-component todos))
