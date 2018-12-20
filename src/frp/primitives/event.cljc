@@ -135,29 +135,6 @@
 (def run-effects!
   #(run-effects!* @network-state))
 
-(defmacro get-namespaces
-  []
-  (->> (try (ana-api/all-ns)
-            #?(:clj (catch NullPointerException _ [])))
-       (map str)
-       vec))
-
-(defn get-alias-id
-  [x]
-  #?(:cljs (->> x
-                (map symbol)
-                (filter find-ns)
-                (mapcat ns-interns*)
-                (map second)
-                (filter (comp event?
-                              deref))
-                (mapcat (juxt (comp keyword
-                                    (partial (aid/flip subs) 2)
-                                    str)
-                              (comp :id
-                                    deref)))
-                (apply hash-map))))
-
 (def initial-reloading
   {})
 
@@ -569,10 +546,33 @@
                                                   set/map-invert)))
                             %)))))
 
+(defn get-alias-id
+  [x]
+  #?(:cljs (->> x
+                (map symbol)
+                (filter find-ns)
+                (mapcat ns-interns*)
+                (map second)
+                (filter (comp event?
+                              deref))
+                (mapcat (juxt (comp keyword
+                                    (partial (aid/flip subs) 2)
+                                    str)
+                              (comp :id
+                                    deref)))
+                (apply hash-map))))
+
 (def reload
   #?(:clj  aid/nop
      :cljs (comp reload*
                  get-alias-id)))
+
+(defmacro get-namespaces
+  []
+  (->> (try (ana-api/all-ns)
+            #?(:clj (catch NullPointerException _ [])))
+       (map str)
+       vec))
 
 (defmacro activate
   ([]
