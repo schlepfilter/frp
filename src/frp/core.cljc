@@ -6,7 +6,8 @@
             [frp.primitives.event :as event]
     ;TODO don't require browser namespaces
             #?@(:cljs [[frp.document]
-                       [frp.location]])))
+                       [frp.location]]))
+  #?(:cljs (:require-macros frp.core)))
 
 (def restart
   behavior/restart)
