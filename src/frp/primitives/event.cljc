@@ -373,7 +373,6 @@
                   tuple/snd))
        call-functions!))
 
-
 (defn merge-one
   [parent merged]
   (s/setval s/AFTER-ELEM (first parent) merged))
