@@ -2,7 +2,8 @@
   (:refer-clojure :exclude [defcurried <=])
   (:require [aid.core :as aid]
             [cats.core :as m]
-            [cats.protocols :as p]))
+            [cats.protocols :as p])
+  #?(:cljs (:require-macros frp.helpers)))
 
 (defmacro reify-monad
   [fmap pure join & more]

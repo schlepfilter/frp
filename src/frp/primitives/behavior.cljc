@@ -7,7 +7,6 @@
             [cats.protocols :as cats-protocols]
             [cats.util :as util]
             [com.rpl.specter :as s]
-            [frp.helpers :as helpers :include-macros true]
             [frp.primitives.event :as event]
             [frp.protocols :as entity-protocols]
             [frp.tuple :as tuple])
