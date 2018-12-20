@@ -47,6 +47,13 @@
   (comp str/capitalize
         name))
 
+(defn todo-component
+  [[s t completed]]
+  [:li {:on-click #(toggle t)}
+   (if completed
+     [:del s]
+     s)])
+
 (defn todos-with-undo-component
   ;TODO implement this function
   [todos*]
@@ -58,11 +65,7 @@
     [:button {:type "submit"}
      "Add Todo"]]
    (->> todos*
-        (mapv (fn [[s t completed]]
-                [:li {:on-click #(toggle t)}
-                 (if completed
-                   [:del s]
-                   s)]))
+        (mapv todo-component)
         (s/setval s/BEFORE-ELEM :ul))
    [:div
     ;TODO extract a function that returns a button component
