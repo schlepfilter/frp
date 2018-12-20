@@ -16,7 +16,7 @@
       int
       frp/transparent))
 
-(aid/defcurried get-measurement-component
+(aid/defcurried measurement-component
   [m value]
   [:div (str (:label m) value (:unit m))
    [:input (merge m
@@ -27,18 +27,18 @@
                    :value     value})]])
 
 (def weight-component
-  (get-measurement-component {:event weight-event
-                              :label "Weight "
-                              :max   140
-                              :min   40
-                              :unit  "kg"}))
+  (measurement-component {:event weight-event
+                          :label "Weight "
+                          :max   140
+                          :min   40
+                          :unit  "kg"}))
 
 (def height-component
-  (get-measurement-component {:event height-event
-                              :label "Height "
-                              :max   210
-                              :min   140
-                              :unit  "cm"}))
+  (measurement-component {:event height-event
+                          :label "Height "
+                          :max   210
+                          :min   140
+                          :unit  "cm"}))
 
 (def bmi-component
   (partial vector :h2 "BMI is "))
