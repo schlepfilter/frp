@@ -523,8 +523,7 @@
 (defn activate*
   [rate]
   (->> (aid/case-eval rate
-         positive-infinity
-         aid/nop
+         positive-infinity aid/nop
          #?(:clj  (-> rate
                       get-periods
                       (chime/chime-at handle))
