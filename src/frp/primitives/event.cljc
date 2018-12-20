@@ -29,10 +29,11 @@
 (declare context)
 
 (def initial-network
-  {:dependency (graph/digraph)
-   :function   (linked/map)
-   :occs       (linked/map)
-   :time       time/epoch})
+  {:dependency  (graph/digraph)
+   :function    (linked/map)
+   :invocations []
+   :occs        (linked/map)
+   :time        time/epoch})
 
 (def network-state
   (atom initial-network))
@@ -125,12 +126,17 @@
                 (partial s/setval* [:modified id] true)])
        call-functions!))
 
-(def run-effects!
-  (comp call-functions!
-        :effects))
+(def run-network-effects!
+  (comp (partial s/setval* :invocations [])
+        (comp call-functions!
+              :invocations)
+        (partial s/setval* :effective false)
+        (comp call-functions!
+              :effects)
+        (partial s/setval* :effective true)))
 
 (def run-network-state-effects!
-  (partial swap! network-state run-effects!))
+  (partial swap! network-state run-network-effects!))
 
 (defmacro get-namespaces
   []
@@ -176,10 +182,15 @@
 (defn invoke*
   [id a]
   (when (:active @network-state)
-    (if debugging
-      (swap! reloading-state
-             (partial s/setval* [:id-invocations s/AFTER-ELEM] [id a])))
-    (invoke** id a)))
+    (if (:effective @network-state)
+      (swap! network-state
+             (partial s/setval*
+                      [:invocations s/AFTER-ELEM]
+                      (partial invoke* id a)))
+      (do (if debugging
+            (swap! reloading-state
+                   (partial s/setval* [:id-invocations s/AFTER-ELEM] [id a])))
+          (invoke** id a)))))
 
 (defrecord Event
   [id]
