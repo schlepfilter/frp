@@ -10,7 +10,8 @@
                             min
                             partition
                             reduce
-                            remove])
+                            remove
+                            vector])
   (:require [clojure.core :as core]
             [aid.core :as aid :include-macros true]
             [aid.unit :as unit]
@@ -35,7 +36,7 @@
 
 (def reduce*
   (comp second
-        vector))
+        core/vector))
 
 (defn filter
   [pred e]
@@ -101,3 +102,6 @@
                      :occs))
         (filter (comp (partial = n)
                       core/count)))))
+
+(def vector
+  (partial reduce core/conj []))
