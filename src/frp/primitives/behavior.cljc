@@ -56,11 +56,11 @@
   (comp behavior*
         constantly))
 
-(def join
-  (fn [f]
-    (behavior* #(-> f
-                    (get-value % @event/network-state)
-                    (get-value % @event/network-state)))))
+(defn join
+  [b]
+  (behavior* #(-> b
+                  (get-value % @event/network-state)
+                  (get-value % @event/network-state))))
 
 ;Calling ap in -fapply is visibly slower.
 ;(def context
