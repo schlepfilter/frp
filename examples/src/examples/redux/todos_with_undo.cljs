@@ -21,10 +21,14 @@
 (def redo
   (frp/event))
 
+(aid/defcurried transfer*
+  [apath f m]
+  (s/setval apath (f m) m))
+
 (def todos
   ((aid/lift-a (fn [additions m]
-                 (map (fn [[s t]]
-                        [s t (m t)])
+                 (map (transfer* s/AFTER-ELEM (comp m
+                                                    last))
                       additions)))
     (->> frp/time
          (frp/snapshot (->> typing
