@@ -1,5 +1,5 @@
 (ns frp.history
-  (:require [frp.browser :as browser :include-macros true]))
+  (:require [frp.browser :as browser]))
 
 (browser/defevent pushstate)
 

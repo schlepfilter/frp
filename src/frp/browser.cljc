@@ -7,7 +7,8 @@
                        [oops.core :refer [oget+]]])
             [frp.derived :as derived]
             [frp.primitives.behavior :as behavior]
-            [frp.primitives.event :as event]))
+            [frp.primitives.event :as event])
+  #?(:cljs (:require-macros frp.browser)))
 
 (defn make-redef-event
   [e]

@@ -1,5 +1,5 @@
 (ns frp.document
-  (:require [frp.browser :as browser :include-macros true]))
+  (:require [frp.browser :as browser]))
 
 (browser/defevent visibilitychange
   (browser/make-convert-merge js/document))

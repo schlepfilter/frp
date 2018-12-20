@@ -1,7 +1,7 @@
 (ns frp.location
   (:refer-clojure :exclude [hash])
   (:require [cats.core :as m]
-            [frp.browser :as browser :include-macros true]
+            [frp.browser :as browser]
             [frp.history :as history]
             [frp.window :as window]))
 
