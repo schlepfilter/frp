@@ -59,10 +59,10 @@
 
 (def garbage-collect
   #(filter (comp (conj (aid/casep %
-                                  empty? #{}
-                                  #{(-> %
-                                        last
-                                        tuple/fst)})
+                         empty? #{}
+                         #{(-> %
+                               last
+                               tuple/fst)})
                        time/epoch)
                  tuple/fst)
            %))
@@ -227,16 +227,16 @@
 
 (def get-id-number
   #(aid/casep %
-              empty? 0
-              (comp number?
-                    parse-last-key)
-              (-> %
-                  parse-last-key
-                  inc)
-              (->> %
-                   get-last-key
-                   (dissoc %)
-                   recur)))
+     empty? 0
+     (comp number?
+           parse-last-key)
+     (-> %
+         parse-last-key
+         inc)
+     (->> %
+          get-last-key
+          (dissoc %)
+          recur)))
 
 (def get-id
   ;TODO return uuid for production

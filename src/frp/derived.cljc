@@ -12,10 +12,10 @@
 (defn event
   ([& as]
    (aid/casep as
-              empty? (event/mempty)
-              (->> as
-                   (map event/pure)
-                   (apply m/<>)))))
+     empty? (event/mempty)
+     (->> as
+          (map event/pure)
+          (apply m/<>)))))
 
 (def behavior?
   (partial instance? frp.primitives.behavior.Behavior))
@@ -56,15 +56,15 @@
   [f & more]
   (->> more
        (map (aid/casep more
-                       event-only? eventize
-                       behavior-only? behaviorize
-                       identity))
+              event-only? eventize
+              behavior-only? behaviorize
+              identity))
        (apply ((aid/casep more
-                          (aid/build or
-                                     event-only?
-                                     behavior-only?)
-                          aid/lift-a
-                          identity)
+                 (aid/build or
+                            event-only?
+                            behavior-only?)
+                 aid/lift-a
+                 identity)
                 f))))
 
 ;The reader conditional avoids the following warning.
@@ -78,9 +78,8 @@
           ;https://cljs.github.io/api/cljs.core/macroexpand
           walk/macroexpand-all
           (walk/postwalk #(aid/casep %
-                                     has-argument? `(apply transparent*
-                                                           ~(vec %))
-                                     %)))))
+                            has-argument? `(apply transparent* ~(vec %))
+                            %)))))
 
 (def accum
   (partial core/reduce (aid/flip aid/funcall)))
