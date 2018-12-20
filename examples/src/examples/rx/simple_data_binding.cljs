@@ -2,13 +2,9 @@
   (:require [aid.core :as aid]
             [clojure.string :as str]
             [cats.core :as m]
-            [frp.core :as frp :include-macros]))
+            [frp.core :as frp]))
 
-(def first-name
-  (frp/event))
-
-(def last-name
-  (frp/event))
+(frp/defe first-name last-name)
 
 (defn partial-name
   [{:keys [event label]}]

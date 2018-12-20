@@ -5,7 +5,7 @@
             [cats.core :as m]
             [cats.protocols :as p]
             [cats.util :as util]
-            [frp.helpers :as helpers :include-macros true]))
+            [frp.helpers :as helpers]))
 
 (declare ->Tuple)
 ;In ClojureScript declare works around the following warning:

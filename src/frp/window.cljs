@@ -1,6 +1,6 @@
 (ns frp.window
   (:refer-clojure :exclude [drop])
-  (:require [frp.browser :as browser :include-macros true]))
+  (:require [frp.browser :as browser]))
 
 (browser/defevent blur
   browser/convert)

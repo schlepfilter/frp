@@ -2,8 +2,7 @@
   (:require [cats.core :as m]
             [frp.core :as frp]))
 
-(def length
-  (frp/event))
+(frp/defe length)
 
 (def message
   (->> length

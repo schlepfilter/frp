@@ -5,9 +5,8 @@
             #?(:cljs [cljs.reader :as reader])
             [clojure.set :as set]
             #?(:cljs [goog.object :as object])
-            [aid.core :as aid :include-macros true]
+            [aid.core :as aid]
             [aid.unit :as unit]
-            [cats.context :as ctx]
             [cats.core :as m]
             [cats.monad.maybe :as maybe]
             [cats.protocols :as cats-protocols]
@@ -15,11 +14,11 @@
             #?@(:clj [[chime :as chime]
                       [clj-time.core :as t]
                       [clj-time.periodic :as periodic]])
-            [com.rpl.specter :as s :include-macros true]
+            [com.rpl.specter :as s]
             [linked.core :as linked]
             [loom.alg :as alg]
             [loom.graph :as graph]
-            [frp.helpers :as helpers :include-macros true]
+            [frp.helpers :as helpers]
             [frp.protocols :as entity-protocols]
             [frp.time :as time]
             [frp.tuple :as tuple])

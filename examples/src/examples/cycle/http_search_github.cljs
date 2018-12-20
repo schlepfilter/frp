@@ -5,8 +5,7 @@
             [frp.clojure.core :as core]
             [frp.core :as frp]))
 
-(def term
-  (frp/event))
+(frp/defe term)
 
 (def endpoint
   "https://api.github.com/search/repositories")

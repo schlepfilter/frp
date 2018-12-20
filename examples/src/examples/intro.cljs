@@ -1,6 +1,6 @@
 (ns examples.intro
   (:require [clojure.walk :as walk]
-            [aid.core :as aid :include-macros true]
+            [aid.core :as aid]
             [cats.core :as m]
             [com.rpl.specter :as s]
             [examples.helpers :as helpers]

@@ -13,11 +13,7 @@
 (def placeholder
   (combine "ctrl" "alt" "d"))
 
-(def typing
-  (frp/event))
-
-(def addition
-  (frp/event))
+(frp/defe typing addition trigger)
 
 (def registration
   (->> typing
@@ -26,9 +22,6 @@
        (m/<$> second)
        (m/<> (frp/event placeholder (combine "ctrl" "alt" "s") "trash"))
        core/distinct))
-
-(def trigger
-  (frp/event))
 
 (def counter
   (->> trigger

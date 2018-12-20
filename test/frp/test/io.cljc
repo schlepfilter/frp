@@ -39,6 +39,7 @@
                    b)
        as)))
 
+;TODO test cases where another event is invoked during running effects
 (clojure-test/defspec event-on
   helpers/cljc-num-tests
   (helpers/set-up-for-all

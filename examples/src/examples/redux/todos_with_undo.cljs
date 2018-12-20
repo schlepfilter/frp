@@ -1,35 +1,90 @@
 (ns examples.redux.todos-with-undo
-  (:require [aid.core :as aid]
+  (:require [clojure.string :as str]
+            [aid.core :as aid]
             [cats.core :as m]
             [com.rpl.specter :as s]
             [frp.clojure.core :as core]
             [frp.core :as frp]
             [frp.window :as window]))
 
-(def typing
-  (frp/event))
+(frp/defe typing addition toggle undo redo view-event)
 
-(def addition
-  (frp/event))
+(aid/defcurried transfer*
+  [apath f m]
+  (s/setval apath (f m) m))
 
-(def undo
-  (frp/event))
-
-(def redo
-  (frp/event))
+(def todo
+  (frp/snapshot (->> typing
+                     (frp/stepper "")
+                     ;TODO snapshot addition and time at the same time
+                     (frp/snapshot addition)
+                     (m/<$> last)
+                     (core/remove empty?))
+                frp/time))
 
 (def todos
-  (->> typing
-       (frp/stepper "")
-       (frp/snapshot addition)
-       (m/<$> second)
-       (core/remove empty?)
-       (m/<$> ((aid/curry 3 s/setval*) s/AFTER-ELEM))
-       (frp/accum [])))
+  ((aid/lift-a (fn [additions m]
+                 (map (transfer* s/AFTER-ELEM (comp m
+                                                    last))
+                      additions)))
+    (->> todo
+         core/vector
+         (frp/stepper []))
+    (->> todo
+         (m/<$> last)
+         (m/<> toggle)
+         (core/group-by identity)
+         (m/<$> (partial s/transform* s/MAP-VALS (comp odd?
+                                                       count)))
+         (frp/stepper {}))))
+
+(def view-behavior
+  (frp/stepper :all view-event))
+
+(def visible-todos
+  ((aid/lift-a (fn [todos* view*]
+                 (filter (view* {:all       (constantly true)
+                                 :active    last
+                                 :completed (complement last)})
+                         todos*)))
+    todos
+    view-behavior))
+
+(defn sequence-join
+  [separator coll]
+  (->> coll
+       (interleave (repeat separator))
+       rest))
+
+(def capital
+  ;TODO fix cuerdas
+  (comp str/capitalize
+        name))
+
+(defn todo-component
+  [[s t active]]
+  [:li {:on-click #(toggle t)}
+   (if active
+     s
+     [:del s])])
+
+(aid/defcurried link-component
+  [view* k]
+  [:a ((aid/case-eval view*
+         k identity
+         (partial s/setval* :href "#"))
+        {:on-click (fn [event*]
+                     (.preventDefault event*)
+                     (view-event k))})
+   (capital k)])
+
+(defn history-component
+  [[e s]]
+  [:button {:on-click #(e)}
+   s])
 
 (defn todos-with-undo-component
-  ;TODO implement this function
-  [todos*]
+  [todos* view*]
   [:div
    [:form {:on-submit #(addition)}
     [:input {:on-change #(-> %
@@ -38,19 +93,19 @@
     [:button {:type "submit"}
      "Add Todo"]]
    (->> todos*
-        (mapv (partial vector :li))
+        (mapv todo-component)
         (s/setval s/BEFORE-ELEM :ul))
-   [:div
-    ;TODO extract a function that returns a button component
-    [:button {:on-click #(undo)}
-     "undo"]
-    [:button {:on-click #(redo)}
-     "redo"]]])
+   (->> [[undo "undo"] [redo "redo"]]
+        (mapv history-component)
+        (s/setval s/BEFORE-ELEM :div))
+   (->> [:all :active :completed]
+        (map (link-component view*))
+        (sequence-join ", ")
+        vec
+        (s/setval s/BEGINNING [:p "Show: "]))])
 
 (def todos-with-undo
-  (->> todos
-       (frp/stepper [])
-       (m/<$> todos-with-undo-component)))
+  ((aid/lift-a todos-with-undo-component) visible-todos view-behavior))
 
 (frp/on (comp aid/funcall
               :prevent-default)

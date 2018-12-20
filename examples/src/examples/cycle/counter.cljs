@@ -4,11 +4,7 @@
             [frp.clojure.core :as core]
             [frp.core :as frp]))
 
-(def increment
-  (frp/event))
-
-(def decrement
-  (frp/event))
+(frp/defe increment decrement)
 
 (defn counter-component
   [total]

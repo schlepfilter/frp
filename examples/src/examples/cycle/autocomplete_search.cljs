@@ -7,8 +7,7 @@
             [frp.core :as frp]
             [examples.helpers :as helpers]))
 
-(def typing
-  (frp/event))
+(frp/defe typing key-down)
 
 (def endpoint
   "https://en.wikipedia.org/w/api.php")
@@ -23,9 +22,6 @@
                                        ;For anonymous requests, origin query string parameter can be set to * which will allow requests from anywhere.
                                        :origin "*"}}
                              [:params :search])))))
-
-(def key-down
-  (frp/event))
 
 (def enter
   (core/filter (partial = "Enter") key-down))

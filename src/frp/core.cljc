@@ -1,18 +1,23 @@
 (ns frp.core
   (:refer-clojure :exclude [stepper time transduce])
-  (:require [frp.derived :as derived :include-macros true]
+  (:require [frp.derived :as derived]
             [frp.io :as io]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]
     ;TODO don't require browser namespaces
             #?@(:cljs [[frp.document]
-                       [frp.location]])))
+                       [frp.location]]))
+  #?(:cljs (:require-macros frp.core)))
 
 (def restart
   behavior/restart)
 
 (def event
   derived/event)
+
+(defmacro defe
+  [& names]
+  `(derived/defe ~@names))
 
 (def behavior
   derived/behavior)

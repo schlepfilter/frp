@@ -1,13 +1,11 @@
 (ns frp.derived
   (:require [clojure.walk :as walk]
-            [aid.core :as aid :include-macros true]
-            [cats.context :as ctx]
+            [aid.core :as aid]
             [cats.core :as m]
-            [com.rpl.specter :as s :include-macros true]
             [frp.clojure.core :as core]
             [frp.primitives.behavior :as behavior]
-            [frp.primitives.event :as event]
-            [frp.tuple :as tuple]))
+            [frp.primitives.event :as event])
+  #?(:cljs (:require-macros frp.derived)))
 
 (defn event
   ([& as]
@@ -16,6 +14,13 @@
      (->> as
           (map event/pure)
           (apply m/<>)))))
+
+(defmacro defe
+  [& names]
+  `(do ~@(map (fn [x#]
+                `(def ~x#
+                   (event/mempty)))
+              names)))
 
 (def behavior?
   (partial instance? frp.primitives.behavior.Behavior))

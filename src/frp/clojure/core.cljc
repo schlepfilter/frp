@@ -10,9 +10,10 @@
                             min
                             partition
                             reduce
-                            remove])
+                            remove
+                            vector])
   (:require [clojure.core :as core]
-            [aid.core :as aid :include-macros true]
+            [aid.core :as aid]
             [aid.unit :as unit]
             [cats.core :as m]
             [com.rpl.specter :as s]
@@ -35,7 +36,7 @@
 
 (def reduce*
   (comp second
-        vector))
+        core/vector))
 
 (defn filter
   [pred e]
@@ -69,7 +70,9 @@
 (defn group-by
   [f e]
   (reduce (fn [reduction element]
-            (s/setval [(f element) s/AFTER-ELEM] element reduction))
+            (update reduction
+                    (f element)
+                    (partial s/setval* s/AFTER-ELEM element)))
           {}
           e))
 
@@ -101,3 +104,6 @@
                      :occs))
         (filter (comp (partial = n)
                       core/count)))))
+
+(def vector
+  (partial reduce core/conj []))
