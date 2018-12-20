@@ -546,21 +546,19 @@
                                                   set/map-invert)))
                             %)))))
 
-(defn get-alias-id
-  [x]
-  #?(:cljs (->> x
-                (map symbol)
-                (filter find-ns)
-                (mapcat ns-interns*)
-                (map second)
-                (filter (comp event?
-                              deref))
-                (mapcat (juxt (comp keyword
-                                    (partial (aid/flip subs) 2)
-                                    str)
-                              (comp :id
-                                    deref)))
-                (apply hash-map))))
+#?(:cljs (def get-alias-id
+           (comp (partial apply hash-map)
+                 (partial mapcat (juxt (comp keyword
+                                             (partial (aid/flip subs) 2)
+                                             str)
+                                       (comp :id
+                                             deref)))
+                 (partial filter (comp event?
+                                       deref))
+                 (partial map second)
+                 (partial mapcat ns-interns*)
+                 (partial filter find-ns)
+                 (partial map symbol))))
 
 (def reload
   #?(:clj  aid/nop
