@@ -2,11 +2,7 @@
   (:require [aid.core :as aid :include-macros true]
             [frp.core :as frp :include-macros true]))
 
-(def weight-event
-  (frp/event))
-
-(def height-event
-  (frp/event))
+(frp/defe weight-event height-event)
 
 (def weight-behavior
   (frp/stepper 70 weight-event))

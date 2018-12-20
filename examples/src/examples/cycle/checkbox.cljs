@@ -1,10 +1,9 @@
 (ns examples.cycle.checkbox
   (:require [cats.core :as m]
             [frp.clojure.core :as core]
-            [frp.core :as frp]))
+            [frp.core :as frp :include-macros true]))
 
-(def check
-  (frp/event))
+(frp/defe check)
 
 (def checked
   (->> check

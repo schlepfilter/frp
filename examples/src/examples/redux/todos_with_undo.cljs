@@ -3,23 +3,10 @@
             [cats.core :as m]
             [com.rpl.specter :as s]
             [frp.clojure.core :as core]
-            [frp.core :as frp]
+            [frp.core :as frp :include-macros true]
             [frp.window :as window]))
 
-(def typing
-  (frp/event))
-
-(def addition
-  (frp/event))
-
-(def toggle
-  (frp/event))
-
-(def undo
-  (frp/event))
-
-(def redo
-  (frp/event))
+(frp/defe typing addition toggle undo redo)
 
 (aid/defcurried transfer*
   [apath f m]

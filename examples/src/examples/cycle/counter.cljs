@@ -2,13 +2,9 @@
   (:require [aid.core :as aid]
             [cats.core :as m]
             [frp.clojure.core :as core]
-            [frp.core :as frp]))
+            [frp.core :as frp :include-macros true]))
 
-(def increment
-  (frp/event))
-
-(def decrement
-  (frp/event))
+(frp/defe increment decrement)
 
 (defn counter-component
   [total]

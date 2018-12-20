@@ -3,10 +3,9 @@
             [cats.core :as m]
             [frp.ajax :refer [GET]]
             [frp.clojure.core :as core]
-            [frp.core :as frp]))
+            [frp.core :as frp :include-macros true]))
 
-(def term
-  (frp/event))
+(frp/defe term)
 
 (def endpoint
   "https://api.github.com/search/repositories")

@@ -1,9 +1,8 @@
 (ns examples.rx.letter-count
   (:require [cats.core :as m]
-            [frp.core :as frp]))
+            [frp.core :as frp :include-macros true]))
 
-(def length
-  (frp/event))
+(frp/defe length)
 
 (def message
   (->> length
