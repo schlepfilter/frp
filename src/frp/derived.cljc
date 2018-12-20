@@ -1,13 +1,10 @@
 (ns frp.derived
   (:require [clojure.walk :as walk]
-            [aid.core :as aid :include-macros true]
-            [cats.context :as ctx]
+            [aid.core :as aid]
             [cats.core :as m]
-            [com.rpl.specter :as s]
             [frp.clojure.core :as core]
             [frp.primitives.behavior :as behavior]
-            [frp.primitives.event :as event]
-            [frp.tuple :as tuple]))
+            [frp.primitives.event :as event]))
 
 (defn event
   ([& as]

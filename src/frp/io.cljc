@@ -1,9 +1,7 @@
 ;primitives.event and io namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
 (ns frp.io
-  (:require [aid.core :as aid :include-macros true]
-            [cats.monad.maybe :as maybe]
+  (:require [aid.core :as aid]
             [com.rpl.specter :as s]
-            [frp.derived :as derived]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]
             [frp.protocols :as protocols]

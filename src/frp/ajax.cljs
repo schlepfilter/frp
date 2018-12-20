@@ -1,7 +1,7 @@
 (ns frp.ajax
   (:require [aid.core :as aid]
             [ajax.core :as ajax]
-            [com.rpl.specter :as s :include-macros true]
+            [com.rpl.specter :as s]
             [frp.derived :as derived]
             [frp.primitives.event :as event]))
 

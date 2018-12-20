@@ -1,9 +1,8 @@
 (ns frp.helpers
   (:refer-clojure :exclude [defcurried <=])
-  (:require [aid.core :as aid :include-macros true]
+  (:require [aid.core :as aid]
             [cats.core :as m]
-            [cats.protocols :as p]
-            [com.rpl.specter :as s]))
+            [cats.protocols :as p]))
 
 (defmacro reify-monad
   [fmap pure join & more]

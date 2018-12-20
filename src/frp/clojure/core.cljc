@@ -13,7 +13,7 @@
                             remove
                             vector])
   (:require [clojure.core :as core]
-            [aid.core :as aid :include-macros true]
+            [aid.core :as aid]
             [aid.unit :as unit]
             [cats.core :as m]
             [com.rpl.specter :as s]
