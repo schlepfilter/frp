@@ -25,18 +25,21 @@
   [apath f m]
   (s/setval apath (f m) m))
 
+(def todo
+  (frp/snapshot (->> typing
+                     (frp/stepper "")
+                     ;TODO snapshot addition and time at the same time
+                     (frp/snapshot addition)
+                     (m/<$> second)
+                     (core/remove empty?))
+                frp/time))
+
 (def todos
   ((aid/lift-a (fn [additions m]
                  (map (transfer* s/AFTER-ELEM (comp m
                                                     last))
                       additions)))
-    (->> frp/time
-         (frp/snapshot (->> typing
-                            (frp/stepper "")
-                            ;TODO snapshot addition and time at the same time
-                            (frp/snapshot addition)
-                            (m/<$> second)
-                            (core/remove empty?)))
+    (->> todo
          core/vector
          (frp/stepper []))
     (->> toggle
