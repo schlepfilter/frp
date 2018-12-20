@@ -84,7 +84,6 @@
    s])
 
 (defn todos-with-undo-component
-  ;TODO implement this function
   [todos* view*]
   [:div
    [:form {:on-submit #(addition)}
