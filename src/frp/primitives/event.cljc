@@ -515,13 +515,13 @@
 (defn activate*
   [rate]
   (->> (aid/case-eval rate
-                      positive-infinity
-                      aid/nop
-                      #?(:clj  (-> rate
-                                   get-periods
-                                   (chime/chime-at handle))
-                         :cljs (->> (js/setInterval handle rate)
-                                    (partial js/clearInterval))))
+         positive-infinity
+         aid/nop
+         #?(:clj  (-> rate
+                      get-periods
+                      (chime/chime-at handle))
+            :cljs (->> (js/setInterval handle rate)
+                       (partial js/clearInterval))))
        append-cancellation
        (swap! network-state))
   (swap! network-state (partial s/setval* :active true))
