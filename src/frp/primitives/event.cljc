@@ -125,7 +125,7 @@
                 (partial s/setval* [:modified id] true)])
        call-functions!))
 
-(def run-network-effects!
+(def run-effects!*
   (comp (comp call-functions!
               :invocations)
         (partial s/setval* :effective false)
@@ -134,8 +134,8 @@
         (partial s/setval* :effective true)
         (partial s/setval* :invocations [])))
 
-(def run-network-state-effects!
-  (partial swap! network-state run-network-effects!))
+(def run-effects!
+  #(run-effects!* @network-state))
 
 (defmacro get-namespaces
   []
@@ -170,9 +170,9 @@
   [id a]
   (let [[past current] (get-times)]
     (modify-network! (tuple/tuple past a) id @network-state)
-    (run-network-state-effects!)
+    (run-effects!)
     (swap! network-state (partial s/setval* :time current))
-    (run-network-state-effects!)))
+    (run-effects!)))
 
 (def debugging
   #?(:clj  false
@@ -513,7 +513,7 @@
          get-new-time
          (partial s/setval* :time)
          (swap! network-state))
-    (run-network-state-effects!)))
+    (run-effects!)))
 
 (def append-cancellation
   (aid/curry 2 (partial s/setval* [:cancellations s/AFTER-ELEM])))
@@ -535,13 +535,13 @@
        append-cancellation
        (swap! network-state))
   (swap! network-state (partial s/setval* :active true))
-  (run-network-state-effects!)
+  (run-effects!)
   (time/start)
   (->> (time/now)
        get-new-time
        (partial s/setval* :time)
        (swap! network-state))
-  (run-network-state-effects!))
+  (run-effects!))
 
 (aid/defcurried effect
   [f x]
