@@ -1,15 +1,21 @@
 (ns frp.location
-  (:require [aid.core :as aid]
+  (:refer-clojure :exclude [hash])
+  (:require [cats.core :as m]
+            [frp.browser :as browser :include-macros true]
             [frp.history :as history]
-            [frp.primitives.behavior :as behavior :include-macros true]
             [frp.window :as window]))
 
-(def pathname
-  (behavior/->Behavior ::pathname))
+(def get-push-pop-state
+  #(m/<> history/pushstate window/popstate))
 
-(behavior/register
-  (behavior/redef pathname
-                  (->> (aid/<> window/popstate history/pushstate)
-                       (aid/<$> (comp :pathname
-                                      :location))
-                       (behavior/stepper js/location.pathname))))
+(browser/defbehavior hash
+  (get-push-pop-state))
+
+(browser/defbehavior href
+  (get-push-pop-state))
+
+(browser/defbehavior pathname
+  (get-push-pop-state))
+
+(browser/defbehavior search
+  (get-push-pop-state))

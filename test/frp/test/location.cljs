@@ -1,6 +1,5 @@
 (ns frp.test.location
-  (:require [cljs.test :as test]
-            [clojure.test.check]
+  (:require [clojure.test.check]
             [clojure.test.check.clojure-test
              :as clojure-test
              :include-macros true]
@@ -8,14 +7,13 @@
             [frp.location :as location]
             [frp.test.helpers :as helpers :include-macros true]))
 
-(test/use-fixtures :each helpers/fixture)
-
-(clojure-test/defspec
-  location
+(clojure-test/defspec location
   helpers/cljs-num-tests
-  (helpers/restart-for-all
-    [advance* helpers/advance]
-    (frp/activate)
-    (advance*)
-    ;TODO call on if asynchronous testing gets supported in test.check
-    (= @location/pathname js/location.pathname)))
+  (helpers/set-up-for-all [advance* helpers/advance]
+                          (frp/activate)
+                          (advance*)
+                          ;TODO call on if asynchronous testing gets supported in test.check
+                          (and (= @location/hash js/location.hash)
+                               (= @location/href js/location.href)
+                               (= @location/pathname js/location.pathname)
+                               (= @location/search js/location.search))))

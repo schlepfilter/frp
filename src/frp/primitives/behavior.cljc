@@ -3,21 +3,21 @@
   (:require [clojure.set :as set]
             [aid.core :as aid]
             [cats.builtin]
-            [cats.protocols :as protocols]
+            [cats.core :as m]
+            [cats.protocols :as cats-protocols]
             [cats.util :as util]
             [com.rpl.specter :as s]
             [frp.helpers :as helpers :include-macros true]
             [frp.primitives.event :as event]
             [frp.protocols :as entity-protocols]
             [frp.tuple :as tuple])
-  #?(:clj
-     (:import [clojure.lang IDeref])))
+  #?(:clj (:import [clojure.lang IDeref])))
 
 (declare context)
 
 (defrecord Behavior
   [id]
-  protocols/Contextual
+  cats-protocols/Contextual
   (-get-context [_]
     context)
   entity-protocols/Entity
@@ -26,11 +26,11 @@
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
-    ((aid/<*> (comp id
-                        :function)
-                  :time)
+    ((m/<*> (comp id
+                  :function)
+            :time)
       @event/network-state))
-  protocols/Printable
+  cats-protocols/Printable
   (-repr [_]
     (str "#[behavior " id "]")))
 
@@ -41,11 +41,8 @@
   (swap! event/network-state (partial s/setval* [:function id] f))
   (Behavior. id))
 
-(defn behavior*
-  [f]
-  (-> @event/network-state
-      event/get-id
-      (behavior** f)))
+(def behavior*
+  #(behavior** (event/get-id :function @event/network-state) %))
 
 (defn get-function
   [b network]
@@ -55,26 +52,60 @@
   [b t network]
   ((get-function b network) t))
 
+(def pure
+  (comp behavior*
+        constantly))
+
+(defn join
+  [b]
+  (behavior* #(-> b
+                  (get-value % @event/network-state)
+                  (get-value % @event/network-state))))
+
+;Calling ap in -fapply is visibly slower.
+;(def context
+;  (helpers/reify-monad (fn [f fa]
+;                         (behavior* #(-> fa
+;                                         (get-value % @event/network-state)
+;                                         f)))
+;                       pure
+;                       (fn [f]
+;                         (behavior* #(-> f
+;                                         (get-value % @event/network-state)
+;                                         (get-value % @event/network-state))))))
 (def context
-  (helpers/reify-monad
-    (comp behavior*
-          constantly)
-    (fn [ma f]
-      (behavior* (fn [t]
-                   (-> (get-value ma t @event/network-state)
-                       f
-                       (get-value t @event/network-state)))))))
+  (reify
+    cats-protocols/Context
+    cats-protocols/Functor
+    (-fmap [_ f fa]
+      (behavior* #(-> fa
+                      (get-value % @event/network-state)
+                      f)))
+    cats-protocols/Applicative
+    (-pure [_ v]
+      (pure v))
+    (-fapply [_ fab fa]
+      (behavior* #((get-value fab % @event/network-state)
+                    (get-value fa % @event/network-state))))
+    cats-protocols/Monad
+    (-mreturn [_ a]
+      (pure a))
+    (-mbind [_ ma f]
+      (join (m/<$> f ma)))))
 
-
-(defn stop
-  []
-  ((:cancel @event/network-state)))
+(def stop
+  #((->> @event/network-state
+         :cancellations
+         (apply juxt aid/nop))))
 
 (def rename-id
-  (comp ((aid/curry 3 s/transform*)
-          (apply s/multi-path
-                 (map s/must
-                      [:dependency :function :modifies! :modified :occs])))
+  (comp ((aid/curry 3 s/transform*) (->> [:dependency
+                                          :function
+                                          :modifications
+                                          :modified
+                                          :occs]
+                                         (map s/must)
+                                         (apply s/multi-path)))
         (aid/flip (aid/curry 2 set/rename-keys))
         (partial apply array-map)
         reverse
@@ -91,25 +122,17 @@
 (def time
   (Behavior. ::time))
 
+;TODO only use registry for debugging
 (def registry
   (atom []))
 
-(def register*
+(def register!
   (comp (partial swap! registry)
-        ;TODO fix m/curry
-        ;((m/curry s/setval*) s/END)
-        ; ^--- The given function doesn't have arity metadata, provide an arity for currying.
-        ((aid/curry 3 s/setval*) s/END)
-        vector))
-
-#?(:clj (defmacro register
-          [& body]
-          `(register* (fn []
-                        ~@body))))
+        ((aid/curry 3 s/setval*) s/AFTER-ELEM)))
 
 (defn start
   []
-  (reset! event/network-state (event/get-initial-network))
+  (reset! event/network-state event/initial-network)
   (redef time
          (behavior* identity))
   (run! aid/funcall @registry))
@@ -118,25 +141,34 @@
   (juxt stop
         start))
 
-(defn get-middle
-  [left right]
-  (+ left (quot (- right left) 2)))
-
-(defn first-pred-index
-  [pred left right coll]
-  (if (= left right)
-    left
-    (if (->> (get-middle left right)
-             (get coll)
-             pred)
-      (recur pred left (get-middle left right) coll)
-      (recur pred (inc (get-middle left right)) right coll))))
-
 (defn last-pred
   [default pred coll]
-  (nth coll
-       (dec (first-pred-index (complement pred) 0 (count coll) coll))
-       default))
+  (->> coll
+       reverse
+       (drop-while (complement pred))
+       (take 1)
+       (cons default)
+       last))
+;last-pred can be O(log(n))
+;(defn get-middle
+;  [left right]
+;  (+ left (quot (- right left) 2)))
+;
+;(defn first-pred-index
+;  [pred left right coll]
+;  (if (= left right)
+;    left
+;    (if (->> (get-middle left right)
+;             (get coll)
+;             pred)
+;      (recur pred left (get-middle left right) coll)
+;      (recur pred (inc (get-middle left right)) right coll))))
+;
+;(defn last-pred
+;  [default pred coll]
+;  (nth coll
+;       (dec (first-pred-index (complement pred) 0 (count coll) coll))
+;       default))
 
 (defn get-stepper-value
   [a e t network]
@@ -149,8 +181,7 @@
 
 (defn stepper
   [a e]
-  (behavior* (fn [t]
-               (get-stepper-value a e t @event/network-state))))
+  (behavior* #(get-stepper-value a e % @event/network-state)))
 
 (defn get-time-transform-function
   ;TODO refactor
@@ -159,6 +190,7 @@
         (get-function time-behavior network)))
 
 (defn time-transform
+  ;TODO throw an error if any-behavior is created directly or indirectly by stepper
   ;TODO refactor
   [any-behavior time-behavior]
   (behavior* (get-time-transform-function any-behavior

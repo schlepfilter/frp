@@ -1,16 +1,9 @@
 (ns frp.history
-  (:require [frp.derived :as derived]
-            [frp.primitives.behavior :as behavior :include-macros true]
-            [frp.primitives.event :as event]))
+  (:require [frp.browser :as browser :include-macros true]))
 
-(def pushstate
-  (event/->Event ::pushstate))
-
-(behavior/register
-  (behavior/redef pushstate
-                  (derived/event)))
+(browser/defevent pushstate)
 
 (defn push-state
   [state title url-string]
   (js/history.pushState state title url-string)
-  (pushstate {:location {:pathname js/location.pathname}}))
+  (pushstate (browser/convert js/location)))

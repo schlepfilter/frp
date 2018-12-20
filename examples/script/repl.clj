@@ -1,13 +1,11 @@
 (ns repl
-  (:require [com.rpl.specter :as s]
-            [figwheel-sidecar.repl-api :as repl-api]
-            [taoensso.encore :as encore]))
+  (:require [figwheel-sidecar.repl-api :as repl-api]))
 
 (def app-build
   {:id           "app"
    :source-paths ["src"]
-   :compiler     {:output-to            "resources/public/js/main.js"
-                  :output-dir           "resources/public/js/out"
+   :compiler     {:output-to            "dev-resources/public/js/main.js"
+                  :output-dir           "dev-resources/public/js/out"
                   :main                 "examples.core"
                   :asset-path           "/js/out"
                   :source-map-timestamp true
@@ -19,4 +17,5 @@
   {:build-ids  ["app"]
    :all-builds [app-build]})
 
+;TODO delete the id
 (repl-api/cljs-repl "app")

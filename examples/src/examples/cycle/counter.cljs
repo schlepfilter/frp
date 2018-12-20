@@ -1,6 +1,6 @@
 (ns examples.cycle.counter
   (:require [aid.core :as aid]
-            [aid.unit :as unit]
+            [cats.core :as m]
             [frp.clojure.core :as core]
             [frp.core :as frp]))
 
@@ -13,15 +13,14 @@
 (defn counter-component
   [total]
   [:div
-   [:button {:on-click #(increment unit/unit)}
+   [:button {:on-click #(increment)}
     "Increment"]
-   [:button {:on-click #(decrement unit/unit)}
+   [:button {:on-click #(decrement)}
     "Decrement"]
    [:p (str "Counter: " total)]])
 
 (def counter
-  (->> (aid/<> (aid/<$> (constantly 1) increment)
-               (aid/<$> (constantly -1) decrement))
+  (->> (m/<> (aid/<$ 1 increment) (aid/<$ -1 decrement))
        core/+
        (frp/stepper 0)
-       (aid/<$> counter-component)))
+       (m/<$> counter-component)))

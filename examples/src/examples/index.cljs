@@ -1,8 +1,8 @@
 (ns examples.index
-  (:require [aid.core :as aid]
-            [bidi.bidi :as bidi]
-            [clojure.string :as str]
+  (:require [bidi.bidi :as bidi]
             [com.rpl.specter :as s]
+            [frp.core :as frp]
+            [frp.history :as history]
             [examples.cycle.autocomplete-search :as autocomplete-search]
             [examples.cycle.bmi-naive :as bmi-naive]
             [examples.cycle.checkbox :as checkbox]
@@ -10,10 +10,10 @@
             [examples.cycle.http-search-github :as http-search-github]
             [examples.intro :as intro]
             [examples.rx.drag-n-drop :as drag-n-drop]
+            [examples.rx.keyboard-shortcuts :as keyboard-shortcuts]
             [examples.rx.letter-count :as letter-count]
             [examples.rx.simple-data-binding :as simple-data-binding]
-            [frp.core :as frp]
-            [frp.history :as history]))
+            [examples.redux.todos-with-undo :as todos-with-undo]))
 
 (def route-function
   {:autocomplete-search autocomplete-search/autocomplete-search
@@ -23,26 +23,19 @@
    :drag-n-drop         drag-n-drop/drag-n-drop
    :http-search-github  http-search-github/http-search-github
    :intro               intro/intro
+   :keyboard-shortcuts  keyboard-shortcuts/keyboard-shortcuts
    :letter-count        letter-count/letter-count
-   :simple-data-binding simple-data-binding/simple-data-binding})
+   :simple-data-binding simple-data-binding/simple-data-binding
+   :todos-with-undo  todos-with-undo/todos-with-undo})
 
 (def route-keywords
   (keys route-function))
 
-(defn unkebab
-  [s]
-  (str/replace s #"-" ""))
-
 (def example-route
-  (zipmap (map (comp unkebab
-                     (partial (aid/flip subs) 1)
-                     str)
-               route-keywords)
-          route-keywords))
+  (zipmap (map name route-keywords) route-keywords))
 
 (def route
-  ["/" (merge {"" :index}
-              example-route)])
+  ["/" (merge {"" :index} example-route)])
 
 (defn example-component
   [path]

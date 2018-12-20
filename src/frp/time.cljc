@@ -1,15 +1,13 @@
 (ns frp.time
   (:refer-clojure :exclude [time])
-  (:require [aid.core :as aid]
+  (:require [cats.core :as m]
             [cats.protocols :as p]
             [cats.util :as util]
-    #?@(:clj  [
-            [clj-time.coerce :as c]
-            [clj-time.core :as t]]
-        :cljs [[cljs-time.coerce :as c]
-               [cljs-time.core :as t]]))
-  #?(:clj
-     (:import (clojure.lang IDeref))))
+            #?@(:clj  [[clj-time.coerce :as c]
+                       [clj-time.core :as t]]
+                :cljs [[cljs-time.coerce :as c]
+                       [cljs-time.core :as t]]))
+  #?(:clj (:import (clojure.lang IDeref))))
 
 (defrecord Time
   [x]
@@ -46,28 +44,26 @@
 (def time
   ->Time)
 
-(def epoch-state
+(def real-epoch-state
   (atom 0))
 
-(defn now-long
-  []
-  (-> (t/now)
-      c/to-long))
+(def now-long
+  #(-> (t/now)
+       c/to-long))
 
-(defn start
-  []
-  (->> (now-long)
-       ;dec ensures times for events are strictly increasing.
-       dec
-       (reset! epoch-state)))
+(def start
+  #(->> (now-long)
+        ;dec ensures times for events are strictly increasing.
+        dec
+        (reset! real-epoch-state)))
 
-(defn now
-  []
-  (-> (now-long)
-      (- @epoch-state)
-      time))
+(def now
+  #(-> (now-long)
+       (- @real-epoch-state)
+       time))
 
-(defn to-real-time
-  [t]
-  (aid/<$> (partial + @epoch-state)
-       t))
+(def to-real-time
+  #(m/<$> (partial + @real-epoch-state) %))
+
+(def epoch
+  (time 0))
