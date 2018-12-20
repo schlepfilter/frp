@@ -54,13 +54,15 @@
      [:del s]
      s)])
 
-(defn link-component
-  [s]
-  [:a {:href     "#"
-       :on-click (fn [event*]
-                   (.preventDefault event*)
-                   (view s))}
-   (capital s)])
+(aid/defcurried link-component
+  [view* k]
+  [:a ((aid/case-eval view*
+         k identity
+         (partial s/setval* :href "#"))
+        {:on-click (fn [event*]
+                     (.preventDefault event*)
+                     (view k))})
+   (capital k)])
 
 (defn history-component
   [[e s]]
@@ -69,7 +71,7 @@
 
 (defn todos-with-undo-component
   ;TODO implement this function
-  [todos*]
+  [todos* view*]
   [:div
    [:form {:on-submit #(addition)}
     [:input {:on-change #(-> %
@@ -84,13 +86,13 @@
         (mapv history-component)
         (s/setval s/BEFORE-ELEM :div))
    (->> [:all :active :completed]
-        (map link-component)
+        (map (link-component view*))
         (sequence-join ", ")
         vec
         (s/setval s/BEGINNING [:p "Show: "]))])
 
 (def todos-with-undo
-  (m/<$> todos-with-undo-component todos))
+  ((aid/lift-a todos-with-undo-component) todos (frp/stepper :all view)))
 
 (frp/on (comp aid/funcall
               :prevent-default)
