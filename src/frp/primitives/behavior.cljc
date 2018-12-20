@@ -56,7 +56,6 @@
   (comp behavior*
         constantly))
 
-
 (def join
   (fn [f]
     (behavior* #(-> f
