@@ -12,6 +12,9 @@
 (def addition
   (frp/event))
 
+(def deletion
+  (frp/event))
+
 (def undo
   (frp/event))
 
@@ -19,12 +22,14 @@
   (frp/event))
 
 (def todos
-  (->> typing
-       (frp/stepper "")
-       (frp/snapshot addition)
-       (m/<$> second)
-       (core/remove empty?)
-       core/vector))
+  (-> (->> typing
+           (frp/stepper "")
+           ;TODO snapshot addition and time at the same time
+           (frp/snapshot addition)
+           (m/<$> second)
+           (core/remove empty?))
+      (frp/snapshot frp/time)
+      core/vector))
 
 (defn todos-with-undo-component
   ;TODO implement this function
@@ -37,7 +42,9 @@
     [:button {:type "submit"}
      "Add Todo"]]
    (->> todos*
-        (mapv (partial vector :li))
+        (mapv (fn [[s t]]
+                [:li {:on-click #(deletion t)}
+                 s]))
         (s/setval s/BEFORE-ELEM :ul))
    [:div
     ;TODO extract a function that returns a button component
