@@ -10,9 +10,9 @@
             [frp.tuple :as tuple])
   #?(:cljs (:require-macros [frp.io :refer [defcurriedmethod]])))
 
-(defmulti get-effect! (comp protocols/-get-keyword
-                            second
-                            vector))
+(defmulti get-effect (comp protocols/-get-keyword
+                           second
+                           vector))
 ;This definition of get-effect! produces the following failure in :advanced.
 ;Reloading Clojure file "/nodp/hfdp/observer/synchronization.clj" failed.
 ;clojure.lang.Compiler$CompilerException: java.lang.IllegalArgumentException: No method in multimethod 'get-effect!' for dispatch value
@@ -26,7 +26,7 @@
                     (aid/curry ~(count bindings) (fn ~bindings
                                                    ~@body))))
 
-(defcurriedmethod get-effect! :event
+(defcurriedmethod get-effect :event
                   [f! e network]
                   (run! (comp f!
                               tuple/snd)
@@ -42,7 +42,7 @@
   (s/setval [:cache (:id b)] (get-network-value b network) network))
 
 (defcurriedmethod
-  get-effect! :behavior
+  get-effect :behavior
   [f! b network]
   (->> network
        (set-cache b)
@@ -53,4 +53,4 @@
 (def on
   (comp (partial swap! event/network-state)
         ((aid/curry 3 s/setval*) [:effects s/AFTER-ELEM])
-        get-effect!))
+        get-effect))
