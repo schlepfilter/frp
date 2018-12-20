@@ -12,7 +12,7 @@
 (def addition
   (frp/event))
 
-(def deletion
+(def toggle
   (frp/event))
 
 (def undo
@@ -22,10 +22,10 @@
   (frp/event))
 
 (def todos
-  ((aid/lift-a (fn [additions deletions]
-                 (remove (comp deletions
-                               last)
-                         additions)))
+  ((aid/lift-a (fn [additions m]
+                 (map (fn [[s t]]
+                        [s t (m t)])
+                      additions)))
     (->> frp/time
          (frp/snapshot (->> typing
                             (frp/stepper "")
@@ -35,10 +35,11 @@
                             (core/remove empty?)))
          core/vector
          (frp/stepper []))
-    (->> deletion
-         core/vector
-         (m/<$> set)
-         (frp/stepper #{}))))
+    (->> toggle
+         (core/group-by identity)
+         (m/<$> (partial s/transform* s/MAP-VALS (comp even?
+                                                       count)))
+         (frp/stepper {}))))
 
 (defn todos-with-undo-component
   ;TODO implement this function
@@ -51,9 +52,11 @@
     [:button {:type "submit"}
      "Add Todo"]]
    (->> todos*
-        (mapv (fn [[s t]]
-                [:li {:on-click #(deletion t)}
-                 s]))
+        (mapv (fn [[s t completed]]
+                [:li {:on-click #(toggle t)}
+                 (if completed
+                   [:del s]
+                   s)]))
         (s/setval s/BEFORE-ELEM :ul))
    [:div
     ;TODO extract a function that returns a button component
