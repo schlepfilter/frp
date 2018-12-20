@@ -29,10 +29,10 @@
 (declare context)
 
 (def initial-network
-  {:dependency  (graph/digraph)
-   :function    (linked/map)
-   :occs        (linked/map)
-   :time        time/epoch})
+  {:dependency (graph/digraph)
+   :function   (linked/map)
+   :occs       (linked/map)
+   :time       time/epoch})
 
 (def network-state
   (atom initial-network))
