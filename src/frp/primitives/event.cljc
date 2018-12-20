@@ -45,8 +45,8 @@
 
 (def get-new-time
   #(let [current (time/now)]
-     (if (= % current)
-       (recur %)
+     (aid/case-eval %
+       current (recur %)
        current)))
 
 (def get-times
