@@ -31,7 +31,6 @@
 (def initial-network
   {:dependency  (graph/digraph)
    :function    (linked/map)
-   :invocations []
    :occs        (linked/map)
    :time        time/epoch})
 
@@ -127,13 +126,13 @@
        call-functions!))
 
 (def run-network-effects!
-  (comp (partial s/setval* :invocations [])
-        (comp call-functions!
+  (comp (comp call-functions!
               :invocations)
         (partial s/setval* :effective false)
         (comp call-functions!
               :effects)
-        (partial s/setval* :effective true)))
+        (partial s/setval* :effective true)
+        (partial s/setval* :invocations [])))
 
 (def run-network-state-effects!
   (partial swap! network-state run-network-effects!))
