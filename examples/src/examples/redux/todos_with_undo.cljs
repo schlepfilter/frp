@@ -22,14 +22,23 @@
   (frp/event))
 
 (def todos
-  (-> (->> typing
-           (frp/stepper "")
-           ;TODO snapshot addition and time at the same time
-           (frp/snapshot addition)
-           (m/<$> second)
-           (core/remove empty?))
-      (frp/snapshot frp/time)
-      core/vector))
+  ((aid/lift-a (fn [additions deletions]
+                 (remove (comp deletions
+                               last)
+                         additions)))
+    (->> frp/time
+         (frp/snapshot (->> typing
+                            (frp/stepper "")
+                            ;TODO snapshot addition and time at the same time
+                            (frp/snapshot addition)
+                            (m/<$> second)
+                            (core/remove empty?)))
+         core/vector
+         (frp/stepper []))
+    (->> deletion
+         core/vector
+         (m/<$> set)
+         (frp/stepper #{}))))
 
 (defn todos-with-undo-component
   ;TODO implement this function
@@ -54,9 +63,7 @@
      "redo"]]])
 
 (def todos-with-undo
-  (->> todos
-       (frp/stepper [])
-       (m/<$> todos-with-undo-component)))
+  (m/<$> todos-with-undo-component todos))
 
 (frp/on (comp aid/funcall
               :prevent-default)
