@@ -1,6 +1,6 @@
 (ns frp.core
   (:refer-clojure :exclude [stepper time transduce])
-  (:require [frp.derived :as derived :include-macros true]
+  (:require [frp.derived :as derived]
             [frp.io :as io]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]

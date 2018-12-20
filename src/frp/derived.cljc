@@ -4,7 +4,8 @@
             [cats.core :as m]
             [frp.clojure.core :as core]
             [frp.primitives.behavior :as behavior]
-            [frp.primitives.event :as event]))
+            [frp.primitives.event :as event])
+  #?(:cljs (:require-macros frp.derived)))
 
 (defn event
   ([& as]
