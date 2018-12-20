@@ -125,11 +125,11 @@
        call-functions!))
 
 (def run-effects!*
-  (comp (comp call-functions!
-              :invocations)
+  (comp call-functions!
+        :invocations
         (partial s/setval* :effective false)
-        (comp call-functions!
-              :effects)
+        call-functions!
+        :effects
         (partial s/setval* :effective true)
         (partial s/setval* :invocations [])))
 
