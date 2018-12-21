@@ -31,10 +31,10 @@
   :0)
 
 (def initial-universe
-  {initial-network-id {:dependency (graph/digraph)
-                       :function   (linked/map)
-                       :occs       (linked/map)
-                       :time       time/epoch}})
+  (linked/map initial-network-id {:dependency (graph/digraph)
+                                  :function   (linked/map)
+                                  :occs       (linked/map)
+                                  :time       time/epoch}))
 
 (def universe-state
   (atom initial-universe))
