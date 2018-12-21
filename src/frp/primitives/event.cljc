@@ -27,14 +27,14 @@
 
 (declare context)
 
-(def initial-network
+(def initial-universe
   {:dependency (graph/digraph)
    :function   (linked/map)
    :occs       (linked/map)
    :time       time/epoch})
 
-(def network-state
-  (atom initial-network))
+(def universe-state
+  (atom initial-universe))
 
 (defn get-occs
   [id network]
@@ -78,8 +78,8 @@
   (aid/flip (partial reduce (aid/flip aid/funcall))))
 
 (def call-functions!
-  #(call-functions (interleave % (repeat (partial reset! network-state)))
-                   @network-state))
+  #(call-functions (interleave % (repeat (partial reset! universe-state)))
+                   @universe-state))
 
 (defn modify-network!
   [occ id network]
@@ -133,7 +133,7 @@
         (partial s/setval* :invocations [])))
 
 (def run-effects!
-  #(run-effects!* @network-state))
+  #(run-effects!* @universe-state))
 
 (def initial-reloading
   {})
@@ -144,9 +144,9 @@
 (defn invoke**
   [id a]
   (let [[past current] (get-times)]
-    (modify-network! (tuple/tuple past a) id @network-state)
+    (modify-network! (tuple/tuple past a) id @universe-state)
     (run-effects!)
-    (swap! network-state (partial s/setval* :time current))
+    (swap! universe-state (partial s/setval* :time current))
     (run-effects!)))
 
 (def debugging
@@ -155,9 +155,9 @@
 
 (defn invoke*
   [id a]
-  (when (:active @network-state)
-    (if (:effective @network-state)
-      (swap! network-state
+  (when (:active @universe-state)
+    (if (:effective @universe-state)
+      (swap! universe-state
              (partial s/setval*
                       [:invocations s/AFTER-ELEM]
                       (partial invoke* id a)))
@@ -187,7 +187,7 @@
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
-    (get-occs id @network-state))
+    (get-occs id @universe-state))
   cats-protocols/Printable
   (-repr [_]
     (str "#[event " id "]")))
@@ -240,7 +240,7 @@
   (Event. id))
 
 (def event*
-  #(event** (get-id :occs @network-state) %))
+  #(event** (get-id :occs @universe-state) %))
 
 (def get-unit
   (partial tuple/tuple time/epoch))
@@ -274,7 +274,7 @@
                  (get-occs-or-latests initial parent-id)
                  (mapv (partial m/<$> f!)))
             child-id
-            @network-state))
+            @universe-state))
 
 (defn make-call-once
   [id modify!]
@@ -451,7 +451,7 @@
                                                     initial
                                                     network))
                               child-id
-                              @network-state))))
+                              @universe-state))))
 
 (defn transduce
   ([xform f e]
@@ -482,11 +482,11 @@
 
 (defn handle
   [_]
-  (when (:active @network-state)
+  (when (:active @universe-state)
     (->> (time/now)
          get-new-time
          (partial s/setval* :time)
-         (swap! network-state))
+         (swap! universe-state))
     (run-effects!)))
 
 (def append-cancellation
@@ -506,14 +506,14 @@
             :cljs (->> (js/setInterval handle rate)
                        (partial js/clearInterval))))
        append-cancellation
-       (swap! network-state))
-  (swap! network-state (partial s/setval* :active true))
+       (swap! universe-state))
+  (swap! universe-state (partial s/setval* :active true))
   (run-effects!)
   (time/start)
   (->> (time/now)
        get-new-time
        (partial s/setval* :time)
-       (swap! network-state))
+       (swap! universe-state))
   (run-effects!))
 
 (aid/defcurried effect

@@ -28,7 +28,7 @@
     ((m/<*> (comp id
                   :function)
             :time)
-      @event/network-state))
+      @event/universe-state))
   cats-protocols/Printable
   (-repr [_]
     (str "#[behavior " id "]")))
@@ -37,11 +37,11 @@
 
 (defn behavior**
   [id f]
-  (swap! event/network-state (partial s/setval* [:function id] f))
+  (swap! event/universe-state (partial s/setval* [:function id] f))
   (Behavior. id))
 
 (def behavior*
-  #(behavior** (event/get-id :function @event/network-state) %))
+  #(behavior** (event/get-id :function @event/universe-state) %))
 
 (defn get-function
   [b network]
@@ -58,8 +58,8 @@
 (defn join
   [b]
   (behavior* #(-> b
-                  (get-value % @event/network-state)
-                  (get-value % @event/network-state))))
+                  (get-value % @event/universe-state)
+                  (get-value % @event/universe-state))))
 
 ;Calling ap in -fapply is visibly slower.
 ;(def context
@@ -78,14 +78,14 @@
     cats-protocols/Functor
     (-fmap [_ f fa]
       (behavior* #(-> fa
-                      (get-value % @event/network-state)
+                      (get-value % @event/universe-state)
                       f)))
     cats-protocols/Applicative
     (-pure [_ v]
       (pure v))
     (-fapply [_ fab fa]
-      (behavior* #((get-value fab % @event/network-state)
-                    (get-value fa % @event/network-state))))
+      (behavior* #((get-value fab % @event/universe-state)
+                    (get-value fa % @event/universe-state))))
     cats-protocols/Monad
     (-mreturn [_ a]
       (pure a))
@@ -93,7 +93,7 @@
       (join (m/<$> f ma)))))
 
 (def stop
-  #((->> @event/network-state
+  #((->> @event/universe-state
          :cancellations
          (apply juxt aid/nop))))
 
@@ -111,7 +111,7 @@
         vector))
 
 (def rename-id!
-  (comp (partial swap! event/network-state)
+  (comp (partial swap! event/universe-state)
         rename-id))
 
 (defn redef
@@ -131,7 +131,7 @@
 
 (defn start
   []
-  (reset! event/network-state event/initial-network)
+  (reset! event/universe-state event/initial-universe)
   (redef time
          (behavior* identity))
   (run! aid/funcall @registry))
@@ -180,7 +180,7 @@
 
 (defn stepper
   [a e]
-  (behavior* #(get-stepper-value a e % @event/network-state)))
+  (behavior* #(get-stepper-value a e % @event/universe-state)))
 
 (defn get-time-transform-function
   ;TODO refactor
@@ -194,6 +194,6 @@
   [any-behavior time-behavior]
   (behavior* (get-time-transform-function any-behavior
                                           time-behavior
-                                          @event/network-state)))
+                                          @event/universe-state)))
 
 ;TODO implement calculus after a Clojure/ClojureScript library for symbolic computation is released

@@ -24,7 +24,7 @@
   [target event-type listener]
   #?@(:cljs
       [(.addEventListener target event-type listener)
-       (swap! event/network-state
+       (swap! event/universe-state
               (event/append-cancellation (fn [_]
                                            (.removeEventListener target
                                                                  event-type

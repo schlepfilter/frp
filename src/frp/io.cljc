@@ -50,6 +50,6 @@
                                         (get-network-value b))))))
 
 (def on
-  (comp (partial swap! event/network-state)
+  (comp (partial swap! event/universe-state)
         ((aid/curry 3 s/setval*) [:effects s/AFTER-ELEM])
         run-effect!))
