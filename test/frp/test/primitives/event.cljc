@@ -21,6 +21,7 @@
             [frp.tuple :as tuple]
             [frp.test.helpers :as test-helpers :include-macros true]))
 
+;TODO test events with multiple networks
 (clojure-test/defspec call-inactive
   test-helpers/cljc-num-tests
   (test-helpers/set-up-for-all [as (gen/vector test-helpers/any-equal)]
