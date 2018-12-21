@@ -49,7 +49,9 @@
                                   (comp f!
                                         (get-network-value b))))))
 
-(def on
-  (comp (partial swap! event/universe-state)
-        ((aid/curry 3 s/setval*) [:effects s/AFTER-ELEM])
-        run-effect!))
+(defn on
+  [f! entity]
+  (swap! event/universe-state
+         (partial s/setval*
+                  [(:network-id entity) :effects s/AFTER-ELEM]
+                  (run-effect! f! entity))))

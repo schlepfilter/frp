@@ -18,14 +18,15 @@
 (def get-event
   (comp (event/effect (comp behavior/register!
                             make-redef-event))
-        event/->Event))
+        (partial event/->Event event/initial-network-id)))
 
 (defn add-remove-listener
   [target event-type listener]
   #?@(:cljs
       [(.addEventListener target event-type listener)
        (swap! event/universe-state
-              (event/append-cancellation (fn [_]
+              (event/append-cancellation event/initial-network-id
+                                         (fn [_]
                                            (.removeEventListener target
                                                                  event-type
                                                                  listener))))]))
@@ -70,7 +71,7 @@
   [f k]
   #?(:cljs
      (->> k
-          behavior/->Behavior
+          (behavior/->Behavior event/initial-network-id)
           (event/effect (comp behavior/register!
                               (make-redef-behavior f k))))))
 

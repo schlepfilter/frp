@@ -15,7 +15,7 @@
 (declare context)
 
 (defrecord Behavior
-  [id]
+  [network-id id]
   cats-protocols/Contextual
   (-get-context [_]
     context)
@@ -25,31 +25,44 @@
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
-    ((m/<*> (comp id
-                  :function)
-            :time)
-      @event/universe-state))
+    (->> @event/universe-state
+         network-id
+         ((m/<*> (comp id
+                       :function)
+                 :time))))
   cats-protocols/Printable
   (-repr [_]
-    (str "#[behavior " id "]")))
+    (str "#[behavior " network-id " " id "]")))
 
 (util/make-printable Behavior)
 
 (defn behavior**
-  [id f]
-  (swap! event/universe-state (partial s/setval* [:function id] f))
-  (Behavior. id))
+  [network-id id f]
+  (swap! event/universe-state (partial s/setval* [network-id :function id] f))
+  (Behavior. network-id id))
 
 (def behavior*
-  #(behavior** (event/get-id :function @event/universe-state) %))
+  #(behavior** event/*network-id*
+               (->> @event/universe-state
+                    event/*network-id*
+                    (event/get-id :function))
+               %))
 
 (defn get-function
   [b network]
-  ((:id b) (:function network)))
+  (->> network
+       :function
+       ((:id b))))
 
 (defn get-value
   [b t network]
   ((get-function b network) t))
+
+(defn get-universe-value
+  [b t universe]
+  (->> universe
+       ((:network-id b))
+       (get-value b t)))
 
 (def pure
   (comp behavior*
@@ -58,8 +71,8 @@
 (defn join
   [b]
   (behavior* #(-> b
-                  (get-value % @event/universe-state)
-                  (get-value % @event/universe-state))))
+                  (get-universe-value % @event/universe-state)
+                  (get-universe-value % @event/universe-state))))
 
 ;Calling ap in -fapply is visibly slower.
 ;(def context
@@ -78,14 +91,14 @@
     cats-protocols/Functor
     (-fmap [_ f fa]
       (behavior* #(-> fa
-                      (get-value % @event/universe-state)
+                      (get-universe-value % @event/universe-state)
                       f)))
     cats-protocols/Applicative
     (-pure [_ v]
       (pure v))
     (-fapply [_ fab fa]
-      (behavior* #((get-value fab % @event/universe-state)
-                    (get-value fa % @event/universe-state))))
+      (behavior* #((get-universe-value fab % @event/universe-state)
+                    (get-universe-value fa % @event/universe-state))))
     cats-protocols/Monad
     (-mreturn [_ a]
       (pure a))
@@ -97,18 +110,18 @@
          :cancellations
          (apply juxt aid/nop))))
 
-(def rename-id
-  (comp ((aid/curry 3 s/transform*) (->> [:dependency
-                                          :function
-                                          :modifications
-                                          :modified
-                                          :occs]
-                                         (map s/must)
-                                         (apply s/multi-path)))
-        (aid/flip (aid/curry 2 set/rename-keys))
-        (partial apply array-map)
-        reverse
-        vector))
+(aid/defcurried rename-id
+  [network-id to from universe]
+  (s/transform [network-id (->> [:dependency
+                                 :function
+                                 :modifications
+                                 :modified
+                                 :occs]
+                                (map s/must)
+                                (apply s/multi-path))]
+               (partial (aid/flip set/rename-keys)
+                        {from to})
+               universe))
 
 (def rename-id!
   (comp (partial swap! event/universe-state)
@@ -116,10 +129,10 @@
 
 (defn redef
   [to from]
-  (rename-id! (:id to) (:id from)))
+  (rename-id! (:network-id to) (:id to) (:id from)))
 
 (def time
-  (Behavior. ::time))
+  (Behavior. event/*network-id* ::time))
 
 ;TODO only use registry for debugging
 (def registry
@@ -170,8 +183,9 @@
 ;       default))
 
 (defn get-stepper-value
-  [a e t network]
-  (->> network
+  [a e t universe]
+  (->> universe
+       ((:network-id e))
        (event/get-occs (:id e))
        (last-pred (event/get-unit a) (comp (partial > @t)
                                            deref
