@@ -15,6 +15,7 @@
 (declare context)
 
 (defrecord Behavior
+  ;TODO rename id as behavior-id
   [network-id id]
   cats-protocols/Contextual
   (-get-context [_]
