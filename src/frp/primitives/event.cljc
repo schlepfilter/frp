@@ -75,6 +75,7 @@
            %))
 
 (aid/defcurried set-occs
+  ;TODO rename network as network*
   [occs id network]
   (s/transform [:occs id]
                (comp (partial s/setval* s/END occs)
@@ -516,14 +517,31 @@
            [x @b])
          e))
 
+(defrecord Network
+  [id]
+  IFn
+  (#?(:clj  invoke
+      :cljs -invoke) [_ x]
+    (swap! universe-state
+           (partial s/setval* id x)))
+  IDeref
+  (#?(:clj  deref
+      :cljs -deref) [_]
+    (id @universe-state))
+  cats-protocols/Printable
+  (-repr [_]
+    (str "#[network " id "]")))
+
+(util/make-printable Network)
+
 (def network
   #(let [network-id (get-id @universe-state)]
      (swap! universe-state (partial s/setval* network-id initial-network))
-     network-id))
+     (->Network network-id)))
 
 (defmacro with-network
-  [network-id expr]
-  `(binding [*network-id* ~network-id]
+  [network expr]
+  `(binding [*network-id* (:id ~network)]
      ~expr))
 
 #?(:clj (defn get-periods
