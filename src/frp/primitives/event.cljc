@@ -522,8 +522,8 @@
   IFn
   (#?(:clj  invoke
       :cljs -invoke) [_ x]
-    (swap! universe-state
-           (partial s/setval* id x)))
+    (swap! universe-state (partial s/setval* id x))
+    (run-effects! id))
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
