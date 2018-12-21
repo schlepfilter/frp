@@ -26,9 +26,10 @@
 
 (defcurriedmethod get-effect :event
                   [f! e network]
-                  (run! (comp f!
-                              tuple/snd)
-                        (event/get-latests (:id e) network))
+                  (->> network
+                       (event/get-latests (:id e))
+                       (run! (comp f!
+                                   tuple/snd)))
                   network)
 
 (aid/defcurried get-network-value
