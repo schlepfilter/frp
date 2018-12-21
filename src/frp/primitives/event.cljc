@@ -40,6 +40,7 @@
   (atom initial-universe))
 
 (defn get-occs
+  ;TODO rename id as event-id
   [id network]
   (-> network
       :occs
