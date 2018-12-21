@@ -50,8 +50,8 @@
                                         (get-network-value b))))))
 
 (defn on
-  [f! entity]
+  [f! x]
   (swap! event/universe-state
          (partial s/setval*
-                  [(:network-id entity) :effects s/AFTER-ELEM]
-                  (run-effect! f! entity))))
+                  [(:network-id x) :effects s/AFTER-ELEM]
+                  (run-effect! f! x))))
