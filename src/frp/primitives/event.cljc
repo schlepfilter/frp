@@ -30,11 +30,14 @@
 (def initial-network-id
   :0)
 
+(def initial-network
+  {:dependency (graph/digraph)
+   :function   (linked/map)
+   :occs       (linked/map)
+   :time       time/epoch})
+
 (def initial-universe
-  (linked/map initial-network-id {:dependency (graph/digraph)
-                                  :function   (linked/map)
-                                  :occs       (linked/map)
-                                  :time       time/epoch}))
+  (linked/map initial-network-id initial-network))
 
 (def universe-state
   (atom initial-universe))
@@ -509,6 +512,11 @@
   (m/<$> (fn [x]
            [x @b])
          e))
+
+(def network
+  #(let [network-id (get-id @universe-state)]
+     (swap! universe-state (partial s/setval* network-id initial-network))
+     network-id))
 
 #?(:clj (defn get-periods
           ;TODO extract a purely functional function
