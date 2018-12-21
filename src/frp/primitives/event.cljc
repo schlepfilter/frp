@@ -188,7 +188,7 @@
       (swap! universe-state
              (partial s/setval*
                       [network-id :invocations s/AFTER-ELEM]
-                      (invoke** network-id id a)))
+                      #(invoke** network-id id a)))
       ;TODO make debugging compatible with multiple networks
       (do (if debugging
             (swap! reloading-state
