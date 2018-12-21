@@ -27,6 +27,7 @@
 
 (declare context)
 
+;TODO move network definitions to its own namespace
 (def initial-network-id
   :0)
 
