@@ -251,8 +251,7 @@
   ;TODO return uuid for production
   (comp keyword
         str
-        get-id-number
-        aid/funcall))
+        get-id-number))
 
 (defn event**
   [network-id id fs]
@@ -270,7 +269,8 @@
   #(event** *network-id*
             (->> @universe-state
                  *network-id*
-                 (get-id :occs))
+                 :occs
+                 get-id)
             %))
 
 (def get-unit

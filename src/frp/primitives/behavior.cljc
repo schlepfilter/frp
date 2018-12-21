@@ -46,7 +46,8 @@
   #(behavior** event/*network-id*
                (->> @event/universe-state
                     event/*network-id*
-                    (event/get-id :function))
+                    :function
+                    event/get-id)
                %))
 
 (defn get-function
