@@ -518,6 +518,11 @@
      (swap! universe-state (partial s/setval* network-id initial-network))
      network-id))
 
+(defmacro with-network
+  [network-id expr]
+  `(binding [*network-id* ~network-id]
+     ~expr))
+
 #?(:clj (defn get-periods
           ;TODO extract a purely functional function
           [rate]
