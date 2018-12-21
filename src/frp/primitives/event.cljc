@@ -215,7 +215,9 @@
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
-    (get-occs id (network-id @universe-state)))
+    (->> @universe-state
+         network-id
+         (get-occs id)))
   cats-protocols/Printable
   (-repr [_]
     (str "#[event " network-id " " id "]")))
