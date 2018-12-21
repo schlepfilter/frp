@@ -267,7 +267,11 @@
   initial-network-id)
 
 (def event*
-  #(event** *network-id* (get-id :occs (*network-id* @universe-state)) %))
+  #(event** *network-id*
+            (->> @universe-state
+                 *network-id*
+                 (get-id :occs))
+            %))
 
 (def get-unit
   (partial tuple/tuple time/epoch))
