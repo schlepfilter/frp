@@ -26,11 +26,13 @@
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
-    (->> @event/universe-state
-         network-id
-         ((m/<*> (comp id
-                       :function)
-                 :time))))
+    (-> @event/universe-state
+        network-id
+        ((aid/build aid/funcall
+                    (comp id
+                          :function)
+                    identity
+                    :time))))
   cats-protocols/Printable
   (-repr [_]
     (str "#[behavior " network-id " " id "]")))
@@ -56,9 +58,9 @@
        :function
        ((:id b))))
 
-(defn get-value
+(aid/defcurried get-value
   [b t network]
-  ((get-function b network) t))
+  ((get-function b network) network t))
 
 (defn get-universe-value
   [b t universe]
@@ -70,11 +72,11 @@
   (comp behavior*
         constantly))
 
-(defn join
-  [b]
-  (behavior* #(-> b
-                  (get-universe-value % @event/universe-state)
-                  (get-universe-value % @event/universe-state))))
+(defn join*
+  [b network t]
+  (-> b
+      (get-value t network)
+      (get-value t network)))
 
 ;Calling ap in -fapply is visibly slower.
 ;(def context
@@ -91,21 +93,28 @@
   (reify
     cats-protocols/Context
     cats-protocols/Functor
-    (-fmap [_ f fa]
-      (behavior* #(-> fa
-                      (get-universe-value % @event/universe-state)
-                      f)))
+    (-fmap [_ f! fa]
+      (behavior* (fn [network t]
+                   (->> network
+                        (get-value fa t)
+                        f!))))
     cats-protocols/Applicative
     (-pure [_ v]
       (pure v))
     (-fapply [_ fab fa]
-      (behavior* #((get-universe-value fab % @event/universe-state)
-                    (get-universe-value fa % @event/universe-state))))
+      (behavior* (fn [network t]
+                   (m/<*> (get-value fab t)
+                          (get-value fa t)
+                          network))))
     cats-protocols/Monad
     (-mreturn [_ a]
       (pure a))
-    (-mbind [_ ma f]
-      (join (m/<$> f ma)))))
+    (-mbind [_ ma f!]
+      (behavior* (fn [_ t]
+                   (join* (m/<$> f! ma)
+                          ((:network-id ma)
+                                          @event/universe-state)
+                          t))))))
 
 (def stop
   #((->> @event/universe-state
@@ -148,7 +157,8 @@
   []
   (reset! event/universe-state event/initial-universe)
   (redef time
-         (behavior* identity))
+         (behavior* (fn [_ t]
+                      t)))
   (run! aid/funcall @registry))
 
 (def restart
@@ -184,32 +194,12 @@
 ;       (dec (first-pred-index (complement pred) 0 (count coll) coll))
 ;       default))
 
-(defn get-stepper-value
-  [a e t universe]
-  (->> universe
-       ((:network-id e))
-       (event/get-occs (:id e))
-       (last-pred (event/get-unit a) (comp (partial > @t)
-                                           deref
-                                           tuple/fst))
-       tuple/snd))
-
 (defn stepper
   [a e]
-  (behavior* #(get-stepper-value a e % @event/universe-state)))
-
-(defn get-time-transform-function
-  ;TODO refactor
-  [any-behavior time-behavior network]
-  (comp (get-function any-behavior network)
-        (get-function time-behavior network)))
-
-(defn time-transform
-  ;TODO throw an error if any-behavior is created directly or indirectly by stepper
-  ;TODO refactor
-  [any-behavior time-behavior]
-  (behavior* (get-time-transform-function any-behavior
-                                          time-behavior
-                                          @event/universe-state)))
-
-;TODO implement calculus after a Clojure/ClojureScript library for symbolic computation is released
+  (behavior* (fn [network t]
+               (->> network
+                    (event/get-occs (:id e))
+                    (last-pred (event/get-unit a) (comp (partial > @t)
+                                                        deref
+                                                        tuple/fst))
+                    tuple/snd))))
