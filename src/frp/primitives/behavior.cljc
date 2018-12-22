@@ -177,15 +177,6 @@
 ;       (dec (first-pred-index (complement pred) 0 (count coll) coll))
 ;       default))
 
-(defn get-stepper-value
-  [a e t network]
-  (->> network
-       (event/get-occs (:id e))
-       (last-pred (event/get-unit a) (comp (partial > @t)
-                                           deref
-                                           tuple/fst))
-       tuple/snd))
-
 (defn stepper
   [a e]
   (behavior* (fn [network t]
