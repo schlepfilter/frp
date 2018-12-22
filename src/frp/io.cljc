@@ -30,7 +30,7 @@
                        (event/get-latests (:id e))
                        (run! (comp f!
                                    tuple/snd)))
-                  network)
+                  @event/network-state)
 
 (aid/defcurried get-network-value
   [b network]
