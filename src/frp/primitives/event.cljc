@@ -125,10 +125,15 @@
 
 (defn run-effects!
   []
-  ;TODO implement this function
   (call-functions! (concat [(partial s/setval* :effective true)]
                            (:effects @network-state)
-                           [(partial s/setval* :effective false)])))
+                           [(partial s/setval* :effective false)]))
+  (->> @network-state
+       :invocations
+       (run! (fn [f!]
+               (swap! network-state
+                      (partial s/transform* :invocations rest))
+               (f!)))))
 
 (def initial-reloading
   {})
