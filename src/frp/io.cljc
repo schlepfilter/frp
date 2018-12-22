@@ -1,6 +1,7 @@
 ;primitives.event and io namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
 (ns frp.io
   (:require [aid.core :as aid]
+            [cats.builtin]
             [com.rpl.specter :as s]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]
@@ -36,18 +37,20 @@
   [b network]
   (behavior/get-value b (:time network) network))
 
-(defn set-cache
+(aid/defcurried set-cache
   [b network]
   (s/setval [:cache (:id b)] (get-network-value b network) network))
 
 (defcurriedmethod
   run-effect! :behavior
   [f! b network]
-  (->> network
-       (set-cache b)
-       (event/effect (aid/if-else (partial = network)
-                                  (comp f!
-                                        (get-network-value b))))))
+  (aid/if-else (aid/build =
+                          identity
+                          (set-cache b))
+               (comp f!
+                     (get-network-value b))
+               network)
+  (set-cache b @event/network-state))
 
 (def on
   (comp (partial swap! event/network-state)
