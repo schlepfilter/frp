@@ -186,19 +186,3 @@
                                                         deref
                                                         tuple/fst))
                     tuple/snd))))
-
-(defn get-time-transform-function
-  ;TODO refactor
-  [any-behavior time-behavior network]
-  (comp (get-function any-behavior network)
-        (get-function time-behavior network)))
-
-(defn time-transform
-  ;TODO throw an error if any-behavior is created directly or indirectly by stepper
-  ;TODO refactor
-  [any-behavior time-behavior]
-  (behavior* (get-time-transform-function any-behavior
-                                          time-behavior
-                                          @event/network-state)))
-
-;TODO implement calculus after a Clojure/ClojureScript library for symbolic computation is released
