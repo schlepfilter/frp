@@ -76,10 +76,10 @@
   (reify
     cats-protocols/Context
     cats-protocols/Functor
-    (-fmap [_ f fa]
+    (-fmap [_ f! fa]
       (behavior* #(-> fa
                       (get-value % @event/network-state)
-                      f)))
+                      f!)))
     cats-protocols/Applicative
     (-pure [_ v]
       (pure v))
@@ -89,8 +89,8 @@
     cats-protocols/Monad
     (-mreturn [_ a]
       (pure a))
-    (-mbind [_ ma f]
-      (join (m/<$> f ma)))))
+    (-mbind [_ ma f!]
+      (join (m/<$> f! ma)))))
 
 (def stop
   #((->> @event/network-state
