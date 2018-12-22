@@ -1,6 +1,7 @@
 (ns frp.clojure.core
   (:refer-clojure :exclude [+
                             count
+                            dedupe
                             distinct
                             drop
                             filter
@@ -107,3 +108,6 @@
 
 (def vector
   (partial reduce core/conj []))
+
+(def dedupe
+  (partial event/transduce (core/dedupe) reduce*))
