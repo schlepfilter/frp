@@ -30,6 +30,7 @@
                        (event/get-latests (:id e))
                        (run! (comp f!
                                    tuple/snd)))
+                  ;TODO extract a function
                   ((:network-id e) @event/universe-state))
 
 (aid/defcurried get-network-value
