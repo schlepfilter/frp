@@ -91,9 +91,9 @@
       (pure a))
     (-mbind [_ ma f!]
       (behavior* (fn [network t]
-                   (get-value (get-value (m/<$> f! ma) t @event/network-state)
+                   (get-value (get-value (m/<$> f! ma) t network)
                               t
-                              network))))))
+                              @event/network-state))))))
 
 (def stop
   #((->> @event/network-state
