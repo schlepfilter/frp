@@ -160,7 +160,7 @@
       (swap! network-state
              (partial s/setval*
                       [:invocations s/AFTER-ELEM]
-                      (partial invoke* id a)))
+                      #(invoke* id a)))
       (do (if debugging
             (swap! reloading-state
                    (partial s/setval* [:id-invocations s/AFTER-ELEM] [id a])))
