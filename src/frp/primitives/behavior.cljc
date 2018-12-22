@@ -58,6 +58,12 @@
   (comp behavior*
         constantly))
 
+(defn join*
+  [b network t]
+  (-> b
+      (get-value t network)
+      (get-value t network)))
+
 ;Calling ap in -fapply is visibly slower.
 ;(def context
 ;  (helpers/reify-monad (fn [f fa]
@@ -90,10 +96,8 @@
     (-mreturn [_ a]
       (pure a))
     (-mbind [_ ma f!]
-      (behavior* (fn [network t]
-                   (get-value (get-value (m/<$> f! ma) t network)
-                              t
-                              @event/network-state))))))
+      (behavior* (fn [_ t]
+                   (join* (m/<$> f! ma) @event/network-state t))))))
 
 (def stop
   #((->> @event/network-state
