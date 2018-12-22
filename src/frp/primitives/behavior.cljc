@@ -25,9 +25,11 @@
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
-    ((m/<*> (comp id
-                  :function)
-            :time)
+    ((aid/build aid/funcall
+                (comp id
+                      :function)
+                identity
+                :time)
       @event/network-state))
   cats-protocols/Printable
   (-repr [_]
@@ -41,25 +43,20 @@
   (Behavior. id))
 
 (def behavior*
-  #(behavior** (event/get-id :function @event/network-state) %))
+  #(behavior** (event/get-id :function @event/network-state)
+               %))
 
 (defn get-function
   [b network]
   ((:id b) (:function network)))
 
-(defn get-value
+(aid/defcurried get-value
   [b t network]
-  ((get-function b network) t))
+  ((get-function b network) network t))
 
 (def pure
   (comp behavior*
         constantly))
-
-(defn join
-  [b]
-  (behavior* #(-> b
-                  (get-value % @event/network-state)
-                  (get-value % @event/network-state))))
 
 ;Calling ap in -fapply is visibly slower.
 ;(def context
@@ -77,20 +74,26 @@
     cats-protocols/Context
     cats-protocols/Functor
     (-fmap [_ f! fa]
-      (behavior* #(-> fa
-                      (get-value % @event/network-state)
-                      f!)))
+      (behavior* (fn [network t]
+                   (->> network
+                        (get-value fa t)
+                        f!))))
     cats-protocols/Applicative
     (-pure [_ v]
       (pure v))
     (-fapply [_ fab fa]
-      (behavior* #((get-value fab % @event/network-state)
-                    (get-value fa % @event/network-state))))
+      (behavior* (fn [network t]
+                   (m/<*> (get-value fab t)
+                          (get-value fa t)
+                          network))))
     cats-protocols/Monad
     (-mreturn [_ a]
       (pure a))
     (-mbind [_ ma f!]
-      (join (m/<$> f! ma)))))
+      (behavior* (fn [network t]
+                   (get-value (get-value (m/<$> f! ma) t @event/network-state)
+                              t
+                              network))))))
 
 (def stop
   #((->> @event/network-state
@@ -133,7 +136,8 @@
   []
   (reset! event/network-state event/initial-network)
   (redef time
-         (behavior* identity))
+         (behavior* (fn [_ t]
+                      t)))
   (run! aid/funcall @registry))
 
 (def restart
@@ -180,7 +184,13 @@
 
 (defn stepper
   [a e]
-  (behavior* #(get-stepper-value a e % @event/network-state)))
+  (behavior* (fn [network t]
+               (->> network
+                    (event/get-occs (:id e))
+                    (last-pred (event/get-unit a) (comp (partial > @t)
+                                                        deref
+                                                        tuple/fst))
+                    tuple/snd))))
 
 (defn get-time-transform-function
   ;TODO refactor
