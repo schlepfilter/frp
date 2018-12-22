@@ -141,21 +141,19 @@
                 (partial s/setval* [:modified id] true)])
        (call-functions! network-id)))
 
-(defn run-effects!*
-  [network-id network]
-  (->> network
-       (s/setval :invocations [])
-       (s/setval :effective true)
-       :effects
-       (call-functions! network-id)
-       (s/setval :effective false)
+(defn run-effects!
+  [network-id]
+  (call-functions! network-id
+                   (concat [(partial s/setval* [network-id :effective] true)]
+                           (:effects (network-id @universe-state))
+                           [(partial s/setval* [network-id :effective] false)]))
+  (->> @universe-state
+       network-id
        :invocations
-       (call-functions! network-id)))
-
-(def run-effects!
-  #(->> @universe-state
-        %
-        (run-effects!* %)))
+       (run! (fn [f!]
+               (swap! universe-state
+                      (partial s/transform* [network-id :invocations] rest))
+               (f!)))))
 
 (def initial-reloading
   {})
