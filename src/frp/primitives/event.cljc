@@ -270,13 +270,14 @@
 (def ^:dynamic *network-id*
   initial-network-id)
 
-(def event*
-  #(event** *network-id*
-            (->> @universe-state
-                 *network-id*
-                 :occs
-                 get-id)
-            %))
+(aid/defcurried event*
+  [network-id fs]
+  (event** network-id
+           (->> @universe-state
+                network-id
+                :occs
+                get-id)
+           fs))
 
 (def get-unit
   (partial tuple/tuple time/epoch))
@@ -413,45 +414,48 @@
             network))
 
 (def pure
-  (comp event*
+  (comp (event* *network-id*)
         vector
         set-occs
         vector
         get-unit))
 
 (def mempty
-  #(event* []))
+  #(event* *network-id* []))
 
 (def context
-  (helpers/reify-monad (fn [f! fa]
-                         (->> fa
-                              ((aid/build (modify-<$> f!)
-                                          :network-id
-                                          :id))
-                              make-set-modification-modification
-                              (cons (add-edge (:id fa)))
-                              event*))
-                       pure
-                       #(->> %
-                             ((aid/build modify-join
-                                         :network-id
-                                         :id))
-                             make-set-modification-modification
-                             (cons (add-edge (:id %)))
-                             event*)
-                       cats-protocols/Semigroup
-                       (-mappend [_ left-event right-event]
-                                 (-> (modify-<> (:id left-event)
-                                                (:id right-event))
-                                     make-set-modification-modification
-                                     (concat (map (comp add-edge
-                                                        :id)
-                                                  [left-event right-event]))
-                                     event*))
-                       ;TODO delete Monoid
-                       cats-protocols/Monoid
-                       (-mempty [_]
-                                (mempty))))
+  (helpers/reify-monad
+    (fn [f! fa]
+      (->> fa
+           ((aid/build (modify-<$> f!)
+                       :network-id
+                       :id))
+           make-set-modification-modification
+           (cons (add-edge (:id fa)))
+           (event* (:network-id fa))))
+    pure
+    #(->> %
+          ((aid/build modify-join
+                      :network-id
+                      :id))
+          make-set-modification-modification
+          (cons (add-edge (:id %)))
+          (event* (:network-id %)))
+    cats-protocols/Semigroup
+    (-mappend [_ left-event right-event]
+              (->>
+                [left-event right-event]
+                (map (comp add-edge
+                           :id))
+                (concat
+                  (make-set-modification-modification
+                    (modify-<> (:id left-event)
+                               (:id right-event))))
+                (event* (:network-id left-event))))
+    ;TODO delete Monoid
+    cats-protocols/Monoid
+    (-mempty [_]
+             (mempty))))
 
 (defn get-elements
   [step! id initial network]
@@ -507,7 +511,7 @@
                     :id))
         make-set-modification-modification
         (cons (add-edge (:id e)))
-        event*)))
+        (event* (:network-id e)))))
 
 (defn snapshot
   [e b]
