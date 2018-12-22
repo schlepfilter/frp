@@ -123,17 +123,12 @@
                 (partial s/setval* [:modified id] true)])
        call-functions!))
 
-(def run-effects!*
-  (comp call-functions!
-        :invocations
-        (partial s/setval* :effective false)
-        call-functions!
-        :effects
-        (partial s/setval* :effective true)
-        (partial s/setval* :invocations [])))
-
-(def run-effects!
-  #(run-effects!* @network-state))
+(defn run-effects!
+  []
+  ;TODO implement this function
+  (call-functions! (concat [(partial s/setval* :effective true)]
+                           (:effects @network-state)
+                           [(partial s/setval* :effective false)])))
 
 (def initial-reloading
   {})
