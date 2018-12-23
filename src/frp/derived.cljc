@@ -102,7 +102,7 @@
         count))
 
 (defn get-state
-  [history size undo redo network*]
+  [size undo redo history network*]
   (->> network*
        (m/<$> (fn [network*]
                 (aid/if-else
@@ -155,7 +155,7 @@
         (io/on result result*)
         (io/on (fn [_]
                  (network @history)) result*)
-        (io/on history (get-state history size undo redo network))
+        (io/on history (get-state size undo redo history network))
         result)))
 
 (defmacro with-undo
