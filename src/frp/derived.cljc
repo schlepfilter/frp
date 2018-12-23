@@ -136,40 +136,65 @@
        core/dedupe
        (m/<$> ffirst)))
 
-(defn get-event-alias
-  [actions history]
-  (->> #(event/with-network history
-                            (event))
-       repeatedly
-       (zipmap actions)))
+(def prefix
+  (gensym))
 
-(defn with-undo*
-  [size undo redo history event-alias result*]
-  (let [network (event)
-        result (event)]
-    (do (->> event-alias
-             set/map-invert
-             (run! (partial apply io/on)))
-        (io/on result result*)
-        (io/on (fn [_]
-                 (network @history)) result*)
-        (io/on history (get-state size undo redo history network))
-        result)))
+(def get-alias
+  (comp symbol
+        (partial str prefix)))
+
+(def get-event-alias
+  (comp (partial apply array-map)
+        (partial mapcat (fn [x]
+                          [x (get-alias x)]))))
+
+(defn on-action
+  [action]
+  `(io/on ~(get-alias action) ~action))
+
+(def on-actions
+  (partial map on-action))
+
+(defn alias-expression
+  [actions expr]
+  (riddley/walk-exprs (get-event-alias actions)
+                      (get-event-alias actions)
+                      expr))
+
+
+(defn get-result
+  [history size undo redo result]
+  (let [network (event/mempty)
+        result* (event/mempty)]
+    (io/on result* result)
+    (io/on (fn [_]
+             (network @history))
+           result)
+    (io/on history (get-state size undo redo history network))
+    result*))
+
+(aid/defcurried get-binding
+  [event* action]
+  [(get-alias action) event*])
+
+(defn get-bindings
+  [event* action]
+  (mapcat (get-binding event*) action))
 
 (defmacro with-undo
   ;TODO make size and redo optional
   [size undo redo actions expr]
-  (let [history (event/network)
-        event-alias (get-event-alias actions history)]
-    `(with-undo* ~size
-                 ~undo
-                 ~redo
-                 ~history
-                 ~event-alias
-                 (event/with-network ~history
-                                     ~(riddley/walk-exprs event-alias
-                                                          event-alias
-                                                          expr)))))
+  (potemkin/unify-gensyms
+    `(let [history## (event/network)
+           ~@(get-bindings `(event/with-network history##
+                                                (event/mempty))
+                           actions)]
+       ~@(on-actions actions)
+       (get-result history##
+                   ~size
+                   ~undo
+                   ~redo
+                   ~(alias-expression actions expr)))))
 
 (def switcher
   (comp m/join
