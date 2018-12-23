@@ -146,7 +146,7 @@
   (rename-id! (:network-id to) (:id to) (:id from)))
 
 (def time
-  (Behavior. event/*network-id* ::time))
+  (Behavior. event/initial-network-id ::time))
 
 ;TODO only use registry for debugging
 (def registry
