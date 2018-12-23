@@ -170,7 +170,9 @@
              (network @history))
            result)
     (io/on history (get-state size undo redo history network))
-    result*))
+    (aid/casep result
+      event/event? result*
+      (behavior/stepper @result result*))))
 
 (aid/defcurried get-binding
   [event* action]
