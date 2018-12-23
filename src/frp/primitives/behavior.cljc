@@ -70,8 +70,9 @@
        (get-value b t)))
 
 (def pure
-  (comp (behavior* event/*network-id*)
-        constantly))
+  #(->> %
+        constantly
+        (behavior* event/*network-id*)))
 
 (defn join*
   [b network t]

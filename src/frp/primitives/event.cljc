@@ -417,11 +417,12 @@
             network))
 
 (def pure
-  (comp (event* *network-id*)
+  #(->> %
+        get-unit
         vector
         set-occs
         vector
-        get-unit))
+        (event* *network-id*)))
 
 (def mempty
   #(event* *network-id* []))
