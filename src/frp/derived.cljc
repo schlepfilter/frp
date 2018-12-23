@@ -102,8 +102,8 @@
         count))
 
 (defn get-state
-  [size undo redo history network*]
-  (->> network*
+  [size undo redo history network]
+  (->> network
        (m/<$> (fn [network*]
                 (aid/if-else
                   (comp (partial (aid/flip aid/funcall) network*)
