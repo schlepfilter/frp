@@ -47,6 +47,10 @@
   [expr]
   `(derived/transparent ~expr))
 
+(defmacro with-undo
+  [more]
+  `(derived/with-undo ~@more))
+
 (def accum
   derived/accum)
 
