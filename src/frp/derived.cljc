@@ -159,6 +159,7 @@
         result)))
 
 (defmacro with-undo
+  ;TODO make size and redo optional
   [size undo redo actions expr]
   (let [history (event/network)
         m (get-event-alias actions history)]
