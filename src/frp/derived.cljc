@@ -104,18 +104,16 @@
 (defn get-state
   [size undo redo history network]
   (->> network
-       (m/<$> (fn [network*]
-                (aid/if-else
-                  (comp (partial (aid/flip aid/funcall) network*)
-                        set
-                        flatten)
-                  (comp (partial s/setval* s/LAST [])
-                        (partial s/transform*
-                                 s/FIRST
-                                 (comp (partial take (inc size))
-                                       (partial s/setval*
-                                                s/BEFORE-ELEM
-                                                network*)))))))
+       (m/<$> #(aid/if-else (comp (partial (aid/flip aid/funcall) %)
+                                  set
+                                  flatten)
+                            (comp (partial s/setval* s/LAST [])
+                                  (partial s/transform*
+                                           s/FIRST
+                                           (comp (partial take (inc size))
+                                                 (partial s/setval*
+                                                          s/BEFORE-ELEM
+                                                          %))))))
        ;TODO extract a function
        (m/<> (aid/<$ (aid/if-else (comp singleton?
                                         first)
