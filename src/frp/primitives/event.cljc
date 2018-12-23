@@ -156,7 +156,11 @@
 (defn invoke*
   [id a]
   (when (:active @network-state)
-    (if (:effective @network-state)
+    (if ((aid/build or
+                    :effective
+                    (comp (partial = time/epoch)
+                          :time))
+          @network-state)
       (swap! network-state
              (partial s/setval*
                       [:invocations s/AFTER-ELEM]
