@@ -194,7 +194,8 @@
                    ~size
                    ~undo
                    ~redo
-                   ~(alias-expression actions expr)))))
+                   (event/with-network history##
+                                       ~(alias-expression actions expr))))))
 
 (def switcher
   (comp m/join
