@@ -103,17 +103,15 @@
       (pure v))
     (-fapply [_ fab fa]
       (behavior* (fn [network t]
-                   (m/<*> (get-value fab t)
-                          (get-value fa t)
-                          network))))
+                   ((m/<*> (get-value fab t)
+                           (get-value fa t))
+                     network))))
     cats-protocols/Monad
     (-mreturn [_ a]
       (pure a))
     (-mbind [_ ma f!]
       (behavior* (fn [_ t]
-                   (join* (m/<$> f! ma)
-                          ((:network-id ma)
-                                          @event/universe-state)
+                   (join* (m/<$> f! ma) ((:network-id ma) @event/universe-state)
                           t))))))
 
 (def stop
