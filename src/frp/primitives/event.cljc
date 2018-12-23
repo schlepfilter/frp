@@ -144,9 +144,9 @@
 (defn run-effects!
   [network-id]
   (call-functions! network-id
-                   (concat [(partial s/setval* [network-id :effective] true)]
+                   (concat [(partial s/setval* :effective true)]
                            (:effects (network-id @universe-state))
-                           [(partial s/setval* [network-id :effective] false)]))
+                           [(partial s/setval* :effective false)]))
   (->> @universe-state
        network-id
        :invocations
