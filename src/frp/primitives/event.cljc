@@ -182,10 +182,7 @@
             :active)
     (if (-> @universe-state
             network-id
-            ((aid/build or
-                        :effective
-                        (comp (partial = time/epoch)
-                              :time))))
+            :effective)
       (swap! universe-state
              (partial s/setval*
                       [network-id :invocations s/AFTER-ELEM]
