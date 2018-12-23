@@ -89,9 +89,9 @@
       (pure v))
     (-fapply [_ fab fa]
       (behavior* (fn [network t]
-                   (m/<*> (get-value fab t)
-                          (get-value fa t)
-                          network))))
+                   ((m/<*> (get-value fab t)
+                           (get-value fa t))
+                     network))))
     cats-protocols/Monad
     (-mreturn [_ a]
       (pure a))
