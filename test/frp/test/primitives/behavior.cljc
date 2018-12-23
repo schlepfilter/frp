@@ -93,4 +93,4 @@
                                  (run! e as)
                                  (= @b (last occurrences)))))
 
-;TODO test time-transform
+;TODO test applicative
