@@ -160,13 +160,16 @@
   ;TODO make size and redo optional
   [size undo redo actions expr]
   (let [history (event/network)
-        m (get-event-alias actions history)]
+        event-alias (get-event-alias actions history)]
     `(with-undo* ~size
                  ~undo
                  ~redo
                  ~history
-                 ~m
-                 (event/with-network ~history ~(riddley/walk-exprs m m expr)))))
+                 ~event-alias
+                 (event/with-network ~history
+                                     ~(riddley/walk-exprs event-alias
+                                                          event-alias
+                                                          expr)))))
 
 (def switcher
   (comp m/join
