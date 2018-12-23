@@ -22,21 +22,28 @@
                      (core/remove empty?))
                 frp/time))
 
+(def size
+  10)
+
 (def todos
-  ((aid/lift-a (fn [additions m]
-                 (map (transfer* s/AFTER-ELEM (comp m
-                                                    last))
-                      additions)))
-    (->> todo
-         core/vector
-         (frp/stepper []))
-    (->> todo
-         (m/<$> last)
-         (m/<> toggle)
-         (core/group-by identity)
-         (m/<$> (partial s/transform* s/MAP-VALS (comp odd?
-                                                       count)))
-         (frp/stepper {}))))
+  (frp/with-undo size
+                 undo
+                 redo
+                 [todo toggle]
+                 ((aid/lift-a (fn [additions m]
+                                (map (transfer* s/AFTER-ELEM (comp m
+                                                                   last))
+                                     additions)))
+                   (->> todo
+                        core/vector
+                        (frp/stepper []))
+                   (->> todo
+                        (m/<$> last)
+                        (m/<> toggle)
+                        (core/group-by identity)
+                        (m/<$> (partial s/transform* s/MAP-VALS (comp odd?
+                                                                      count)))
+                        (frp/stepper {})))))
 
 (def view-behavior
   (frp/stepper :all view-event))
