@@ -44,13 +44,14 @@
   (swap! event/universe-state (partial s/setval* [network-id :function id] f))
   (Behavior. network-id id))
 
-(def behavior*
-  #(behavior** event/*network-id*
-               (->> @event/universe-state
-                    event/*network-id*
-                    :function
-                    event/get-id)
-               %))
+(aid/defcurried behavior*
+  [network-id f]
+  (behavior** network-id
+              (->> @event/universe-state
+                   network-id
+                   :function
+                   event/get-id)
+              f))
 
 (defn get-function
   [b network]
@@ -69,7 +70,7 @@
        (get-value b t)))
 
 (def pure
-  (comp behavior*
+  (comp (behavior* event/*network-id*)
         constantly))
 
 (defn join*
@@ -94,7 +95,8 @@
     cats-protocols/Context
     cats-protocols/Functor
     (-fmap [_ f! fa]
-      (behavior* (fn [network t]
+      (behavior* (:network-id fa)
+                 (fn [network t]
                    (->> network
                         (get-value fa t)
                         f!))))
@@ -102,7 +104,8 @@
     (-pure [_ v]
       (pure v))
     (-fapply [_ fab fa]
-      (behavior* (fn [network t]
+      (behavior* (:network-id fab)
+                 (fn [network t]
                    ((m/<*> (get-value fab t)
                            (get-value fa t))
                      network))))
@@ -110,7 +113,8 @@
     (-mreturn [_ a]
       (pure a))
     (-mbind [_ ma f!]
-      (behavior* (fn [_ t]
+      (behavior* (:network-id ma)
+                 (fn [_ t]
                    (join* (m/<$> f! ma) ((:network-id ma) @event/universe-state)
                           t))))))
 
@@ -155,8 +159,8 @@
   []
   (reset! event/universe-state event/initial-universe)
   (redef time
-         (behavior* (fn [_ t]
-                      t)))
+         (behavior* event/initial-network-id (fn [_ t]
+                                               t)))
   (run! aid/funcall @registry))
 
 (def restart
@@ -194,7 +198,8 @@
 
 (defn stepper
   [a e]
-  (behavior* (fn [network t]
+  (behavior* (:network-id e)
+             (fn [network t]
                (->> network
                     (event/get-occs (:id e))
                     (last-pred (event/get-unit a) (comp (partial > @t)
