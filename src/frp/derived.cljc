@@ -139,14 +139,14 @@
 (defn get-event-alias
   [actions history]
   (->> #(event/with-network history
-                            (event/mempty))
+                            (event))
        repeatedly
        (zipmap actions)))
 
 (defn with-undo*
   [size undo redo history event-alias result*]
-  (let [network (event/mempty)
-        result (event/mempty)]
+  (let [network (event)
+        result (event)]
     (do (->> event-alias
              set/map-invert
              (run! (partial apply io/on)))
