@@ -1,6 +1,5 @@
 (ns frp.derived
-  (:require [clojure.set :as set]
-            [clojure.walk :as walk]
+  (:require [clojure.walk :as walk]
             [aid.core :as aid]
             [cats.core :as m]
             [com.rpl.specter :as s]
