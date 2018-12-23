@@ -163,13 +163,13 @@
 
 (aid/defcurried invoke**
   [network-id id a]
-  (let [[past current] (get-times)]
-    (->> @universe-state
-         network-id
-         (modify-network! (tuple/tuple past a) network-id id))
-    (run-effects! network-id)
-    (swap! universe-state (partial s/setval* [network-id :time] current))
-    (run-effects! network-id)))
+  (->> @universe-state
+       network-id
+       (modify-network! (tuple/tuple (time/now) a) network-id id))
+  (run-effects! network-id)
+  (swap! universe-state
+         (partial s/setval* [network-id :time] (get-new-time (time/now))))
+  (run-effects! network-id))
 
 (def debugging
   #?(:clj  false
