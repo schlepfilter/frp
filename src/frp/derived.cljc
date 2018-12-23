@@ -164,8 +164,8 @@
   [history size undo redo result]
   (let [network (event/mempty)
         result* (event/mempty)]
-    (io/on result* result)
-    (io/on (fn [_]
+    (io/on (fn [result**]
+             (result* result**)
              (network @history))
            result)
     (io/on history (get-state size undo redo history network))
