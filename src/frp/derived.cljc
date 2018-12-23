@@ -161,7 +161,6 @@
                       (get-event-alias actions)
                       expr))
 
-
 (defn get-result
   [history size undo redo result]
   (let [network (event/mempty)
