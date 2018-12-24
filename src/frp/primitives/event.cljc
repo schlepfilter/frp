@@ -546,20 +546,20 @@
          e))
 
 (defrecord Network
-  [id]
+  [network-id]
   IFn
   (#?(:clj  invoke
       :cljs -invoke) [_ x]
-    (swap! universe-state (comp (partial s/setval* [id :cache] s/NONE)
-                                (partial s/setval* id x)))
-    (run-effects-twice! id))
+    (swap! universe-state (comp (partial s/setval* [network-id :cache] s/NONE)
+                                (partial s/setval* network-id x)))
+    (run-effects-twice! network-id))
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
-    (id @universe-state))
+    (network-id @universe-state))
   cats-protocols/Printable
   (-repr [_]
-    (str "#[network " id "]")))
+    (str "#[network " network-id "]")))
 
 (util/make-printable Network)
 
@@ -570,7 +570,7 @@
 
 (defmacro with-network
   [network expr]
-  `(binding [*network-id* (:id ~network)]
+  `(binding [*network-id* (:network-id ~network)]
      ~expr))
 
 #?(:clj (defn get-periods
