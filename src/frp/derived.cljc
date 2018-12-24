@@ -92,6 +92,10 @@
 (def accum
   (partial core/reduce (aid/flip aid/funcall)))
 
+(def switcher
+  (comp m/join
+        behavior/stepper))
+
 ;TODO move this function to aid
 (aid/defcurried transfer*
   [apath f m]
@@ -157,6 +161,34 @@
   [actions expr]
   (riddley/walk-exprs (get-event-alias actions) (get-event-alias actions) expr))
 
+;This definition may leak memory because of fmapping behavior.
+;(defn get-result
+;  [history size undo redo actions initial-result inner-result]
+;  (let [network (event)
+;        outer-result (event)]
+;    (->> actions
+;         (apply m/<>)
+;         (aid/<$ true)
+;         (m/<> (->> redo
+;                    (m/<> undo)
+;                    (aid/<$ false)))
+;         (behavior/stepper true)
+;         ((aid/casep inner-result
+;            event/event? event/snapshot
+;            (aid/lift-a vector))
+;           inner-result)
+;         (io/on (fn [[inner-result* action]]
+;                  (outer-result inner-result*)
+;                  (if action
+;                    (network @history)))))
+;    (io/on #(if (not= (:occs @history) (:occs %))
+;              (history %))
+;           (get-state size undo redo network))
+;    (aid/casep inner-result
+;      event/event? outer-result
+;      (->> outer-result
+;           (m/<$> behavior)
+;           (switcher initial-result)))))
 (defn get-result
   [history size undo redo actions inner-result]
   (let [network (event)
@@ -211,6 +243,3 @@
                    (event/with-network history##
                                        ~(alias-expression actions expr))))))
 
-(def switcher
-  (comp m/join
-        behavior/stepper))
