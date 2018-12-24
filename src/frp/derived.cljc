@@ -153,9 +153,7 @@
 
 (defn alias-expression
   [actions expr]
-  (riddley/walk-exprs (get-event-alias actions)
-                      (get-event-alias actions)
-                      expr))
+  (riddley/walk-exprs (get-event-alias actions) (get-event-alias actions) expr))
 
 (defn get-result
   [history size undo redo result]
