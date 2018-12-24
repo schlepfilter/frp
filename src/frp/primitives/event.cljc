@@ -151,6 +151,19 @@
   [network-id x]
   (swap! universe-state (partial s/setval* [network-id :effective] x)))
 
+(defn run-invocations
+  [network-id]
+  (when-not (-> @universe-state
+                network-id
+                :invocations
+                empty?)
+    ((-> @universe-state
+         network-id
+         :invocations
+         first))
+    (swap! universe-state (partial s/transform* [network-id :invocations] rest))
+    (recur network-id)))
+
 (defn run-effects-twice!
   [network-id]
   (set-effective network-id true)
@@ -159,13 +172,7 @@
          (partial s/setval* [network-id :time] (get-new-time (time/now))))
   (run-effects!* network-id)
   (set-effective network-id false)
-  (->> @universe-state
-       network-id
-       :invocations
-       (run! (fn [f!]
-               (swap! universe-state
-                      (partial s/transform* [network-id :invocations] rest))
-               (f!)))))
+  (run-invocations network-id))
 
 (def initial-reloading
   {})
