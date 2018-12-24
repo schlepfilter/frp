@@ -132,7 +132,6 @@
                                                          last))))
                      redo))
        (accum [[@history] []])
-       core/dedupe
        (m/<$> ffirst)))
 
 (def prefix
