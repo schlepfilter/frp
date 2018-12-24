@@ -181,7 +181,6 @@
          (io/on (fn [[inner-result* action]]
                   (outer-result inner-result*)
                   (if action
-                    ;TODO don't use @
                     (network @history)))))
     (io/on (aid/if-else #(= @history %)
                         history)
