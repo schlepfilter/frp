@@ -536,6 +536,7 @@
   (#?(:clj  invoke
       :cljs -invoke) [_ x]
     (swap! universe-state (partial s/setval* id x))
+    ;TODO clear cache
     (run-effects! id))
   IDeref
   (#?(:clj  deref
