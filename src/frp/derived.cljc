@@ -181,7 +181,9 @@
                   (outer-result inner-result*)
                   (if action
                     (network @history)))))
-    (io/on history (get-state size undo redo network))
+    (->> network
+         (get-state size undo redo)
+         (io/on history))
     (aid/casep inner-result
       event/event? outer-result
       (behavior/stepper @inner-result outer-result))))
