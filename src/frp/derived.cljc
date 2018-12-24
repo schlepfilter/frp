@@ -135,8 +135,7 @@
        (accum [[] []])
        (core/remove (comp empty?
                           first))
-       (m/<$> ffirst)
-       core/dedupe))
+       (m/<$> ffirst)))
 
 (def prefix
   (gensym))
@@ -182,9 +181,7 @@
                   (outer-result inner-result*)
                   (if action
                     (network @history)))))
-    (io/on (aid/if-else #(= @history %)
-                        history)
-           (get-state size undo redo network))
+    (io/on history (get-state size undo redo network))
     (aid/casep inner-result
       event/event? outer-result
       (behavior/stepper @inner-result outer-result))))

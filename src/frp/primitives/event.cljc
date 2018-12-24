@@ -549,9 +549,12 @@
 ;TODO rename this function as invoke*
 (aid/defcurried invoke-network
   [network-id x]
-  (swap! universe-state (comp (partial s/setval* [network-id :cache] s/NONE)
-                              (partial s/setval* network-id x)))
-  (run-effects-twice! network-id))
+  (when (-> @universe-state
+            network-id
+            (not= x))
+    (swap! universe-state (comp (partial s/setval* [network-id :cache] s/NONE)
+                                (partial s/setval* network-id x)))
+    (run-effects-twice! network-id)))
 
 (defn apply-to
   [network-id xs]
