@@ -92,6 +92,7 @@
 (def accum
   (partial core/reduce (aid/flip aid/funcall)))
 
+;TODO move this function to aid
 (aid/defcurried transfer*
   [apath f m]
   (s/setval apath (f m) m))
