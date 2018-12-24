@@ -33,6 +33,7 @@
                           :start       true})
         (m/<$> :event-value)))
   ([f x e]
+    ;TODO don't use binding
    (m/<> (binding [event/*network-id* (:network-id e)]
            (event/pure x))
          (event/transduce (core/drop 0) f x e))))
