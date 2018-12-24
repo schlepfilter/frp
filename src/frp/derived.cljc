@@ -215,7 +215,6 @@
            (get-state size undo redo network))
     (aid/casep inner-result
       event/event? outer-result
-      ;TODO don't use @
       (behavior/stepper @inner-result outer-result))))
 
 (aid/defcurried get-binding
