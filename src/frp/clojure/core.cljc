@@ -33,7 +33,9 @@
                           :start       true})
         (m/<$> :event-value)))
   ([f x e]
-   (event/transduce (core/drop 0) f x e)))
+   (m/<> (binding [event/*network-id* (:network-id e)]
+           (event/pure x))
+         (event/transduce (core/drop 0) f x e))))
 
 (def reduce*
   (comp second

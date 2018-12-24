@@ -89,10 +89,8 @@
                             has-argument? `(apply transparent* ~(vec %))
                             %)))))
 
-(defn accum
-  [a e]
-  (m/<> (event a)
-        (core/reduce (aid/flip aid/funcall) a e)))
+(def accum
+  (partial core/reduce (aid/flip aid/funcall)))
 
 (aid/defcurried transfer*
   [apath f m]
