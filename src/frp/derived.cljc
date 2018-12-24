@@ -96,12 +96,8 @@
   [apath f m]
   (s/setval apath (f m) m))
 
-(def singleton?
-  (comp (partial = 1)
-        count))
-
 (defn get-state
-  [size undo redo history network]
+  [size undo redo network]
   (->> network
        (m/<$> #(aid/if-else (comp (partial (aid/flip aid/funcall) %)
                                   set
@@ -114,7 +110,7 @@
                                                           s/BEFORE-ELEM
                                                           %))))))
        ;TODO extract a function
-       (m/<> (aid/<$ (aid/if-else (comp singleton?
+       (m/<> (aid/<$ (aid/if-then (comp multiton?
                                         first)
                                   (comp (partial s/transform*
                                                  s/FIRST
@@ -131,7 +127,7 @@
                                                    (comp first
                                                          last))))
                      redo))
-       (accum [[@history] []])
+       (accum [[] []])
        (m/<$> ffirst)))
 
 (def prefix
@@ -168,8 +164,8 @@
              (network @history))
            result)
     (io/on #(if (not= (:occs @history) (:occs %))
-             (history %))
-           (get-state size undo redo history network))
+              (history %))
+           (get-state size undo redo network))
     (aid/casep result
       event/event? result*
       (behavior/stepper @result result*))))
