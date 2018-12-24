@@ -178,6 +178,7 @@
   [network-id id a]
   (->> @universe-state
        network-id
+       ;TODO call get-new-time
        (modify-network! (tuple/tuple (time/now) a) network-id id))
   (run-effects! network-id))
 
@@ -613,6 +614,7 @@
                                        reduction))
                 universe))))
   (swap! universe-state (partial s/setval* [s/MAP-VALS :active] true))
+  ;TODO don't call run-universe-effects!
   (run-universe-effects!)
   (time/start)
   (run-universe-effects!))
