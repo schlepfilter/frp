@@ -226,7 +226,7 @@
   [event* action]
   (mapcat (get-binding event*) action))
 
-(defmacro with-undo
+(defmacro with-undo*
   ;TODO make size and redo optional
   ;TODO make actions optional for Clojure
   ;TODO make actions optional for ClojureScript when ClojureScript supports dynamic macro expansion with advanced optimizations
@@ -245,3 +245,12 @@
                    (event/with-network history##
                                        ~(alias-expression actions expr))))))
 
+(defmacro with-undo
+  ([undo actions expr]
+   `(with-undo* event/positive-infinity ~undo (event) ~actions ~expr))
+  ([x y actions expr]
+   (aid/casep x
+     number? `(with-undo* ~x ~y (event) ~actions ~expr)
+     `(with-undo* event/positive-infinity ~x ~y ~actions ~expr)))
+  ([size undo redo actions expr]
+   `(with-undo* ~size ~undo ~redo ~actions ~expr)))
