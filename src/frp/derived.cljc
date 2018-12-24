@@ -161,12 +161,12 @@
   [history size undo redo actions result]
   (let [network (event)
         result* (event)]
-    (->> (m/<> (->> redo
+    (->> actions
+         (apply m/<>)
+         (aid/<$ true)
+         (m/<> (->> redo
                     (m/<> undo)
-                    (aid/<$ false))
-               (->> actions
-                    (apply m/<>)
-                    (aid/<$ true)))
+                    (aid/<$ false)))
          (behavior/stepper true)
          ((aid/casep result
             event/event? event/snapshot
