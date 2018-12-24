@@ -152,7 +152,7 @@
   [network-id x]
   (swap! universe-state (partial s/setval* [network-id :effective] x)))
 
-(defn run-effects!
+(defn run-effects-twice!
   [network-id]
   (set-effective network-id true)
   (run-effects!* network-id)
@@ -180,7 +180,7 @@
        network-id
        ;TODO call get-new-time
        (modify-network! (tuple/tuple (time/now) a) network-id id))
-  (run-effects! network-id))
+  (run-effects-twice! network-id))
 
 (def debugging
   #?(:clj  false
@@ -538,7 +538,7 @@
       :cljs -invoke) [_ x]
     (swap! universe-state (partial s/setval* id x))
     ;TODO clear cache
-    (run-effects! id))
+    (run-effects-twice! id))
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
@@ -576,7 +576,7 @@
          get-new-time
          (partial s/setval* [network-id :time])
          (swap! universe-state))
-    (run-effects! network-id)))
+    (run-effects-twice! network-id)))
 
 (aid/defcurried append-cancellation
   [network-id f! universe]
@@ -589,7 +589,13 @@
 (def run-universe-effects!
   #(->> @universe-state
         keys
-        (run! run-effects!)))
+        (run! %)))
+
+(defn run-effects-once!
+  [network-id]
+  (set-effective network-id true)
+  (run-effects!* network-id)
+  (set-effective network-id false))
 
 (defn activate*
   [rate]
@@ -614,10 +620,11 @@
                                        reduction))
                 universe))))
   (swap! universe-state (partial s/setval* [s/MAP-VALS :active] true))
-  ;TODO don't call run-universe-effects!
-  (run-universe-effects!)
+  (run-universe-effects! run-effects-once!)
   (time/start)
-  (run-universe-effects!))
+  (swap! universe-state
+         (partial s/setval* [s/MAP-VALS :time] (get-new-time (time/now))))
+  (run-universe-effects! run-effects-twice!))
 
 (aid/defcurried effect
   [f x]
