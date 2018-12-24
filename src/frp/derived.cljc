@@ -165,6 +165,31 @@
        (s/setval s/AFTER-ELEM expr)
        (apply riddley/walk-exprs)))
 
+(defn get-result
+  [history size undo redo actions inner-result]
+  (let [network (event)
+        outer-result (event)]
+    (->> actions
+         (apply m/<>)
+         (aid/<$ true)
+         (m/<> (aid/<$ false (m/<> undo redo)))
+         (behavior/stepper true)
+         ((aid/casep inner-result
+            event/event? event/snapshot
+            (aid/lift-a vector))
+           inner-result)
+         (io/on (fn [[inner-result* action]]
+                  (outer-result inner-result*)
+                  (if action
+                    ;TODO don't use @
+                    (network @history)))))
+    ;TODO don't use occs
+    (io/on #(if (not= (:occs @history) (:occs %))
+              (history %))
+           (get-state size undo redo network))
+    (aid/casep inner-result
+      event/event? outer-result
+      (behavior/stepper @inner-result outer-result))))
 ;This definition may leak memory because of fmapping behavior.
 ;(defn get-result
 ;  [history size undo redo actions initial-result inner-result]
@@ -193,31 +218,6 @@
 ;      (->> outer-result
 ;           (m/<$> behavior)
 ;           (switcher initial-result)))))
-(defn get-result
-  [history size undo redo actions inner-result]
-  (let [network (event)
-        outer-result (event)]
-    (->> actions
-         (apply m/<>)
-         (aid/<$ true)
-         (m/<> (aid/<$ false (m/<> undo redo)))
-         (behavior/stepper true)
-         ((aid/casep inner-result
-            event/event? event/snapshot
-            (aid/lift-a vector))
-           inner-result)
-         (io/on (fn [[inner-result* action]]
-                  (outer-result inner-result*)
-                  (if action
-                    ;TODO don't use @
-                    (network @history)))))
-    ;TODO don't use occs
-    (io/on #(if (not= (:occs @history) (:occs %))
-              (history %))
-           (get-state size undo redo network))
-    (aid/casep inner-result
-      event/event? outer-result
-      (behavior/stepper @inner-result outer-result))))
 
 (aid/defcurried get-binding
   [event* action]
