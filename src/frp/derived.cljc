@@ -161,20 +161,21 @@
   [history size undo redo actions result]
   (let [network (event)
         result* (event)]
-    (io/on (fn [[result** action]]
-             (result* result**)
-             (if action
-               (network @history)))
-           ((aid/casep result
-              event/event? event/snapshot
-              (aid/lift-a vector))
-             result
-             (behavior/stepper true (m/<> (->> redo
-                                               (m/<> undo)
-                                               (aid/<$ false))
-                                          (->> actions
-                                               (apply m/<>)
-                                               (aid/<$ true))))))
+    (->> (m/<> (->> redo
+                    (m/<> undo)
+                    (aid/<$ false))
+               (->> actions
+                    (apply m/<>)
+                    (aid/<$ true)))
+         (behavior/stepper true)
+         ((aid/casep result
+            event/event? event/snapshot
+            (aid/lift-a vector))
+           result)
+         (io/on (fn [[result** action]]
+                  (result* result**)
+                  (if action
+                    (network @history)))))
     ;TODO don't use occs
     (io/on #(if (not= (:occs @history) (:occs %))
               (history %))
