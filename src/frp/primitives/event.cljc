@@ -540,9 +540,10 @@
         (event* (:network-id e)))))
 
 (defn snapshot
-  [e b]
-  (m/<$> (fn [x]
-           [x @b])
+  [e & bs]
+  (m/<$> #(->> bs
+               (map deref)
+               (cons %))
          e))
 
 (defrecord Network
