@@ -14,11 +14,12 @@
   (s/setval apath (f m) m))
 
 (def todo
-  (->> frp/time
-       (frp/snapshot addition (frp/stepper "" typing))
+  (->> typing
+       (frp/stepper "")
+       (frp/snapshot addition frp/time)
        (m/<$> rest)
        (core/remove (comp empty?
-                          first))))
+                          last))))
 
 (def size
   10)
@@ -30,13 +31,13 @@
                  [todo toggle]
                  ((aid/lift-a (fn [additions m]
                                 (map (transfer* s/AFTER-ELEM (comp m
-                                                                   last))
+                                                                   first))
                                      additions)))
                    (->> todo
                         core/vector
                         (frp/stepper []))
                    (->> todo
-                        (m/<$> last)
+                        (m/<$> first)
                         (m/<> toggle)
                         (core/group-by identity)
                         (m/<$> (partial s/transform* s/MAP-VALS (comp odd?
@@ -67,7 +68,7 @@
         name))
 
 (defn todo-component
-  [[s t active]]
+  [[t s active]]
   [:li {:on-click #(toggle t)}
    (if active
      s
