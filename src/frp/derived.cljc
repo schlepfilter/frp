@@ -165,6 +165,7 @@
              (result* result**)
              (network @history))
            result)
+    ;TODO don't use occs
     (io/on #(if (not= (:occs @history) (:occs %))
               (history %))
            (get-state size undo redo network))
