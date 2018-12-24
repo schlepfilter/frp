@@ -158,9 +158,9 @@
   (riddley/walk-exprs (get-event-alias actions) (get-event-alias actions) expr))
 
 (defn get-result
-  [history size undo redo actions result]
+  [history size undo redo actions inner-result]
   (let [network (event)
-        result* (event)]
+        outer-result (event)]
     (->> actions
          (apply m/<>)
          (aid/<$ true)
@@ -168,12 +168,12 @@
                     (m/<> undo)
                     (aid/<$ false)))
          (behavior/stepper true)
-         ((aid/casep result
+         ((aid/casep inner-result
             event/event? event/snapshot
             (aid/lift-a vector))
-           result)
-         (io/on (fn [[result** action]]
-                  (result* result**)
+           inner-result)
+         (io/on (fn [[inner-result* action]]
+                  (outer-result inner-result*)
                   (if action
                     ;TODO don't use @
                     (network @history)))))
@@ -181,10 +181,10 @@
     (io/on #(if (not= (:occs @history) (:occs %))
               (history %))
            (get-state size undo redo network))
-    (aid/casep result
-      event/event? result*
+    (aid/casep inner-result
+      event/event? outer-result
       ;TODO don't use @
-      (behavior/stepper @result result*))))
+      (behavior/stepper @inner-result outer-result))))
 
 (aid/defcurried get-binding
   [event* action]
