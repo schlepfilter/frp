@@ -223,8 +223,8 @@
   [(get-alias action) event*])
 
 (defn get-bindings
-  [event* action]
-  (mapcat (get-binding event*) action))
+  [event* actions]
+  (mapcat (get-binding event*) actions))
 
 (defmacro with-undo*
   ;TODO make actions optional for Clojure
