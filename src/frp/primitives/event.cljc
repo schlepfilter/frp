@@ -141,12 +141,25 @@
                 (partial s/setval* [:modified id] true)])
        (call-functions! network-id)))
 
+(defn run-effects!*
+  [network-id]
+  (->> @universe-state
+       network-id
+       :effects
+       (call-functions! network-id)))
+
+(defn set-effective
+  [network-id x]
+  (swap! universe-state (partial s/setval* [network-id :effective] x)))
+
 (defn run-effects!
   [network-id]
-  (call-functions! network-id
-                   (concat [(partial s/setval* :effective true)]
-                           (:effects (network-id @universe-state))
-                           [(partial s/setval* :effective false)]))
+  (set-effective network-id true)
+  (run-effects!* network-id)
+  (swap! universe-state
+         (partial s/setval* [network-id :time] (get-new-time (time/now))))
+  (run-effects!* network-id)
+  (set-effective network-id false)
   (->> @universe-state
        network-id
        :invocations
@@ -166,9 +179,6 @@
   (->> @universe-state
        network-id
        (modify-network! (tuple/tuple (time/now) a) network-id id))
-  (run-effects! network-id)
-  (swap! universe-state
-         (partial s/setval* [network-id :time] (get-new-time (time/now))))
   (run-effects! network-id))
 
 (def debugging
@@ -604,10 +614,6 @@
   (swap! universe-state (partial s/setval* [s/MAP-VALS :active] true))
   (run-universe-effects!)
   (time/start)
-  (->> (time/now)
-       get-new-time
-       (partial s/setval* [s/MAP-VALS :time])
-       (swap! universe-state))
   (run-universe-effects!))
 
 (aid/defcurried effect
