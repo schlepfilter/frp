@@ -156,13 +156,13 @@
 (def on-actions
   (partial map on-action))
 
-(defn alias-expression
-  [actions expr]
-  (->> actions
-       get-event-alias
-       (repeat 2)
-       (s/setval s/AFTER-ELEM expr)
-       (apply riddley/walk-exprs)))
+#?(:clj (defn alias-expression
+          [actions expr]
+          (->> actions
+               get-event-alias
+               (repeat 2)
+               (s/setval s/AFTER-ELEM expr)
+               (apply riddley/walk-exprs))))
 
 (defn get-result
   [history size undo redo actions inner-result]
@@ -224,27 +224,29 @@
   [event* actions]
   (mapcat (get-binding event*) actions))
 
-(defmacro with-undo
-  ;TODO make actions optional for Clojure
-  ;TODO make actions optional for ClojureScript when ClojureScript supports dynamic macro expansion with advanced optimizations
-  ;TODO deal with the arity in a function
-  ([undo actions expr]
-   `(with-undo event/positive-infinity ~undo (event) ~actions ~expr))
-  ([x y actions expr]
-   (aid/casep x
-     number? `(with-undo ~x ~y (event) ~actions ~expr)
-     `(with-undo event/positive-infinity ~x ~y ~actions ~expr)))
-  ([size undo redo actions expr]
-   (potemkin/unify-gensyms
-     `(let [history## (event/network)
-            ~@(get-bindings `(event/with-network history##
-                                                 (event))
-                            actions)]
-        ~@(on-actions actions)
-        (get-result history##
-                    ~size
-                    ~undo
-                    ~redo
-                    ~actions
-                    (event/with-network history##
-                                        ~(alias-expression actions expr)))))))
+#?(:clj
+   (defmacro with-undo
+     ;TODO make actions optional for Clojure
+     ;TODO make actions optional for ClojureScript when ClojureScript supports dynamic macro expansion with advanced optimizations
+     ;TODO deal with the arity in a function
+     ([undo actions expr]
+      `(with-undo event/positive-infinity ~undo (event) ~actions ~expr))
+     ([x y actions expr]
+      (aid/casep x
+        number? `(with-undo ~x ~y (event) ~actions ~expr)
+        `(with-undo event/positive-infinity ~x ~y ~actions ~expr)))
+     ([size undo redo actions expr]
+      (potemkin/unify-gensyms
+        `(let [history## (event/network)
+               ~@(get-bindings `(event/with-network history##
+                                                    (event))
+                               actions)]
+           ~@(on-actions actions)
+           (get-result
+             history##
+             ~size
+             ~undo
+             ~redo
+             ~actions
+             (event/with-network history##
+                                 ~(alias-expression actions expr))))))))

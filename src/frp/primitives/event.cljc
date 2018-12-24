@@ -556,15 +556,11 @@
                                 (partial s/setval* network-id x)))
     (run-effects-twice! network-id)))
 
-(defn apply-to
-  [network-id xs]
-  (run! (invoke-network network-id) xs))
-
 (defrecord Network
   [network-id]
   IFn
   #?(:clj (applyTo [_ xs]
-            (apply-to network-id xs)))
+            (run! (invoke-network network-id) xs)))
   (#?(:clj  invoke
       :cljs -invoke) [_ x]
     (invoke-network network-id x))
