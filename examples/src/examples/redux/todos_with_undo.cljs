@@ -14,13 +14,11 @@
   (s/setval apath (f m) m))
 
 (def todo
-  (frp/snapshot (->> typing
-                     (frp/stepper "")
-                     ;TODO snapshot addition and time at the same time
-                     (frp/snapshot addition)
-                     (m/<$> last)
-                     (core/remove empty?))
-                frp/time))
+  (->> frp/time
+       (frp/snapshot addition (frp/stepper "" typing))
+       (m/<$> rest)
+       (core/remove (comp empty?
+                          first))))
 
 (def size
   10)
