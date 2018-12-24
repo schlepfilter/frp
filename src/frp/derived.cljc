@@ -175,6 +175,7 @@
          (io/on (fn [[result** action]]
                   (result* result**)
                   (if action
+                    ;TODO don't use @
                     (network @history)))))
     ;TODO don't use occs
     (io/on #(if (not= (:occs @history) (:occs %))
