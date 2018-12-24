@@ -183,8 +183,7 @@
                   (if action
                     ;TODO don't use @
                     (network @history)))))
-    ;TODO don't use occs
-    (io/on #(if (not= (:occs @history) (:occs %))
+    (io/on #(if (not= @history %)
               (history %))
            (get-state size undo redo network))
     (aid/casep inner-result
