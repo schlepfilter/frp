@@ -196,9 +196,7 @@
     (->> actions
          (apply m/<>)
          (aid/<$ true)
-         (m/<> (->> redo
-                    (m/<> undo)
-                    (aid/<$ false)))
+         (m/<> (aid/<$ false (m/<> undo redo)))
          (behavior/stepper true)
          ((aid/casep inner-result
             event/event? event/snapshot
