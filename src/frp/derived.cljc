@@ -130,6 +130,8 @@
                                                          last))))
                      redo))
        (accum [[] []])
+       (core/remove (comp empty?
+                          first))
        (m/<$> ffirst)))
 
 (def prefix
