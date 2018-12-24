@@ -244,6 +244,7 @@
                    (event/with-network history##
                                        ~(alias-expression actions expr))))))
 
+;TODO deal with the arity in a function
 (defmacro with-undo
   ([undo actions expr]
    `(with-undo* event/positive-infinity ~undo (event) ~actions ~expr))
