@@ -227,7 +227,6 @@
   (mapcat (get-binding event*) action))
 
 (defmacro with-undo*
-  ;TODO make size and redo optional
   ;TODO make actions optional for Clojure
   ;TODO make actions optional for ClojureScript when ClojureScript supports dynamic macro expansion with advanced optimizations
   [size undo redo actions expr]
