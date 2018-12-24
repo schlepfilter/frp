@@ -178,8 +178,11 @@
   [network-id id a]
   (->> @universe-state
        network-id
-       ;TODO call get-new-time
-       (modify-network! (tuple/tuple (time/now) a) network-id id))
+       (modify-network! (-> (time/now)
+                            get-new-time
+                            (tuple/tuple a))
+                        network-id
+                        id))
   (run-effects-twice! network-id))
 
 (def debugging
