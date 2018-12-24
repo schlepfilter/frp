@@ -159,7 +159,11 @@
 
 (defn alias-expression
   [actions expr]
-  (riddley/walk-exprs (get-event-alias actions) (get-event-alias actions) expr))
+  (->> actions
+       get-event-alias
+       (repeat 2)
+       (s/setval s/AFTER-ELEM expr)
+       (apply riddley/walk-exprs)))
 
 ;This definition may leak memory because of fmapping behavior.
 ;(defn get-result
