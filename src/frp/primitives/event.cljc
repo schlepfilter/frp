@@ -157,11 +157,13 @@
                 network-id
                 :invocations
                 empty?)
-    ((-> @universe-state
-         network-id
-         :invocations
-         first))
-    (swap! universe-state (partial s/transform* [network-id :invocations] rest))
+    (let [f! (-> @universe-state
+                 network-id
+                 :invocations
+                 first)]
+      (swap! universe-state
+             (partial s/transform* [network-id :invocations] rest))
+      (f!))
     (recur network-id)))
 
 (defn run-effects-twice!
