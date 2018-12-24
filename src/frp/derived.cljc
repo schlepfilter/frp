@@ -22,7 +22,7 @@
   [& names]
   `(do ~@(map (fn [x#]
                 `(def ~x#
-                   (event/mempty)))
+                   (event)))
               names)))
 
 (def behavior?
@@ -162,8 +162,8 @@
 
 (defn get-result
   [history size undo redo result]
-  (let [network (event/mempty)
-        result* (event/mempty)]
+  (let [network (event)
+        result* (event)]
     (io/on (fn [result**]
              (result* result**)
              (network @history))
@@ -189,7 +189,7 @@
   (potemkin/unify-gensyms
     `(let [history## (event/network)
            ~@(get-bindings `(event/with-network history##
-                                                (event/mempty))
+                                                (event))
                            actions)]
        ~@(on-actions actions)
        (get-result history##
