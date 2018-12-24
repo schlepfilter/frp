@@ -183,8 +183,8 @@
                   (if action
                     ;TODO don't use @
                     (network @history)))))
-    (io/on #(if (not= @history %)
-              (history %))
+    (io/on (aid/if-else #(= @history %)
+                        history)
            (get-state size undo redo network))
     (aid/casep inner-result
       event/event? outer-result

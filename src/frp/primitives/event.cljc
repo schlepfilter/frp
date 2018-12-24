@@ -197,7 +197,7 @@
   #?(:clj  false
      :cljs goog/DEBUG))
 
-(defn invoke*
+(aid/defcurried invoke*
   [network-id id a]
   (when (-> @universe-state
             network-id
@@ -546,14 +546,25 @@
                (cons %))
          e))
 
+;TODO rename this function as invoke*
+(aid/defcurried invoke-network
+  [network-id x]
+  (swap! universe-state (comp (partial s/setval* [network-id :cache] s/NONE)
+                              (partial s/setval* network-id x)))
+  (run-effects-twice! network-id))
+
+(defn apply-to
+  [network-id xs]
+  (run! (invoke-network network-id) xs))
+
 (defrecord Network
   [network-id]
   IFn
+  #?(:clj (applyTo [_ xs]
+            (apply-to network-id xs)))
   (#?(:clj  invoke
       :cljs -invoke) [_ x]
-    (swap! universe-state (comp (partial s/setval* [network-id :cache] s/NONE)
-                                (partial s/setval* network-id x)))
-    (run-effects-twice! network-id))
+    (invoke-network network-id x))
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
