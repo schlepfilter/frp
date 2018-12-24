@@ -168,7 +168,9 @@
              (result* result**)
              (network @history))
            result)
-    (io/on history (get-state size undo redo history network))
+    (io/on #(if (not= (:occs @history) (:occs %))
+             (history %))
+           (get-state size undo redo history network))
     (aid/casep result
       event/event? result*
       (behavior/stepper @result result*))))
