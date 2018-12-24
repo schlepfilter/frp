@@ -130,7 +130,8 @@
        (accum [[] []])
        (core/remove (comp empty?
                           first))
-       (m/<$> ffirst)))
+       (m/<$> ffirst)
+       core/dedupe))
 
 (def prefix
   (gensym))
@@ -156,20 +157,26 @@
   (riddley/walk-exprs (get-event-alias actions) (get-event-alias actions) expr))
 
 (defn get-result
-  [history size undo redo result]
+  [history size undo redo actions result]
   (let [network (event)
         result* (event)]
-    (io/on (fn [result**]
+    (io/on (fn [[result** action]]
              (result* result**)
-             (aid/casep @history
-               ;TODO don't use universe-state
-               :undo (swap! event/universe-state
-                            (partial s/setval* [(:id history) :undo] false))
+             (if action
                (network @history)))
-           result)
+           ((aid/casep result
+              event/event? event/snapshot
+              (aid/lift-a vector))
+             result
+             (behavior/stepper true (m/<> (->> redo
+                                               (m/<> undo)
+                                               (aid/<$ false))
+                                          (->> actions
+                                               (apply m/<>)
+                                               (aid/<$ true))))))
     ;TODO don't use occs
     (io/on #(if (not= (:occs @history) (:occs %))
-              (history (s/setval :undo true %)))
+              (history %))
            (get-state size undo redo network))
     (aid/casep result
       event/event? result*
@@ -196,6 +203,7 @@
                    ~size
                    ~undo
                    ~redo
+                   ~actions
                    (event/with-network history##
                                        ~(alias-expression actions expr))))))
 
