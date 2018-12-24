@@ -163,11 +163,15 @@
         result* (event)]
     (io/on (fn [result**]
              (result* result**)
-             (network @history))
+             (aid/casep @history
+               ;TODO don't use universe-state
+               :undo (swap! event/universe-state
+                            (partial s/setval* [(:id history) :undo] false))
+               (network @history)))
            result)
     ;TODO don't use occs
     (io/on #(if (not= (:occs @history) (:occs %))
-              (history %))
+              (history (s/setval :undo true %)))
            (get-state size undo redo network))
     (aid/casep result
       event/event? result*
