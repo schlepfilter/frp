@@ -1,13 +1,15 @@
 (ns frp.derived
   (:require [clojure.walk :as walk]
             [aid.core :as aid]
+            [aid.unit :as unit]
             [cats.core :as m]
             [com.rpl.specter :as s]
             #?(:clj [riddley.walk :as riddley])
             [frp.clojure.core :as core]
             [frp.io :as io]
             [frp.primitives.behavior :as behavior]
-            [frp.primitives.event :as event])
+            [frp.primitives.event :as event]
+            [frp.time :as time])
   #?(:cljs (:require-macros frp.derived)))
 
 (defn event
@@ -165,7 +167,7 @@
                (apply riddley/walk-exprs))))
 
 (defn get-result
-  [history size undo redo actions inner-result]
+  [history size undo redo actions initial-result inner-result]
   (let [network (event)
         outer-result (event)]
     (->> actions
@@ -186,7 +188,13 @@
          (io/on history))
     (aid/casep inner-result
       event/event? outer-result
-      (behavior/stepper @inner-result outer-result))))
+      ((aid/lift-a (fn [t initial-result* outer-result*]
+                     (aid/case-eval t
+                       time/epoch initial-result*
+                       outer-result*)))
+        behavior/time
+        initial-result
+        (behavior/stepper unit/unit outer-result)))))
 ;This definition may leak memory because of fmapping behavior.
 ;(defn get-result
 ;  [history size undo redo actions initial-result inner-result]
@@ -248,5 +256,6 @@
              ~undo
              ~redo
              ~actions
+             ~expr
              (event/with-network history##
                                  ~(alias-expression actions expr))))))))
