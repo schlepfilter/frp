@@ -117,14 +117,18 @@
 (defn get-undo-redo
   [size undo redo network]
   (->> network
-       (m/<$> #(comp (partial s/setval* s/FIRST false)
-                     (partial s/setval* s/LAST [])
-                     (partial s/transform*
-                              SECOND
-                              (comp (partial take (inc size))
-                                    (partial s/setval*
-                                             s/BEFORE-ELEM
-                                             %)))))
+       (m/<$> #(aid/if-else (comp (partial (aid/flip aid/funcall) %)
+                                  set
+                                  flatten
+                                  rest)
+                            (comp (partial s/setval* s/FIRST false)
+                                  (partial s/setval* s/LAST [])
+                                  (partial s/transform*
+                                           SECOND
+                                           (comp (partial take (inc size))
+                                                 (partial s/setval*
+                                                          s/BEFORE-ELEM
+                                                          %))))))
        ;TODO extract a function
        (m/<> (aid/<$ (aid/if-then (comp multiton?
                                         second)
@@ -185,15 +189,6 @@
     (aid/casep inner-result
       event/event?
       (->> inner-result
-           (core/reduce (fn [reduction element]
-                          (->> element
-                               (conj reduction)
-                               (take size)
-                               (apply linked/set)))
-                        (linked/set))
-           (core/remove empty?)
-           (m/<$> last)
-           core/dedupe
            (io/on (fn [_]
                     (network @history))))
       (->> actions
