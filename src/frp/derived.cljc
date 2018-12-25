@@ -193,7 +193,7 @@
                         (linked/set))
            (core/remove empty?)
            (m/<$> last)
-           (core/dedupe)
+           core/dedupe
            (io/on (fn [_]
                     (network @history))))
       (->> actions
