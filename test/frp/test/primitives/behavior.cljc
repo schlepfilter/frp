@@ -33,7 +33,9 @@
      f (test-helpers/function test-helpers/any-equal)]
     (let [fmapped-behavior (m/<$> f input-behavior)]
       (frp/activate)
-      (= @fmapped-behavior (f @input-behavior)))))
+      (->> @input-behavior
+           f
+           (= @fmapped-behavior)))))
 
 (clojure-test/defspec pure-identity
   test-helpers/cljc-num-tests
