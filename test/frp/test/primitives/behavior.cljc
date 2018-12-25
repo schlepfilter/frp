@@ -73,7 +73,7 @@
 (clojure-test/defspec join-identity
   test-helpers/cljc-num-tests
   (test-helpers/set-up-for-all
-    [[inner-behaviors outer-behavior calls] (gen/no-shrink join-generator)]
+    [[inner-behaviors outer-behavior calls] join-generator]
     (let [joined-behavior (m/join outer-behavior)]
       (frp/activate)
       (test-helpers/run-calls! calls)
