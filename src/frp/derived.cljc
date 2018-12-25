@@ -4,6 +4,7 @@
             [aid.unit :as unit]
             [cats.core :as m]
             [com.rpl.specter :as s]
+            [linked.core :as linked]
             #?(:clj [riddley.walk :as riddley])
             [frp.clojure.core :as core]
             [frp.io :as io]
@@ -103,41 +104,51 @@
   [apath f m]
   (s/setval apath (f m) m))
 
-(defn get-state
+(def SECOND
+  (s/nthpath 1))
+
+(def set-non-action
+  (partial s/setval* s/FIRST true))
+
+(def sfirst
+  (comp first
+        second))
+
+(defn get-undo-redo
   [size undo redo network]
   (->> network
-       (m/<$> #(aid/if-else (comp (partial (aid/flip aid/funcall) %)
-                                  set
-                                  flatten)
-                            (comp (partial s/setval* s/LAST [])
-                                  (partial s/transform*
-                                           s/FIRST
-                                           (comp (partial take (inc size))
-                                                 (partial s/setval*
-                                                          s/BEFORE-ELEM
-                                                          %))))))
+       (m/<$> #(comp (partial s/setval* s/FIRST false)
+                     (partial s/setval* s/LAST [])
+                     (partial s/transform*
+                              SECOND
+                              (comp (partial take (inc size))
+                                    (partial s/setval*
+                                             s/BEFORE-ELEM
+                                             %)))))
        ;TODO extract a function
        (m/<> (aid/<$ (aid/if-then (comp multiton?
-                                        first)
-                                  (comp (partial s/transform*
-                                                 s/FIRST
+                                        second)
+                                  (comp set-non-action
+                                        (partial s/transform*
+                                                 SECOND
                                                  rest)
                                         (transfer* [s/LAST s/BEFORE-ELEM]
-                                                   ffirst)))
+                                                   sfirst)))
                      undo)
              (aid/<$ (aid/if-else (comp empty?
                                         last)
-                                  (comp (partial s/transform*
+                                  (comp set-non-action
+                                        (partial s/transform*
                                                  s/LAST
                                                  rest)
-                                        (transfer* [s/FIRST s/BEFORE-ELEM]
+                                        (transfer* [SECOND s/BEFORE-ELEM]
                                                    (comp first
                                                          last))))
                      redo))
-       (accum [[] []])
-       (core/remove (comp empty?
-                          first))
-       (m/<$> ffirst)))
+       (accum [false [] []])
+       (core/filter first)
+       core/dedupe
+       (m/<$> sfirst)))
 
 (def prefix
   (gensym))
@@ -170,21 +181,32 @@
   [history size undo redo actions initial-result inner-result]
   (let [network (event)
         outer-result (event)]
-    (->> actions
-         (apply m/<>)
-         (aid/<$ true)
-         (m/<> (aid/<$ false (m/<> undo redo)))
-         (behavior/stepper true)
-         ((aid/casep inner-result
-            event/event? event/snapshot
-            (aid/lift-a vector))
-           inner-result)
-         (io/on (fn [[inner-result* action]]
-                  (outer-result inner-result*)
-                  (if action
-                    (network @history)))))
+    (io/on outer-result inner-result)
+    (aid/casep inner-result
+      event/event?
+      (->> inner-result
+           (core/reduce (fn [reduction element]
+                          (->> element
+                               (conj reduction)
+                               (take size)
+                               (apply linked/set)))
+                        (linked/set))
+           (core/remove empty?)
+           (m/<$> last)
+           (core/dedupe)
+           (io/on (fn [_]
+                    (network @history))))
+      (->> actions
+           (apply m/<>)
+           (aid/<$ true)
+           (m/<> (aid/<$ false (m/<> undo redo)))
+           (behavior/stepper true)
+           ((aid/lift-a vector) inner-result)
+           (io/on (fn [[_ action]]
+                    (if action
+                      (network @history))))))
     (->> network
-         (get-state size undo redo)
+         (get-undo-redo size undo redo)
          (io/on history))
     (aid/casep inner-result
       event/event? outer-result
@@ -255,7 +277,7 @@
              ~size
              ~undo
              ~redo
-             ~actions
+             (event/with-network history## ~actions)
              ~expr
              (event/with-network history##
                                  ~(alias-expression actions expr))))))))
