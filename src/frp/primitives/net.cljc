@@ -7,7 +7,8 @@
             [linked.core :as linked]
             [loom.graph :as graph]
             [frp.time :as time])
-  #?(:clj (:import [clojure.lang IDeref IFn])))
+  #?(:clj (:import [clojure.lang IDeref IFn]))
+  #?(:cljs (:require-macros frp.primitives.net)))
 
 ;TODO move net definitions to its own namespace
 (def initial-net-id
