@@ -21,8 +21,7 @@
             [frp.helpers :as helpers]
             [frp.protocols :as entity-protocols]
             [frp.time :as time]
-            [frp.tuple :as tuple]
-            [cats.protocols :as p])
+            [frp.tuple :as tuple])
   #?(:cljs (:require-macros [frp.primitives.event :refer [get-namespaces]]))
   #?(:clj (:import [clojure.lang IDeref IFn])))
 
