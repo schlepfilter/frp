@@ -4,7 +4,6 @@
             [aid.unit :as unit]
             [cats.core :as m]
             [com.rpl.specter :as s]
-            [linked.core :as linked]
             #?(:clj [riddley.walk :as riddley])
             [frp.clojure.core :as core]
             [frp.io :as io]
