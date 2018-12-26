@@ -98,11 +98,6 @@
   (comp m/join
         behavior/stepper))
 
-;TODO move this function to aid
-(aid/defcurried transfer*
-  [apath f m]
-  (s/setval apath (f m) m))
-
 (def SECOND
   (s/nthpath 1))
 
@@ -136,8 +131,8 @@
                                         (partial s/transform*
                                                  SECOND
                                                  rest)
-                                        (transfer* [s/LAST s/BEFORE-ELEM]
-                                                   sfirst)))
+                                        (aid/transfer* [s/LAST s/BEFORE-ELEM]
+                                                       sfirst)))
                      undo)
              (aid/<$ (aid/if-else (comp empty?
                                         last)
@@ -145,9 +140,9 @@
                                         (partial s/transform*
                                                  s/LAST
                                                  rest)
-                                        (transfer* [SECOND s/BEFORE-ELEM]
-                                                   (comp first
-                                                         last))))
+                                        (aid/transfer* [SECOND s/BEFORE-ELEM]
+                                                       (comp first
+                                                             last))))
                      redo))
        (accum [false [] []])
        (core/filter first)
