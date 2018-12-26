@@ -116,8 +116,9 @@
 (defn get-undo-redo
   [size undo redo network]
   (->> network
-       (m/<$> #(aid/if-else (comp (partial (aid/flip aid/funcall) %)
+       (m/<$> #(aid/if-else (comp (partial (aid/flip aid/funcall) (:occs %))
                                   set
+                                  (partial map :occs)
                                   flatten
                                   rest)
                             (comp (partial s/setval* s/FIRST false)
@@ -181,24 +182,13 @@
                (apply riddley/walk-exprs))))
 
 (defn get-result
-  [history size undo redo actions initial-result inner-result]
+  [history size undo redo initial-result inner-result]
   (let [network (event)
         outer-result (event)]
-    (io/on outer-result inner-result)
-    (aid/casep inner-result
-      event/event?
-      (->> inner-result
-           (io/on (fn [_]
-                    (network @history))))
-      (->> actions
-           (apply m/<>)
-           (aid/<$ true)
-           (m/<> (aid/<$ false (m/<> undo redo)))
-           (behavior/stepper true)
-           ((aid/lift-a vector) inner-result)
-           (io/on (fn [[_ action]]
-                    (if action
-                      (network @history))))))
+    (->> inner-result
+         (io/on (fn [x]
+                  (outer-result x)
+                  (network @history))))
     (->> network
          (get-undo-redo size undo redo)
          (io/on history))
@@ -271,7 +261,6 @@
              ~size
              ~undo
              ~redo
-             (event/with-network history## ~actions)
              ~expr
              (event/with-network history##
                                  ~(alias-expression actions expr))))))))
