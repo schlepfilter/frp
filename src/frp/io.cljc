@@ -20,25 +20,29 @@
   (behavior/get-value b (:time network) network))
 
 (aid/defcurried set-cache
-  [b network]
-  (s/setval [:cache (:id b)] (get-network-value b network) network))
+  [effect-id b network]
+  (s/setval [:cache effect-id] (get-network-value b network) network))
 
 (aid/defcurried run-behavior-effect!
-  [f! b network]
+  [effect-id f! b network]
   (aid/if-else (aid/build =
                           identity
-                          (set-cache b))
+                          (set-cache effect-id b))
                (comp f!
                      (get-network-value b))
                network)
-  (set-cache b ((:network-id b) @event/universe-state)))
+  (set-cache effect-id b ((:network-id b) @event/universe-state)))
 
 (defn on
   [f! x]
-  (swap! event/universe-state
-         (partial s/setval*
-                  [(:network-id x) :effects s/AFTER-ELEM]
-                  ((aid/casep x
-                     event/event? run-event-effect!
-                     run-behavior-effect!)
-                    f! x))))
+  (let [effect-id (->> @event/universe-state
+                       ((:network-id x))
+                       :effect
+                       event/get-id)]
+    (swap! event/universe-state
+           (partial s/setval*
+                    [(:network-id x) :effect effect-id]
+                    ((aid/casep x
+                       event/event? run-event-effect!
+                       (run-behavior-effect! effect-id))
+                      f! x)))))

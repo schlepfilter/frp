@@ -145,7 +145,8 @@
   [network-id]
   (->> @universe-state
        network-id
-       :effects
+       :effect
+       vals
        (call-functions! network-id)))
 
 (defn set-effective
