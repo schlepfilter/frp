@@ -9,6 +9,7 @@
             [frp.io :as io]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]
+            [frp.primitives.net :as net]
             [frp.time :as time])
   #?(:cljs (:require-macros frp.derived)))
 
@@ -246,9 +247,9 @@
         `(with-undo event/positive-infinity ~x ~y ~actions ~expr)))
      ([size undo redo actions expr]
       (potemkin/unify-gensyms
-        `(let [history## (event/net)
-               ~@(get-bindings `(event/with-net history##
-                                                    (event))
+        `(let [history## (net/net)
+               ~@(get-bindings `(net/with-net history##
+                                              (event))
                                actions)]
            ~@(on-actions actions)
            (get-result
@@ -257,5 +258,5 @@
              ~undo
              ~redo
              ~expr
-             (event/with-net history##
-                                 ~(alias-expression actions expr))))))))
+             (net/with-net history##
+                           ~(alias-expression actions expr))))))))

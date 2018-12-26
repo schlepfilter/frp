@@ -41,9 +41,9 @@
 (defn behavior**
   [net-id entity-id f]
   (swap! net/universe-state (partial s/setval* [net-id
-                                                  :function
-                                                  entity-id]
-                                       f))
+                                                :function
+                                                entity-id]
+                                     f))
   (Behavior. net-id entity-id))
 
 (aid/defcurried behavior*
@@ -132,12 +132,12 @@
 (aid/defcurried rename-id
   [net-id to from universe]
   (s/transform [net-id (->> [:dependency
-                                 :function
-                                 :modifications
-                                 :modified
-                                 :occs]
-                                (map s/must)
-                                (apply s/multi-path))]
+                             :function
+                             :modifications
+                             :modified
+                             :occs]
+                            (map s/must)
+                            (apply s/multi-path))]
                (partial (aid/flip set/rename-keys)
                         {from to})
                universe))
