@@ -9,10 +9,6 @@
 
 (frp/defe typing addition toggle undo redo view-event)
 
-(aid/defcurried transfer*
-  [apath f m]
-  (s/setval apath (f m) m))
-
 (def todo
   (->> typing
        (frp/stepper "")
@@ -30,8 +26,8 @@
                  redo
                  [todo toggle]
                  ((aid/lift-a (fn [additions m]
-                                (map (transfer* s/AFTER-ELEM (comp m
-                                                                   first))
+                                (map (aid/transfer* s/AFTER-ELEM (comp m
+                                                                       first))
                                      additions)))
                    (->> todo
                         core/vector
