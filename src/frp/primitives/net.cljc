@@ -145,7 +145,6 @@
         str
         get-id-number))
 
-
 (def net
   #(let [net-id (get-id @universe-state)]
      (swap! universe-state (partial s/setval* net-id initial-net))
@@ -158,4 +157,3 @@
   [net expr]
   `(binding [*net-id* (:net-id ~net)]
      ~expr))
-
