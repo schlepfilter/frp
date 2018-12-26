@@ -38,9 +38,12 @@
 (util/make-printable Behavior)
 
 (defn behavior**
-  [network-id id f]
-  (swap! event/universe-state (partial s/setval* [network-id :function id] f))
-  (Behavior. network-id id))
+  [network-id entity-id f]
+  (swap! event/universe-state (partial s/setval* [network-id
+                                                  :function
+                                                  entity-id]
+                                       f))
+  (Behavior. network-id entity-id))
 
 (aid/defcurried behavior*
   [network-id f]
