@@ -4,7 +4,6 @@
   (:require [cljs.analyzer.api :as ana-api]
             #?(:cljs [cljs.reader :as reader])
             [clojure.set :as set]
-            #?(:cljs [goog.object :as object])
             [aid.core :as aid]
             [aid.unit :as unit]
             [cats.core :as m]
