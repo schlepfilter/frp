@@ -4,34 +4,16 @@
             [com.rpl.specter :as s]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]
-            [frp.protocols :as protocols]
-            [frp.tuple :as tuple])
-  #?(:cljs (:require-macros [frp.io :refer [defcurriedmethod]])))
+            [frp.tuple :as tuple]))
 
-(defmulti run-effect! (comp protocols/-get-keyword
-                            second
-                            vector))
-;This definition of get-effect! produces the following failure in :advanced.
-;Reloading Clojure file "/nodp/hfdp/observer/synchronization.clj" failed.
-;clojure.lang.Compiler$CompilerException: java.lang.IllegalArgumentException: No method in multimethod 'get-effect!' for dispatch value
-;(defmulti get-effect! (comp helpers/infer
-;                            second
-;                            vector))
-
-(defmacro defcurriedmethod
-  [multifn dispatch-val bindings & body]
-  `(aid/defpfmethod ~multifn ~dispatch-val
-                    (aid/curry ~(count bindings) (fn ~bindings
-                                                   ~@body))))
-
-(defcurriedmethod run-effect! :event
-                  [f! e network]
-                  (->> network
-                       (event/get-latests (:id e))
-                       (run! (comp f!
-                                   tuple/snd)))
-                  ;TODO extract a function
-                  ((:network-id e) @event/universe-state))
+(aid/defcurried run-event-effect!
+  [f! e network]
+  (->> network
+       (event/get-latests (:id e))
+       (run! (comp f!
+                   tuple/snd)))
+  ;TODO extract a function
+  ((:network-id e) @event/universe-state))
 
 (aid/defcurried get-network-value
   [b network]
@@ -41,8 +23,7 @@
   [b network]
   (s/setval [:cache (:id b)] (get-network-value b network) network))
 
-(defcurriedmethod
-  run-effect! :behavior
+(aid/defcurried run-behavior-effect!
   [f! b network]
   (aid/if-else (aid/build =
                           identity
@@ -57,4 +38,7 @@
   (swap! event/universe-state
          (partial s/setval*
                   [(:network-id x) :effects s/AFTER-ELEM]
-                  (run-effect! f! x))))
+                  ((aid/casep x
+                     event/event? run-event-effect!
+                     run-behavior-effect!)
+                    f! x))))
