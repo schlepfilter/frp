@@ -1,31 +1,5 @@
 (ns frp.helpers
-  (:refer-clojure :exclude [defcurried <=])
-  (:require [aid.core :as aid]
-            [cats.core :as m]
-            [cats.protocols :as p])
-  #?(:cljs (:require-macros frp.helpers)))
-
-(defmacro reify-monad
-  [fmap pure join & more]
-  `(reify
-     p/Context
-     p/Functor
-     ;Method signatures are quoted to avoid warnings.
-     ;WARNING: Bad method signature in protocol implementation, cats.protocols/Functor does not declare method called frp.helpers/-fmap
-     (~'-fmap [_# f# fa#]
-       (~fmap f# fa#))
-     p/Applicative
-     (~'-pure [_# v#]
-       (~pure v#))
-     (~'-fapply [_# fab# fa#]
-       (aid/ap fab# fa#))
-     p/Monad
-     (~'-mreturn [_# a#]
-       (~pure a#))
-     (~'-mbind [_# ma# f#]
-       ;TODO thread this form
-       (~join (m/<$> f# ma#)))
-     ~@more))
+  (:refer-clojure :exclude [<=]))
 
 (def <=
   (comp (partial every? (comp not

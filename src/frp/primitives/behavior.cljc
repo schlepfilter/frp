@@ -108,8 +108,8 @@
                       (get-universe-value % @event/universe-state)
                       f!)))
     cats-protocols/Applicative
-    (-pure [context* v]
-      (pure* (entity-protocols/-get-network-id context*) v))
+    (-pure [context* a]
+      (pure* (entity-protocols/-get-network-id context*) a))
     (-fapply [_ fab fa]
       (behavior* (:network-id fab)
                  #((get-universe-value fab % @event/universe-state)

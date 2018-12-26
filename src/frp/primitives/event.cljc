@@ -21,11 +21,12 @@
             [frp.helpers :as helpers]
             [frp.protocols :as entity-protocols]
             [frp.time :as time]
-            [frp.tuple :as tuple])
+            [frp.tuple :as tuple]
+            [cats.protocols :as p])
   #?(:cljs (:require-macros [frp.primitives.event :refer [get-namespaces]]))
   #?(:clj (:import [clojure.lang IDeref IFn])))
 
-(declare context)
+(declare get-context)
 
 ;TODO move network definitions to its own namespace
 (def initial-network-id
@@ -224,7 +225,7 @@
   (-get-context [_]
     ;If context is inlined, the following error seems to occur.
     ;java.lang.LinkageError: loader (instance of clojure/lang/DynamicClassLoader): attempted duplicate class definition for name: "nodp/helpers/primitives/event/Event"
-    context)
+    (get-context network-id))
   IFn
   ;TODO implement applyTo
   (#?(:clj  invoke
@@ -438,20 +439,33 @@
             child-id
             network))
 
+(defn pure*
+  [network-id a]
+  (->> a
+       get-unit
+       vector
+       set-occs
+       vector
+       (event* network-id)))
+
 (def pure
-  #(->> %
-        get-unit
-        vector
-        set-occs
-        vector
-        (event* *network-id*)))
+  #(pure* *network-id* %))
+
+(def mempty*
+  #(event* % []))
 
 (def mempty
-  #(event* *network-id* []))
+  #(mempty* *network-id*))
 
-(def context
-  (helpers/reify-monad
-    (fn [f! fa]
+(defn get-context
+  [network-id]
+  (reify
+    entity-protocols/Entity
+    (-get-network-id [_]
+      network-id)
+    cats-protocols/Context
+    cats-protocols/Functor
+    (-fmap [_ f! fa]
       (->> fa
            ((aid/build (modify-<$> f!)
                        :network-id
@@ -459,29 +473,37 @@
            make-set-modification-modification
            (cons (add-edge (:id fa)))
            (event* (:network-id fa))))
-    pure
-    #(->> %
-          ((aid/build modify-join
-                      :network-id
-                      :id))
-          make-set-modification-modification
-          (cons (add-edge (:id %)))
-          (event* (:network-id %)))
+    cats-protocols/Applicative
+    (-pure [context a]
+      (pure* (entity-protocols/-get-network-id context) a))
+    (-fapply [_ fab fa]
+      (aid/ap fab fa))
+    cats-protocols/Monad
+    (-mreturn [context a]
+      (cats-protocols/-pure context a))
+    (-mbind [_ ma f!]
+      (let [mb (m/<$> f! ma)]
+        (->> mb
+             ((aid/build modify-join
+                         :network-id
+                         :id))
+             make-set-modification-modification
+             (cons (add-edge (:id mb)))
+             (event* (:network-id mb)))))
     cats-protocols/Semigroup
     (-mappend [_ left-event right-event]
-              (->>
-                [left-event right-event]
-                (map (comp add-edge
-                           :id))
-                (concat
-                  (make-set-modification-modification
-                    (modify-<> (:id left-event)
-                               (:id right-event))))
-                (event* (:network-id left-event))))
+      (->> [left-event right-event]
+           (map (comp add-edge
+                      :id))
+           (concat
+             (make-set-modification-modification
+               (modify-<> (:id left-event)
+                          (:id right-event))))
+           (event* (:network-id left-event))))
     ;TODO delete Monoid
     cats-protocols/Monoid
-    (-mempty [_]
-             (mempty))))
+    (-mempty [context]
+      (mempty* (entity-protocols/-get-network-id context)))))
 
 (defn get-elements
   [step! id initial network]
