@@ -12,14 +12,14 @@
             [frp.tuple :as tuple])
   #?(:clj (:import [clojure.lang IDeref])))
 
-(declare context)
+(declare get-context)
 
 (defrecord Behavior
   ;TODO rename id as behavior-id
   [network-id id]
   cats-protocols/Contextual
   (-get-context [_]
-    context)
+    (get-context network-id))
   entity-protocols/Entity
   (-get-keyword [_]
     :behavior)
@@ -67,10 +67,14 @@
        ((:network-id b))
        (get-value b t)))
 
+(defn pure*
+  [network-id f]
+  (->> f
+       constantly
+       (behavior* network-id)))
+
 (def pure
-  #(->> %
-        constantly
-        (behavior* event/*network-id*)))
+  #(pure* event/*network-id* %))
 
 (defn join
   [b]
@@ -90,8 +94,12 @@
 ;                         (behavior* #(-> f
 ;                                         (get-value % @event/network-state)
 ;                                         (get-value % @event/network-state))))))
-(def context
+(defn get-context
+  [network-id]
   (reify
+    entity-protocols/Entity
+    (-get-network-id [_]
+      network-id)
     cats-protocols/Context
     cats-protocols/Functor
     (-fmap [_ f! fa]
@@ -100,15 +108,15 @@
                       (get-universe-value % @event/universe-state)
                       f!)))
     cats-protocols/Applicative
-    (-pure [_ v]
-      (pure v))
+    (-pure [context* v]
+      (pure* (entity-protocols/-get-network-id context*) v))
     (-fapply [_ fab fa]
       (behavior* (:network-id fab)
                  #((get-universe-value fab % @event/universe-state)
                     (get-universe-value fa % @event/universe-state))))
     cats-protocols/Monad
-    (-mreturn [_ a]
-      (pure a))
+    (-mreturn [context* a]
+      (cats-protocols/-pure context* a))
     (-mbind [_ ma f!]
       (join (m/<$> f! ma)))))
 
