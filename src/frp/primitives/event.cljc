@@ -43,11 +43,10 @@
   (atom initial-universe))
 
 (defn get-occs
-  ;TODO rename id as event-id
-  [id network]
+  [entity-id network]
   (-> network
       :occs
-      id))
+      entity-id))
 
 (def get-new-time
   #(let [current (time/now)]
@@ -74,9 +73,8 @@
            %))
 
 (aid/defcurried set-occs
-  ;TODO rename network as network*
-  [occs id network]
-  (s/transform [:occs id]
+  [occs entity-id network]
+  (s/transform [:occs entity-id]
                (comp (partial s/setval* s/END occs)
                      ;Doing garbage collection is visibly faster.
                      garbage-collect)
@@ -99,7 +97,7 @@
                             (interleave fs)))))
 
 (defn modify-network!
-  [occ network-id id network]
+  [occ network-id entity-id network]
   ;TODO advance
   (->> network
        :dependency
@@ -130,13 +128,13 @@
        ;nil
        ((aid/build graph/subgraph
                    identity
-                   (partial (aid/flip alg/bf-traverse) id)))
+                   (partial (aid/flip alg/bf-traverse) entity-id)))
        alg/topsort
        (mapcat (:modifications network))
        (concat [(partial s/setval* [:modified s/MAP-VALS] false)
                 (partial s/setval* :time (tuple/fst occ))
-                (set-occs [occ] id)
-                (partial s/setval* [:modified id] true)])
+                (set-occs [occ] entity-id)
+                (partial s/setval* [:modified entity-id] true)])
        (call-functions! network-id)))
 
 (defn run-effects!*
@@ -183,14 +181,14 @@
   (atom initial-reloading))
 
 (aid/defcurried invoke**
-  [network-id id a]
+  [network-id entity-id a]
   (->> @universe-state
        network-id
        (modify-network! (-> (time/now)
                             get-new-time
                             (tuple/tuple a))
                         network-id
-                        id))
+                        entity-id))
   (run-effects-twice! network-id))
 
 (def debugging
@@ -198,7 +196,7 @@
      :cljs goog/DEBUG))
 
 (aid/defcurried invoke*
-  [network-id id a]
+  [network-id entity-id a]
   (when (-> @universe-state
             network-id
             :active)
@@ -211,12 +209,14 @@
       (swap! universe-state
              (partial s/setval*
                       [network-id :invocations s/AFTER-ELEM]
-                      #(invoke* network-id id a)))
+                      #(invoke* network-id entity-id a)))
       ;TODO make debugging compatible with multiple networks
       (do (if debugging
             (swap! reloading-state
-                   (partial s/setval* [:id-invocations s/AFTER-ELEM] [id a])))
-          (invoke** network-id id a)))))
+                   (partial s/setval*
+                            [:id-invocations s/AFTER-ELEM]
+                            [entity-id a])))
+          (invoke** network-id entity-id a)))))
 
 (defrecord Event
   [network-id id]
@@ -284,13 +284,13 @@
         get-id-number))
 
 (defn event**
-  [network-id id fs]
+  [network-id entity-id fs]
   ;TODO add a node to dependency
   (->> fs
-       (map ((aid/curry 3 (aid/flip aid/funcall)) id))
-       (cons (set-occs [] id))
+       (map ((aid/curry 3 (aid/flip aid/funcall)) entity-id))
+       (cons (set-occs [] entity-id))
        (call-functions! network-id))
-  (Event. network-id id))
+  (Event. network-id entity-id))
 
 (def ^:dynamic *network-id*
   initial-network-id)
@@ -315,18 +315,18 @@
                network))
 
 (defn get-latests
-  [id network]
+  [entity-id network]
   (->> network
-       (get-occs id)
+       (get-occs entity-id)
        (filter (comp (partial = (:time network))
                      tuple/fst))))
 
 (defn get-occs-or-latests
-  [initial id network]
+  [initial entity-id network]
   ((if initial
      get-occs
      get-latests)
-    id
+    entity-id
     network))
 
 (aid/defcurried modify-<$>
@@ -340,22 +340,22 @@
             (network-id @universe-state)))
 
 (defn make-call-once
-  [id modify!]
-  (aid/if-else (comp id
+  [entity-id modify!]
+  (aid/if-else (comp entity-id
                      :modified)
                modify!))
 
 (defn set-modification
-  [id modify! network]
-  (s/setval [:modifications id]
-            [(make-call-once id modify!)
-             (partial s/setval* [:modified id] true)]
+  [entity-id modify! network]
+  (s/setval [:modifications entity-id]
+            [(make-call-once entity-id modify!)
+             (partial s/setval* [:modified entity-id] true)]
             network))
 
 (defn make-set-modification-modification
   [modify!]
-  [(fn [id network]
-     (set-modification id (modify! false id) network))
+  [(fn [entity-id network]
+     (set-modification entity-id (modify! false entity-id) network))
    (modify! true)])
 
 (def snth
@@ -363,14 +363,14 @@
         (partial repeat 2)))
 
 (defn insert-modification
-  [modify! id network]
-  (s/setval [:modifications id (-> network
+  [modify! entity-id network]
+  (s/setval [:modifications entity-id (-> network
                                    :modifications
-                                   id
+                                   entity-id
                                    count
                                    (- 2)
                                    snth)]
-            [(make-call-once id modify!)]
+            [(make-call-once entity-id modify!)]
             network))
 
 (aid/defcurried insert-merge-sync
@@ -505,9 +505,9 @@
       (mempty* (entity-protocols/-get-network-id context)))))
 
 (defn get-elements
-  [step! id initial network]
+  [step! entity-id initial network]
   (->> network
-       (get-occs-or-latests initial id)
+       (get-occs-or-latests initial entity-id)
        (map (partial s/transform* :snd (comp unreduced
                                              (partial step! aid/nothing))))
        (filter (comp maybe/just?
@@ -522,11 +522,11 @@
       last))
 
 (aid/defcurried get-accumulator
-  [f! init id network reduction element]
+  [f! init entity-id network reduction element]
   (s/setval s/AFTER-ELEM
             ((aid/lift-a f!)
               (get-transduction init
-                                (get-occs id network)
+                                (get-occs entity-id network)
                                 reduction)
               element)
             reduction))
@@ -573,6 +573,7 @@
   (when (-> @universe-state
             network-id
             (not= x))
+    (println "invoke-network")
     (swap! universe-state (comp (partial s/setval* [network-id :cache] s/NONE)
                                 (partial s/setval* network-id x)))
     (run-effects-twice! network-id)))
