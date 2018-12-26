@@ -157,8 +157,8 @@
 
 (def get-event-alias
   (comp (partial apply array-map)
-        (partial mapcat (fn [x]
-                          [x (get-alias x)]))))
+        (partial mapcat (juxt identity
+                              get-alias))))
 
 (defn on-action
   [action]
