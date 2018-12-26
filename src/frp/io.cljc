@@ -33,16 +33,21 @@
                network)
   (set-cache effect-id b ((:network-id b) @event/universe-state)))
 
+(defn on*
+  [effect-id f! x]
+  (swap! event/universe-state
+         (partial s/setval*
+                  [(:network-id x) :effect effect-id]
+                  ((aid/casep x
+                     event/event? run-event-effect!
+                     (run-behavior-effect! effect-id))
+                    f! x))))
+
 (defn on
   [f! x]
-  (let [effect-id (->> @event/universe-state
-                       ((:network-id x))
-                       :effect
-                       event/get-id)]
-    (swap! event/universe-state
-           (partial s/setval*
-                    [(:network-id x) :effect effect-id]
-                    ((aid/casep x
-                       event/event? run-event-effect!
-                       (run-behavior-effect! effect-id))
-                      f! x)))))
+  (on* (->> @event/universe-state
+            ((:network-id x))
+            :effect
+            event/get-id)
+       f!
+       x))
