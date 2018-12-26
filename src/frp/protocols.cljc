@@ -2,4 +2,4 @@
 
 (defprotocol Entity
   (-get-keyword [_])
-  (-get-network-id [_]))
+  (-get-net-id [_]))

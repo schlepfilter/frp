@@ -7,37 +7,37 @@
             [frp.tuple :as tuple]))
 
 (aid/defcurried run-event-effect!
-  [f! e network]
-  (->> network
+  [f! e net]
+  (->> net
        (event/get-latests (:entity-id e))
        (run! (comp f!
                    tuple/snd)))
   ;TODO extract a function
-  ((:network-id e) @event/universe-state))
+  ((:net-id e) @event/universe-state))
 
-(aid/defcurried get-network-value
-  [b network]
-  (behavior/get-value b (:time network) network))
+(aid/defcurried get-net-value
+  [b net]
+  (behavior/get-value b (:time net) net))
 
 (aid/defcurried set-cache
-  [effect-id b network]
-  (s/setval [:cache effect-id] (get-network-value b network) network))
+  [effect-id b net]
+  (s/setval [:cache effect-id] (get-net-value b net) net))
 
 (aid/defcurried run-behavior-effect!
-  [effect-id f! b network]
+  [effect-id f! b net]
   (aid/if-else (aid/build =
                           identity
                           (set-cache effect-id b))
                (comp f!
-                     (get-network-value b))
-               network)
-  (set-cache effect-id b ((:network-id b) @event/universe-state)))
+                     (get-net-value b))
+               net)
+  (set-cache effect-id b ((:net-id b) @event/universe-state)))
 
 (defn on*
   [effect-id f! x]
   (swap! event/universe-state
          (partial s/setval*
-                  [(:network-id x) :effect effect-id]
+                  [(:net-id x) :effect effect-id]
                   ((aid/casep x
                      event/event? run-event-effect!
                      (run-behavior-effect! effect-id))
@@ -46,7 +46,7 @@
 (defn on
   [f! x]
   (on* (->> @event/universe-state
-            ((:network-id x))
+            ((:net-id x))
             :effect
             event/get-id)
        f!

@@ -33,7 +33,7 @@
                           :start       true})
         (m/<$> :event-value)))
   ([f x e]
-   (m/<> (event/with-network e
+   (m/<> (event/with-net e
            (event/pure x))
          (event/transduce (core/drop 0) f x e))))
 

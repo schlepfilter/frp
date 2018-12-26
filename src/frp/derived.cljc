@@ -109,8 +109,8 @@
         second))
 
 (defn get-undo-redo
-  [size undo redo network]
-  (->> network
+  [size undo redo net]
+  (->> net
        (m/<$> #(aid/if-else (comp (partial (aid/flip aid/funcall) (:occs %))
                                   set
                                   (partial map :occs)
@@ -177,13 +177,13 @@
 
 (defn get-result
   [history size undo redo initial-result inner-result]
-  (let [network (event)
+  (let [net (event)
         outer-result (event)]
     (->> inner-result
          (io/on (fn [x]
                   (outer-result x)
-                  (network @history))))
-    (->> network
+                  (net @history))))
+    (->> net
          (get-undo-redo size undo redo)
          (io/on history))
     (aid/casep inner-result
@@ -198,7 +198,7 @@
 ;This definition may leak memory because of fmapping behavior.
 ;(defn get-result
 ;  [history size undo redo actions initial-result inner-result]
-;  (let [network (event)
+;  (let [net (event)
 ;        outer-result (event)]
 ;    (->> actions
 ;         (apply m/<>)
@@ -214,10 +214,10 @@
 ;         (io/on (fn [[inner-result* action]]
 ;                  (outer-result inner-result*)
 ;                  (if action
-;                    (network @history)))))
+;                    (net @history)))))
 ;    (io/on #(if (not= (:occs @history) (:occs %))
 ;              (history %))
-;           (get-state size undo redo network))
+;           (get-state size undo redo net))
 ;    (aid/casep inner-result
 ;      event/event? outer-result
 ;      (->> outer-result
@@ -246,8 +246,8 @@
         `(with-undo event/positive-infinity ~x ~y ~actions ~expr)))
      ([size undo redo actions expr]
       (potemkin/unify-gensyms
-        `(let [history## (event/network)
-               ~@(get-bindings `(event/with-network history##
+        `(let [history## (event/net)
+               ~@(get-bindings `(event/with-net history##
                                                     (event))
                                actions)]
            ~@(on-actions actions)
@@ -257,5 +257,5 @@
              ~undo
              ~redo
              ~expr
-             (event/with-network history##
+             (event/with-net history##
                                  ~(alias-expression actions expr))))))))
