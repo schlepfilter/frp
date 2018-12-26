@@ -237,6 +237,7 @@
      ;TODO make actions optional for Clojure
      ;TODO make actions optional for ClojureScript when ClojureScript supports dynamic macro expansion with advanced optimizations
      ;TODO deal with the arity in a function
+     ;When expr is an event, with-undo doesn't go back to the state where there is no occurrence.
      ([undo actions expr]
       `(with-undo event/positive-infinity ~undo (event) ~actions ~expr))
      ([x y actions expr]
