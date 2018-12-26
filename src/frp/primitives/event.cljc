@@ -54,12 +54,6 @@
        current (recur %)
        current)))
 
-(def get-times
-  ;TODO don't lose a millisecond
-  #((juxt identity
-          get-new-time)
-     (time/now)))
-
 (declare event?)
 
 (def garbage-collect
