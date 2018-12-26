@@ -16,7 +16,7 @@
 
 (defrecord Behavior
   ;TODO rename id as behavior-id
-  [network-id id]
+  [network-id entity-id]
   cats-protocols/Contextual
   (-get-context [_]
     (get-context network-id))
@@ -28,12 +28,12 @@
       :cljs -deref) [_]
     (->> @event/universe-state
          network-id
-         ((m/<*> (comp id
+         ((m/<*> (comp entity-id
                        :function)
                  :time))))
   cats-protocols/Printable
   (-repr [_]
-    (str "#[behavior " network-id " " id "]")))
+    (str "#[behavior " network-id " " entity-id "]")))
 
 (util/make-printable Behavior)
 
@@ -58,7 +58,7 @@
   [b network]
   (->> network
        :function
-       ((:id b))))
+       ((:entity-id b))))
 
 (defn get-value
   [b t network]
@@ -147,7 +147,7 @@
 
 (defn redef
   [to from]
-  (rename-id! (:network-id to) (:id to) (:id from)))
+  (rename-id! (:network-id to) (:entity-id to) (:entity-id from)))
 
 (def time
   (Behavior. event/initial-network-id ::time))
@@ -204,7 +204,7 @@
   [a e t universe]
   (->> universe
        ((:network-id e))
-       (event/get-occs (:id e))
+       (event/get-occs (:entity-id e))
        (last-pred (event/get-unit a) (comp (partial > @t)
                                            deref
                                            tuple/fst))

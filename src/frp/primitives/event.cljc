@@ -113,7 +113,7 @@
        ;
        ;If a subgraph is taken, it's faster.
        ;
-       ;{:id :invoke, :n-calls 5, :min "216ms", :max "349ms", :mad "39.04ms", :mean "251.4ms", :time% 39, :time "1.26s "}
+       ;{:entity-id :invoke, :n-calls 5, :min "216ms", :max "349ms", :mad "39.04ms", :mean "251.4ms", :time% 39, :time "1.26s "}
        ;
        ;Clock Time: (100%) 3.25s
        ;Accounted Time: (39%) 1.26s
@@ -121,7 +121,7 @@
        ;
        ;If a subgraph is not taken, it's slower.
        ;
-       ;{:id :invoke, :n-calls 5, :min "347ms", :max "578ms", :mad "69.44ms", :mean "414.2ms", :time% 54, :time "2.07s "}
+       ;{:entity-id :invoke, :n-calls 5, :min "347ms", :max "578ms", :mad "69.44ms", :mean "414.2ms", :time% 54, :time "2.07s "}
        ;
        ;Clock Time: (100%) 3.85s
        ;Accounted Time: (54%) 2.07s
@@ -214,12 +214,12 @@
       (do (if debugging
             (swap! reloading-state
                    (partial s/setval*
-                            [:id-invocations s/AFTER-ELEM]
+                            [:entity-id-invocations s/AFTER-ELEM]
                             [entity-id a])))
           (invoke** network-id entity-id a)))))
 
 (defrecord Event
-  [network-id id]
+  [network-id entity-id]
   cats-protocols/Contextual
   (-get-context [_]
     ;If context is inlined, the following error seems to occur.
@@ -229,10 +229,10 @@
   ;TODO implement applyTo
   (#?(:clj  invoke
       :cljs -invoke) [_]
-    (invoke* network-id id unit/unit))
+    (invoke* network-id entity-id unit/unit))
   (#?(:clj  invoke
       :cljs -invoke) [_ a]
-    (invoke* network-id id a))
+    (invoke* network-id entity-id a))
   entity-protocols/Entity
   (-get-keyword [_]
     :event)
@@ -241,10 +241,10 @@
       :cljs -deref) [_]
     (->> @universe-state
          network-id
-         (get-occs id)))
+         (get-occs entity-id)))
   cats-protocols/Printable
   (-repr [_]
-    (str "#[event " network-id " " id "]")))
+    (str "#[event " network-id " " entity-id "]")))
 
 (util/make-printable Event)
 
@@ -408,7 +408,7 @@
                                                          delay-sync)
                                                     parent-id*
                                                     child-id)))
-                  :id
+                  :entity-id
                   tuple/snd))
        (call-functions! network-id)))
 
@@ -468,9 +468,9 @@
       (->> fa
            ((aid/build (modify-<$> f!)
                        :network-id
-                       :id))
+                       :entity-id))
            make-set-modification-modification
-           (cons (add-edge (:id fa)))
+           (cons (add-edge (:entity-id fa)))
            (event* (:network-id fa))))
     cats-protocols/Applicative
     (-pure [context a]
@@ -485,19 +485,19 @@
         (->> mb
              ((aid/build modify-join
                          :network-id
-                         :id))
+                         :entity-id))
              make-set-modification-modification
-             (cons (add-edge (:id mb)))
+             (cons (add-edge (:entity-id mb)))
              (event* (:network-id mb)))))
     cats-protocols/Semigroup
     (-mappend [_ left-event right-event]
       (->> [left-event right-event]
            (map (comp add-edge
-                      :id))
+                      :entity-id))
            (concat
              (make-set-modification-modification
-               (modify-<> (:id left-event)
-                          (:id right-event))))
+               (modify-<> (:entity-id left-event)
+                          (:entity-id right-event))))
            (event* (:network-id left-event))))
     ;TODO delete Monoid
     cats-protocols/Monoid
@@ -555,9 +555,9 @@
    (->> e
         ((aid/build ((make-modify-transduce xform) f init)
                     :network-id
-                    :id))
+                    :entity-id))
         make-set-modification-modification
-        (cons (add-edge (:id e)))
+        (cons (add-edge (:entity-id e)))
         (event* (:network-id e)))))
 
 (defn snapshot
@@ -690,18 +690,18 @@
                                                   s/FIRST
                                                   alias-id)))
                           :alias-invocations))
-            (partial s/setval* :id-invocations [])
-            (partial s/setval* :id alias-id)
+            (partial s/setval* :entity-id-invocations [])
+            (partial s/setval* :entity-id alias-id)
             #(s/setval [:alias-invocations s/END]
                        (->> %
-                            :id-invocations
+                            :entity-id-invocations
                             (filter (comp (-> %
-                                              :id
+                                              :entity-id
                                               set/map-invert)
                                           first))
                             (s/transform [s/ALL s/FIRST]
                                          (-> %
-                                             :id
+                                             :entity-id
                                              set/map-invert)))
                        %)))))
 
@@ -710,7 +710,7 @@
                  (partial mapcat (juxt (comp keyword
                                              (partial (aid/flip subs) 2)
                                              str)
-                                       (comp :id
+                                       (comp :entity-id
                                              deref)))
                  (partial filter (comp event?
                                        deref))

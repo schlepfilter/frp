@@ -41,10 +41,10 @@
   #?(:cljs
      (behavior/register!
        #(add-remove-listener (oget+ js/window (-> e
-                                                  :id
+                                                  :entity-id
                                                   get-property-name))
                              (-> e
-                                 :id
+                                 :entity-id
                                  name)
                              (comp e
                                    f))))

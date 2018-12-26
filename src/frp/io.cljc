@@ -9,7 +9,7 @@
 (aid/defcurried run-event-effect!
   [f! e network]
   (->> network
-       (event/get-latests (:id e))
+       (event/get-latests (:entity-id e))
        (run! (comp f!
                    tuple/snd)))
   ;TODO extract a function
