@@ -7,7 +7,8 @@
                        [oops.core :refer [oget+]]])
             [frp.derived :as derived]
             [frp.primitives.behavior :as behavior]
-            [frp.primitives.event :as event])
+            [frp.primitives.event :as event]
+            [frp.primitives.net :as net])
   #?(:cljs (:require-macros frp.browser)))
 
 (defn make-redef-event
@@ -18,14 +19,14 @@
 (def get-event
   (comp (event/effect (comp behavior/register!
                             make-redef-event))
-        (partial event/->Event event/initial-net-id)))
+        (partial event/->Event net/initial-net-id)))
 
 (defn add-remove-listener
   [target event-type listener]
   #?@(:cljs
       [(.addEventListener target event-type listener)
-       (swap! event/universe-state
-              (event/append-cancellation event/initial-net-id
+       (swap! net/universe-state
+              (event/append-cancellation net/initial-net-id
                                          (fn [_]
                                            (.removeEventListener target
                                                                  event-type
@@ -71,7 +72,7 @@
   [f k]
   #?(:cljs
      (->> k
-          (behavior/->Behavior event/initial-net-id)
+          (behavior/->Behavior net/initial-net-id)
           (event/effect (comp behavior/register!
                               (make-redef-behavior f k))))))
 

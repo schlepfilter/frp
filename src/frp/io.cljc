@@ -4,6 +4,7 @@
             [com.rpl.specter :as s]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]
+            [frp.primitives.net :as net]
             [frp.tuple :as tuple]))
 
 (aid/defcurried run-event-effect!
@@ -13,7 +14,7 @@
        (run! (comp f!
                    tuple/snd)))
   ;TODO extract a function
-  ((:net-id e) @event/universe-state))
+  ((:net-id e) @net/universe-state))
 
 (aid/defcurried get-net-value
   [b net]
@@ -31,11 +32,11 @@
                (comp f!
                      (get-net-value b))
                net)
-  (set-cache effect-id b ((:net-id b) @event/universe-state)))
+  (set-cache effect-id b ((:net-id b) @net/universe-state)))
 
 (defn on*
   [effect-id f! x]
-  (swap! event/universe-state
+  (swap! net/universe-state
          (partial s/setval*
                   [(:net-id x) :effect effect-id]
                   ((aid/casep x
@@ -45,9 +46,9 @@
 
 (defn on
   [f! x]
-  (on* (->> @event/universe-state
+  (on* (->> @net/universe-state
             ((:net-id x))
             :effect
-            event/get-id)
+            net/get-id)
        f!
        x))

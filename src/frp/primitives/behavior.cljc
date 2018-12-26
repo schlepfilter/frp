@@ -8,6 +8,7 @@
             [cats.util :as util]
             [com.rpl.specter :as s]
             [frp.primitives.event :as event]
+            [frp.primitives.net :as net]
             [frp.protocols :as entity-protocols]
             [frp.tuple :as tuple])
   #?(:clj (:import [clojure.lang IDeref])))
@@ -26,7 +27,7 @@
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
-    (->> @event/universe-state
+    (->> @net/universe-state
          net-id
          ((m/<*> (comp entity-id
                        :function)
@@ -39,7 +40,7 @@
 
 (defn behavior**
   [net-id entity-id f]
-  (swap! event/universe-state (partial s/setval* [net-id
+  (swap! net/universe-state (partial s/setval* [net-id
                                                   :function
                                                   entity-id]
                                        f))
@@ -48,10 +49,10 @@
 (aid/defcurried behavior*
   [net-id f]
   (behavior** net-id
-              (->> @event/universe-state
+              (->> @net/universe-state
                    net-id
                    :function
-                   event/get-id)
+                   net/get-id)
               f))
 
 (defn get-function
@@ -77,14 +78,14 @@
        (behavior* net-id)))
 
 (def pure
-  #(pure* event/*net-id* %))
+  #(pure* net/*net-id* %))
 
 (defn join
   [b]
   (behavior* (:net-id b)
              #(-> b
-                  (get-value % ((:net-id b) @event/universe-state))
-                  (get-value % ((:net-id b) @event/universe-state)))))
+                  (get-value % ((:net-id b) @net/universe-state))
+                  (get-value % ((:net-id b) @net/universe-state)))))
 
 ;Calling ap in -fapply is visibly slower.
 ;(def context
@@ -108,15 +109,15 @@
     (-fmap [_ f! fa]
       (behavior* (:net-id fa)
                  #(-> fa
-                      (get-universe-value % @event/universe-state)
+                      (get-universe-value % @net/universe-state)
                       f!)))
     cats-protocols/Applicative
     (-pure [context* a]
       (pure* (entity-protocols/-get-net-id context*) a))
     (-fapply [_ fab fa]
       (behavior* (:net-id fab)
-                 #((get-universe-value fab % @event/universe-state)
-                    (get-universe-value fa % @event/universe-state))))
+                 #((get-universe-value fab % @net/universe-state)
+                    (get-universe-value fa % @net/universe-state))))
     cats-protocols/Monad
     (-mreturn [context* a]
       (cats-protocols/-pure context* a))
@@ -124,7 +125,7 @@
       (join (m/<$> f! ma)))))
 
 (def stop
-  #((->> @event/universe-state
+  #((->> @net/universe-state
          :cancellations
          (apply juxt aid/nop))))
 
@@ -142,7 +143,7 @@
                universe))
 
 (def rename-id!
-  (comp (partial swap! event/universe-state)
+  (comp (partial swap! net/universe-state)
         rename-id))
 
 (defn redef
@@ -150,7 +151,7 @@
   (rename-id! (:net-id to) (:entity-id to) (:entity-id from)))
 
 (def time
-  (Behavior. event/initial-net-id ::time))
+  (Behavior. net/initial-net-id ::time))
 
 ;TODO only use registry for debugging
 (def registry
@@ -162,9 +163,9 @@
 
 (defn start
   []
-  (reset! event/universe-state event/initial-universe)
+  (reset! net/universe-state net/initial-universe)
   (redef time
-         (behavior* event/initial-net-id identity))
+         (behavior* net/initial-net-id identity))
   (run! aid/funcall @registry))
 
 (def restart
@@ -213,4 +214,4 @@
 (defn stepper
   [a e]
   (behavior* (:net-id e)
-             #(get-stepper-value a e % @event/universe-state)))
+             #(get-stepper-value a e % @net/universe-state)))

@@ -18,7 +18,8 @@
             [aid.unit :as unit]
             [cats.core :as m]
             [com.rpl.specter :as s]
-            [frp.primitives.event :as event]))
+            [frp.primitives.event :as event]
+            [frp.primitives.net :as net]))
 
 (defn reduce
   ([f e]
@@ -33,8 +34,8 @@
                           :start       true})
         (m/<$> :event-value)))
   ([f x e]
-   (m/<> (event/with-net e
-           (event/pure x))
+   (m/<> (net/with-net e
+                       (event/pure x))
          (event/transduce (core/drop 0) f x e))))
 
 (def reduce*

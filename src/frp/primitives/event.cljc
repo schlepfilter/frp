@@ -2,7 +2,6 @@
 (ns ^:figwheel-always frp.primitives.event
   (:refer-clojure :exclude [transduce])
   (:require [cljs.analyzer.api :as ana-api]
-            #?(:cljs [cljs.reader :as reader])
             [clojure.set :as set]
             [aid.core :as aid]
             [aid.unit :as unit]
@@ -14,10 +13,10 @@
                       [clj-time.core :as t]
                       [clj-time.periodic :as periodic]])
             [com.rpl.specter :as s]
-            [linked.core :as linked]
             [loom.alg :as alg]
             [loom.graph :as graph]
             [frp.helpers :as helpers]
+            [frp.primitives.net :as net]
             [frp.protocols :as entity-protocols]
             [frp.time :as time]
             [frp.tuple :as tuple])
@@ -26,33 +25,11 @@
 
 (declare get-context)
 
-;TODO move net definitions to its own namespace
-(def initial-net-id
-  :0)
-
-(def initial-net
-  {:dependency (graph/digraph)
-   :function   (linked/map)
-   :occs       (linked/map)
-   :time       time/epoch})
-
-(def initial-universe
-  (linked/map initial-net-id initial-net))
-
-(def universe-state
-  (atom initial-universe))
-
 (defn get-occs
   [entity-id net]
   (-> net
       :occs
       entity-id))
-
-(def get-new-time
-  #(let [current (time/now)]
-     (aid/case-eval %
-       current (recur %)
-       current)))
 
 (declare event?)
 
@@ -73,22 +50,6 @@
                      ;Doing garbage collection is visibly faster.
                      garbage-collect)
                net))
-
-(def call-functions
-  (aid/flip (partial reduce (aid/flip aid/funcall))))
-
-(aid/defcurried call-functions!
-  [net-id fs]
-  (->> @universe-state
-       net-id
-       (call-functions (->> (comp net-id
-                                  (partial swap!
-                                           universe-state)
-                                  (partial (aid/curry 3
-                                                      s/setval*)
-                                           net-id))
-                            repeat
-                            (interleave fs)))))
 
 (defn modify-net!
   [occ net-id entity-id net]
@@ -129,44 +90,7 @@
                 (partial s/setval* :time (tuple/fst occ))
                 (set-occs [occ] entity-id)
                 (partial s/setval* [:modified entity-id] true)])
-       (call-functions! net-id)))
-
-(defn run-effects!*
-  [net-id]
-  (->> @universe-state
-       net-id
-       :effect
-       vals
-       (call-functions! net-id)))
-
-(defn set-effective
-  [net-id x]
-  (swap! universe-state (partial s/setval* [net-id :effective] x)))
-
-(defn run-invocations
-  [net-id]
-  (when-not (-> @universe-state
-                net-id
-                :invocations
-                empty?)
-    (let [f! (-> @universe-state
-                 net-id
-                 :invocations
-                 first)]
-      (swap! universe-state
-             (partial s/transform* [net-id :invocations] rest))
-      (f!))
-    (recur net-id)))
-
-(defn run-effects-twice!
-  [net-id]
-  (set-effective net-id true)
-  (run-effects!* net-id)
-  (swap! universe-state
-         (partial s/setval* [net-id :time] (get-new-time (time/now))))
-  (run-effects!* net-id)
-  (set-effective net-id false)
-  (run-invocations net-id))
+       (net/call-functions! net-id)))
 
 (def initial-reloading
   {})
@@ -176,14 +100,14 @@
 
 (aid/defcurried invoke**
   [net-id entity-id a]
-  (->> @universe-state
+  (->> @net/universe-state
        net-id
        (modify-net! (-> (time/now)
-                            get-new-time
-                            (tuple/tuple a))
-                        net-id
-                        entity-id))
-  (run-effects-twice! net-id))
+                        net/get-new-time
+                        (tuple/tuple a))
+                    net-id
+                    entity-id))
+  (net/run-effects-twice! net-id))
 
 (def debugging
   #?(:clj  false
@@ -191,16 +115,16 @@
 
 (aid/defcurried invoke*
   [net-id entity-id a]
-  (when (-> @universe-state
+  (when (-> @net/universe-state
             net-id
             :active)
-    (if (-> @universe-state
+    (if (-> @net/universe-state
             net-id
             ((aid/build or
                         :effective
                         (comp (partial = time/epoch)
                               :time))))
-      (swap! universe-state
+      (swap! net/universe-state
              (partial s/setval*
                       [net-id :invocations s/AFTER-ELEM]
                       #(invoke* net-id entity-id a)))
@@ -233,7 +157,7 @@
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
-    (->> @universe-state
+    (->> @net/universe-state
          net-id
          (get-occs entity-id)))
   cats-protocols/Printable
@@ -245,57 +169,22 @@
 (def event?
   (partial instance? Event))
 
-(def parse-keyword
-  (comp #?(:clj  read-string
-           :cljs reader/read-string)
-        name))
-
-(def get-last-key
-  (comp key
-        last))
-
-(def parse-last-key
-  (comp parse-keyword
-        get-last-key))
-
-(def get-id-number
-  #(aid/casep %
-     empty? 0
-     (comp number?
-           parse-last-key)
-     (-> %
-         parse-last-key
-         inc)
-     (->> %
-          get-last-key
-          (dissoc %)
-          recur)))
-
-(def get-id
-  ;TODO return uuid for production
-  (comp keyword
-        str
-        get-id-number))
-
 (defn event**
   [net-id entity-id fs]
   ;TODO add a node to dependency
   (->> fs
        (map ((aid/curry 3 (aid/flip aid/funcall)) entity-id))
        (cons (set-occs [] entity-id))
-       (call-functions! net-id))
+       (net/call-functions! net-id))
   (Event. net-id entity-id))
-
-(def ^:dynamic *net-id*
-  initial-net-id)
 
 (aid/defcurried event*
   [net-id fs]
   (event** net-id
-           (->> @universe-state
+           (->> @net/universe-state
                 net-id
                 :occs
-                get-id)
+                net/get-id)
            fs))
 
 (def get-unit
@@ -326,12 +215,12 @@
 (aid/defcurried modify-<$>
   [f! net-id parent-id initial child-id net]
   ;TODO refactor
-  (set-occs (binding [*net-id* net-id]
-              (->> net
-                   (get-occs-or-latests initial parent-id)
-                   (mapv (partial m/<$> f!))))
+  (set-occs (net/with-net (net/->Net net-id)
+                          (->> net
+                               (get-occs-or-latests initial parent-id)
+                               (mapv (partial m/<$> f!))))
             child-id
-            (net-id @universe-state)))
+            (net-id @net/universe-state)))
 
 (defn make-call-once
   [entity-id modify!]
@@ -359,11 +248,11 @@
 (defn insert-modification
   [modify! entity-id net]
   (s/setval [:modifications entity-id (-> net
-                                   :modifications
-                                   entity-id
-                                   count
-                                   (- 2)
-                                   snth)]
+                                          :modifications
+                                          entity-id
+                                          count
+                                          (- 2)
+                                          snth)]
             [(make-call-once entity-id modify!)]
             net))
 
@@ -396,15 +285,15 @@
   (->> net
        (get-occs-or-latests initial parent-id)
        (map (comp (aid/curriedfn [parent-id* _]
-                                 (call-functions! net-id
-                                                  ((juxt add-edge
-                                                         insert-merge-sync
-                                                         delay-sync)
-                                                    parent-id*
-                                                    child-id)))
+                                 (net/call-functions! net-id
+                                                      ((juxt add-edge
+                                                             insert-merge-sync
+                                                             delay-sync)
+                                                        parent-id*
+                                                        child-id)))
                   :entity-id
                   tuple/snd))
-       (call-functions! net-id)))
+       (net/call-functions! net-id)))
 
 (defn merge-one
   [parent merged]
@@ -442,13 +331,13 @@
        (event* net-id)))
 
 (def pure
-  #(pure* *net-id* %))
+  #(pure* net/*net-id* %))
 
 (def mempty*
   (partial (aid/flip event*) []))
 
 (def mempty
-  #(mempty* *net-id*))
+  #(mempty* net/*net-id*))
 
 (defn get-context
   [net-id]
@@ -538,7 +427,7 @@
                                                     initial
                                                     net))
                               child-id
-                              (net-id @universe-state)))))
+                              (net-id @net/universe-state)))))
 
 (defn transduce
   ([xform f e]
@@ -561,44 +450,6 @@
                (cons %))
          e))
 
-;TODO rename this function as invoke*
-(aid/defcurried invoke-net
-  [net-id x]
-  (when (-> @universe-state
-            net-id
-            (not= x))
-    (swap! universe-state (comp (partial s/setval* [net-id :cache] s/NONE)
-                                (partial s/setval* net-id x)))
-    (run-effects-twice! net-id)))
-
-(defrecord Net
-  [net-id]
-  IFn
-  #?(:clj (applyTo [_ xs]
-            (run! (invoke-net net-id) xs)))
-  (#?(:clj  invoke
-      :cljs -invoke) [_ x]
-    (invoke-net net-id x))
-  IDeref
-  (#?(:clj  deref
-      :cljs -deref) [_]
-    (net-id @universe-state))
-  cats-protocols/Printable
-  (-repr [_]
-    (str "#[net " net-id "]")))
-
-(util/make-printable Net)
-
-(def net
-  #(let [net-id (get-id @universe-state)]
-     (swap! universe-state (partial s/setval* net-id initial-net))
-     (->Net net-id)))
-
-(defmacro with-net
-  [net expr]
-  `(binding [*net-id* (:net-id ~net)]
-     ~expr))
-
 #?(:clj (defn get-periods
           ;TODO extract a purely functional function
           [rate]
@@ -609,14 +460,14 @@
 
 (aid/defcurried handle
   [net-id _]
-  (when (-> @universe-state
+  (when (-> @net/universe-state
             net-id
             :active)
     (->> (time/now)
-         get-new-time
+         net/get-new-time
          (partial s/setval* [net-id :time])
-         (swap! universe-state))
-    (run-effects-twice! net-id)))
+         (swap! net/universe-state))
+    (net/run-effects-twice! net-id)))
 
 (aid/defcurried append-cancellation
   [net-id f! universe]
@@ -627,20 +478,20 @@
      :cljs js/Number.POSITIVE_INFINITY))
 
 (def run-universe-effects!
-  #(->> @universe-state
+  #(->> @net/universe-state
         keys
         (run! %)))
 
 (defn run-effects-once!
   [net-id]
-  (set-effective net-id true)
-  (run-effects!* net-id)
-  (set-effective net-id false))
+  (net/set-effective net-id true)
+  (net/run-effects!* net-id)
+  (net/set-effective net-id false))
 
 (defn activate*
   [rate]
   (swap!
-    universe-state
+    net/universe-state
     (fn [universe]
       (->>
         universe
@@ -659,12 +510,12 @@
                                            (handle element)))
                                        reduction))
                 universe))))
-  (swap! universe-state (partial s/setval* [s/MAP-VALS :active] true))
+  (swap! net/universe-state (partial s/setval* [s/MAP-VALS :active] true))
   (run-universe-effects! run-effects-once!)
   (time/start)
-  (swap! universe-state
-         (partial s/setval* [s/MAP-VALS :time] (get-new-time (time/now))))
-  (run-universe-effects! run-effects-twice!))
+  (swap! net/universe-state
+         (partial s/setval* [s/MAP-VALS :time] (net/get-new-time (time/now))))
+  (run-universe-effects! net/run-effects-twice!))
 
 (aid/defcurried effect
   [f x]
@@ -678,7 +529,7 @@
       reloading-state
       (comp (effect (comp (partial run!
                                    (comp (partial apply
-                                                  (invoke** initial-net-id))
+                                                  (invoke** net/initial-net-id))
                                          (partial s/transform*
                                                   s/FIRST
                                                   alias-id)))
