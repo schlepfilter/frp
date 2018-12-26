@@ -452,7 +452,7 @@
   #(pure* *network-id* %))
 
 (def mempty*
-  #(event* % []))
+  (partial (aid/flip event*) []))
 
 (def mempty
   #(mempty* *network-id*))
