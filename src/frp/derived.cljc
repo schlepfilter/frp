@@ -124,7 +124,6 @@
                                                  (partial s/setval*
                                                           s/BEFORE-ELEM
                                                           %))))))
-       ;TODO extract a function
        (m/<> (aid/<$ (aid/if-then (comp multiton?
                                         second)
                                   (comp set-non-action
