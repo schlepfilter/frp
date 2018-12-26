@@ -573,7 +573,6 @@
   (when (-> @universe-state
             net-id
             (not= x))
-    (println "invoke-net")
     (swap! universe-state (comp (partial s/setval* [net-id :cache] s/NONE)
                                 (partial s/setval* net-id x)))
     (run-effects-twice! net-id)))
