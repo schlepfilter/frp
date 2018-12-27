@@ -32,6 +32,7 @@
                                                        s/nthpath)]
                                                  (get-folder))
                                        tree*)))
+       (m/<> (m/<$> #(partial s/setval* % s/NONE) removal))
        (frp/accum initial-folder)
        (frp/stepper initial-folder)))
 
