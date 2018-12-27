@@ -9,9 +9,9 @@
 
 (defn get-folder
   []
-  {:path     []
-   :color    @(col/as-css (col/random-rgb))
-   :children []})
+  {:path  []
+   :color @(col/as-css (col/random-rgb))
+   :child {}})
 
 (def initial-folder
   (get-folder))
@@ -19,25 +19,20 @@
 (def tree
   (->> addition
        (m/<$> (aid/curriedfn [path* tree*]
-                             (s/setval (s/setval s/END
-                                                 [:children s/AFTER-ELEM]
-                                                 path*)
-                                       (s/setval :path
-                                                 [path*
-                                                  :children
-                                                  (->> tree*
-                                                       (s/select-one* path*)
-                                                       :children
-                                                       count
-                                                       s/nthpath)]
-                                                 (get-folder))
-                                       tree*)))
+                             (let [path** [path* :child (-> (random-uuid)
+                                                            str
+                                                            keyword)]]
+                               (s/setval path**
+                                         (s/setval :path
+                                                   path**
+                                                   (get-folder))
+                                         tree*))))
        (m/<> (m/<$> #(partial s/setval* % s/NONE) removal))
        (frp/accum initial-folder)
        (frp/stepper initial-folder)))
 
 (defn nested-folders-component
-  [{:keys [path color children]}]
+  [{:keys [path color child]}]
   [:div {:style {:background-color color
                  :border           "2px solid black"
                  :padding          "2em"
@@ -48,7 +43,8 @@
      empty? [:div]
      [:button {:on-click #(removal path)}
       "Remove me"])
-   (->> children
+   (->> child
+        vals
         (mapv nested-folders-component)
         (s/setval s/BEFORE-ELEM :div))])
 
