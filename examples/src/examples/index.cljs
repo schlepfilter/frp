@@ -10,6 +10,7 @@
             [examples.cycle.http-search-github :as http-search-github]
             [examples.cycle.nested-folders :as nested-folders]
             [examples.intro :as intro]
+            [examples.re-frame.simple :as simple]
             [examples.rx.drag-n-drop :as drag-n-drop]
             [examples.rx.keyboard-shortcuts :as keyboard-shortcuts]
             [examples.rx.letter-count :as letter-count]
@@ -27,6 +28,7 @@
    :keyboard-shortcuts  keyboard-shortcuts/keyboard-shortcuts
    :letter-count        letter-count/letter-count
    :nested-folders      nested-folders/nested-folders
+   :simple              simple/simple
    :simple-data-binding simple-data-binding/simple-data-binding
    :todos-with-undo     todos-with-undo/todos-with-undo})
 
