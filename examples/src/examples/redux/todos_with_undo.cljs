@@ -109,6 +109,6 @@
 (def todos-with-undo
   ((aid/lift-a todos-with-undo-component) visible-todos view-behavior))
 
-(frp/on (comp aid/funcall
-              :prevent-default)
-        window/submit)
+(frp/run (comp aid/funcall
+               :prevent-default)
+         window/submit)

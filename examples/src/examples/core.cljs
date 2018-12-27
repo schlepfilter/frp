@@ -3,9 +3,9 @@
             [bidi.bidi :as bidi]
             [cats.core :as m]
             [com.rpl.specter :as s]
-            [reagent.core :as r]
             [frp.core :as frp]
             [frp.location :as location]
+            [reagent.core :as r]
             [examples.index :as index]))
 
 (def app
@@ -14,7 +14,7 @@
                (partial bidi/match-route index/route))
          location/pathname))
 
-(frp/on (partial (aid/flip r/render) (js/document.getElementById "app"))
-        app)
+(frp/run (partial (aid/flip r/render) (js/document.getElementById "app"))
+         app)
 
 (frp/activate)

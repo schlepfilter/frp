@@ -34,7 +34,7 @@
                net)
   (set-cache effect-id b ((:net-id b) @net/universe-state)))
 
-(defn on*
+(defn run*
   [effect-id f! x]
   (swap! net/universe-state
          (partial s/setval*
@@ -44,11 +44,11 @@
                      (run-behavior-effect! effect-id))
                     f! x))))
 
-(defn on
+(defn run
   [f! x]
-  (on* (->> @net/universe-state
-            ((:net-id x))
-            :effect
-            net/get-id)
-       f!
-       x))
+  (run* (->> @net/universe-state
+             ((:net-id x))
+             :effect
+             net/get-id)
+        f!
+        x))

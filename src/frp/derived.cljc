@@ -163,7 +163,7 @@
 
 (defn on-action
   [action]
-  `(io/on ~(get-alias action) ~action))
+  `(io/run ~(get-alias action) ~action))
 
 (def on-actions
   (partial map on-action))
@@ -181,12 +181,12 @@
   (let [net (event)
         outer-result (event)]
     (->> inner-result
-         (io/on (fn [x]
+         (io/run (fn [x]
                   (outer-result x)
                   (net @history))))
     (->> net
          (get-undo-redo size undo redo)
-         (io/on history))
+         (io/run history))
     (aid/casep inner-result
       event/event? outer-result
       ((aid/lift-a (fn [t initial-result* outer-result*]

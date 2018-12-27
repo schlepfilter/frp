@@ -40,8 +40,8 @@
   ([rate]
    `(event/activate ~rate)))
 
-(def on
-  io/on)
+(def run
+  io/run)
 
 (defmacro transparent
   [expr]
