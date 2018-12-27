@@ -70,11 +70,10 @@
 
 (defn get-behavior
   [f k]
-  #?(:cljs
-     (->> k
-          (behavior/->Behavior net/initial-net-id)
-          (event/effect (comp behavior/register!
-                              (make-redef-behavior f k))))))
+  #?(:cljs (->> k
+                (behavior/->Behavior net/initial-net-id)
+                (event/effect (comp behavior/register!
+                                    (make-redef-behavior f k))))))
 
 (def get-caller-keyword
   #(->> %
