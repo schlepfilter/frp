@@ -1,10 +1,10 @@
 (ns examples.re-frame.simple
   (:require [aid.core :as aid]
             [cats.core :as m]
-            [frp.core :as frp]
-            [frp.time :as time]
             [cljs-time.coerce :as c]
-            [cljs-time.format :as f]))
+            [cljs-time.format :as f]
+            [frp.core :as frp]
+            [frp.time :as time]))
 
 (frp/defe color-event)
 
