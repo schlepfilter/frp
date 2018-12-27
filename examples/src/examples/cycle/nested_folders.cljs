@@ -44,8 +44,10 @@
                  :width            "auto"}}
    [:button {:on-click #(addition path)}
     "Add folder"]
-   [:button {:on-click #(removal path)}
-    "Remove me"]
+   (aid/casep path
+     empty? [:div]
+     [:button {:on-click #(removal path)}
+      "Remove me"])
    (->> children
         (mapv nested-folders-component)
         (s/setval s/BEFORE-ELEM :div))])
