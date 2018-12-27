@@ -8,6 +8,7 @@
             [examples.cycle.checkbox :as checkbox]
             [examples.cycle.counter :as counter]
             [examples.cycle.http-search-github :as http-search-github]
+            [examples.cycle.nested-folders :as nested-folders]
             [examples.intro :as intro]
             [examples.rx.drag-n-drop :as drag-n-drop]
             [examples.rx.keyboard-shortcuts :as keyboard-shortcuts]
@@ -25,8 +26,9 @@
    :intro               intro/intro
    :keyboard-shortcuts  keyboard-shortcuts/keyboard-shortcuts
    :letter-count        letter-count/letter-count
+   :nested-folders      nested-folders/nested-folders
    :simple-data-binding simple-data-binding/simple-data-binding
-   :todos-with-undo  todos-with-undo/todos-with-undo})
+   :todos-with-undo     todos-with-undo/todos-with-undo})
 
 (def route-keywords
   (keys route-function))
