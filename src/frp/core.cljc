@@ -47,9 +47,9 @@
   [expr]
   `(derived/transparent ~expr))
 
-(defmacro with-undo
+(defmacro undoable
   [& more]
-  `(derived/with-undo ~@more))
+  `(derived/undoable ~@more))
 
 (def accum
   derived/accum)

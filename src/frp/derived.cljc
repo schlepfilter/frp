@@ -161,12 +161,12 @@
         (partial mapcat (juxt identity
                               get-alias))))
 
-(defn on-action
+(defn run-aciton
   [action]
   `(io/run ~(get-alias action) ~action))
 
-(def on-actions
-  (partial map on-action))
+(def run-actions
+  (partial map run-aciton))
 
 #?(:clj (defn alias-expression
           [actions expr]
@@ -182,8 +182,8 @@
         outer-result (event)]
     (->> inner-result
          (io/run (fn [x]
-                  (outer-result x)
-                  (net @history))))
+                   (outer-result x)
+                   (net @history))))
     (->> net
          (get-undo-redo size undo redo)
          (io/run history))
@@ -234,24 +234,24 @@
   (mapcat (get-binding event*) actions))
 
 #?(:clj
-   (defmacro with-undo
+   (defmacro undoable
      ;TODO make actions optional for Clojure
      ;TODO make actions optional for ClojureScript when ClojureScript supports dynamic macro expansion with advanced optimizations
      ;TODO deal with the arity in a function
      ;When expr is an event, with-undo doesn't go back to the state where there is no occurrence.
      ([undo actions expr]
-      `(with-undo event/positive-infinity ~undo (event) ~actions ~expr))
+      `(undoable event/positive-infinity ~undo (event) ~actions ~expr))
      ([x y actions expr]
       (aid/casep x
-        number? `(with-undo ~x ~y (event) ~actions ~expr)
-        `(with-undo event/positive-infinity ~x ~y ~actions ~expr)))
+        number? `(undoable ~x ~y (event) ~actions ~expr)
+        `(undoable event/positive-infinity ~x ~y ~actions ~expr)))
      ([size undo redo actions expr]
       (potemkin/unify-gensyms
         `(let [history## (net/net)
                ~@(get-bindings `(net/with-net history##
                                               (event))
                                actions)]
-           ~@(on-actions actions)
+           ~@(run-actions actions)
            (get-result
              history##
              ~size

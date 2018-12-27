@@ -21,24 +21,24 @@
   10)
 
 (def todos
-  (frp/with-undo size
-                 undo
-                 redo
-                 [todo toggle]
-                 ((aid/lift-a (fn [additions m]
-                                (map (aid/transfer* s/AFTER-ELEM (comp m
-                                                                       first))
-                                     additions)))
-                   (->> todo
-                        core/vector
-                        (frp/stepper []))
-                   (->> todo
-                        (m/<$> first)
-                        (m/<> toggle)
-                        (core/group-by identity)
-                        (m/<$> (partial s/transform* s/MAP-VALS (comp odd?
-                                                                      count)))
-                        (frp/stepper {})))))
+  (frp/undoable size
+                undo
+                redo
+                [todo toggle]
+                ((aid/lift-a (fn [additions m]
+                               (map (aid/transfer* s/AFTER-ELEM (comp m
+                                                                      first))
+                                    additions)))
+                  (->> todo
+                       core/vector
+                       (frp/stepper []))
+                  (->> todo
+                       (m/<$> first)
+                       (m/<> toggle)
+                       (core/group-by identity)
+                       (m/<$> (partial s/transform* s/MAP-VALS (comp odd?
+                                                                     count)))
+                       (frp/stepper {})))))
 
 (def view-behavior
   (frp/stepper :all view-event))
