@@ -501,12 +501,11 @@
                                        (aid/case-eval rate
                                          positive-infinity aid/nop
                                          (#?(:clj
-                                             (comp chime/chime-at
-                                                   (get-periods rate))
+                                             (partial chime/chime-at
+                                                      (get-periods rate))
                                              :cljs
                                              #(partial js/clearInterval
-                                                       (js/setInterval %
-                                                                       rate)))
+                                                       (js/setInterval % rate)))
                                            (handle element)))
                                        reduction))
                 universe))))

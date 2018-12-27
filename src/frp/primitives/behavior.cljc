@@ -126,6 +126,7 @@
 
 (def stop
   #((->> @net/universe-state
+         vals
          :cancellations
          (apply juxt aid/nop))))
 
