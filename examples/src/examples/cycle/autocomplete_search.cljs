@@ -114,36 +114,35 @@
 
 (defn suggestion-list-component
   [suggested* suggestions* number*]
-  (->>
-    suggestions*
-    (map-indexed (fn [index x]
-                   [:li {:on-click       #(completion x)
-                         :on-mouse-enter #(relative-number index)
-                         :style          {:border-bottom border
-                                          :list-style    "none"
-                                          :padding       "3px 0px 3px 8px"}}
-                    x]))
-    (aid/if-else empty?
-                 (partial s/transform*
-                          [(s/srange number* (inc number*)) s/ALL]
-                          (fn [[_ m s]]
-                            [:li (s/setval [:style :background] green m)
-                             s])))
-    (concat [:ul {:style    {:background    "white"
-                             :border        border
-                             :border-bottom "0px"
-                             :box-shadow    (->> 0.863
-                                                 helpers/get-grey
-                                                 (str "0px 4px 4px "))
-                             :display       (if suggested*
-                                              "block"
-                                              "none")
-                             :margin        0
-                             :padding       0
-                             :position      "absolute"
-                             :width         "100%"}
-                  :on-click #(suggested false)}])
-    vec))
+  (->> suggestions*
+       (map-indexed (fn [index x]
+                      [:li {:on-click       #(completion x)
+                            :on-mouse-enter #(relative-number index)
+                            :style          {:border-bottom border
+                                             :list-style    "none"
+                                             :padding       "3px 0px 3px 8px"}}
+                       x]))
+       (aid/if-else empty?
+                    (partial s/transform*
+                             [(s/srange number* (inc number*)) s/ALL]
+                             (fn [[_ m s]]
+                               [:li (s/setval [:style :background] green m)
+                                s])))
+       (concat [:ul {:style    {:background    "white"
+                                :border        border
+                                :border-bottom "0px"
+                                :box-shadow    (->> 0.863
+                                                    helpers/get-grey
+                                                    (str "0px 4px 4px "))
+                                :display       (if suggested*
+                                                 "block"
+                                                 "none")
+                                :margin        0
+                                :padding       0
+                                :position      "absolute"
+                                :width         "100%"}
+                     :on-click #(suggested false)}])
+       vec))
 
 (def suggestion-list
   ((aid/lift-a suggestion-list-component)
