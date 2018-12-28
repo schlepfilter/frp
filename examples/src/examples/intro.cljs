@@ -92,9 +92,7 @@
 (defn intro-component
   [users*]
   (s/setval s/END
-            (map get-user-component
-                 users*
-                 closings)
+            (map get-user-component users* closings)
             [:div {:style {:border (str "0.125em solid " intro-color)}}
              [:div {:style {:background-color intro-color
                             :padding          "0.313em"}}
