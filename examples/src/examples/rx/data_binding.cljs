@@ -1,10 +1,10 @@
 (ns examples.rx.data-binding
   (:require [aid.core :as aid]
+            [cats.core :as m]
             [com.rpl.specter :as s]
             [frp.clojure.core :as core]
             [frp.core :as frp]
-            [examples.helpers :as helpers]
-            [cats.core :as m]))
+            [examples.helpers :as helpers]))
 
 (frp/defe click)
 
