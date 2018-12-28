@@ -17,4 +17,7 @@
 (frp/run (partial (aid/flip r/render) (js/document.getElementById "app"))
          app)
 
-(frp/activate)
+(def rate
+  1000)
+
+(frp/activate rate)
