@@ -14,8 +14,7 @@
                (partial bidi/match-route index/route))
          location/pathname))
 
-(frp/run (partial (aid/flip r/render) (js/document.getElementById "app"))
-         app)
+(frp/run (partial (aid/flip r/render) (js/document.getElementById "app")) app)
 
 (def rate
   1000)
