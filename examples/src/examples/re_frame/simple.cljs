@@ -24,10 +24,12 @@
    [:h1 "Hello world, it is now"]
    [:div {:style {:color color*}}
     clock*]
-   [:input {:on-change #(-> %
-                            .-target.value
-                            color-event)
-            :value     color*}]])
+   [:div
+    "Time color: "
+    [:input {:on-change #(-> %
+                             .-target.value
+                             color-event)
+             :value     color*}]]])
 
 (def simple
   ((aid/lift-a simple-component) clock-behavior color-behavior))
