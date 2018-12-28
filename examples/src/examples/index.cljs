@@ -11,6 +11,7 @@
             [examples.cycle.nested-folders :as nested-folders]
             [examples.intro :as intro]
             [examples.re-frame.simple :as simple]
+            [examples.rx.data-binding :as data-binding]
             [examples.rx.drag-n-drop :as drag-n-drop]
             [examples.rx.keyboard-shortcuts :as keyboard-shortcuts]
             [examples.rx.letter-count :as letter-count]
@@ -22,6 +23,7 @@
    :bmi-naive           bmi-naive/bmi-naive
    :checkbox            checkbox/checkbox
    :counter             counter/counter
+   :data-binding        data-binding/data-binding
    :drag-n-drop         drag-n-drop/drag-n-drop
    :http-search-github  http-search-github/http-search-github
    :intro               intro/intro

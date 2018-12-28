@@ -1,10 +1,7 @@
 (ns examples.rx.simple-data-binding
-  (:require [aid.core :as aid]
-            [clojure.string :as str]
+  (:require [clojure.string :as str]
             [cats.core :as m]
-            [frp.core :as frp]))
-
-(frp/defe first-name last-name)
+            [examples.helpers :as helpers]))
 
 (defn partial-name
   [{:keys [event label]}]
@@ -16,11 +13,11 @@
             :placeholder (str/join " " ["Enter" label "Name..."])}]])
 
 (def first-name-component
-  (partial-name {:event first-name
+  (partial-name {:event helpers/first-name
                  :label "First"}))
 
 (def last-name-component
-  (partial-name {:event last-name
+  (partial-name {:event helpers/last-name
                  :label "Last"}))
 
 (defn simple-data-binding-component
@@ -33,11 +30,5 @@
    [:div "Full Name"]
    [:div full-name*]])
 
-(def full-name
-  ((aid/lift-a str)
-    (frp/stepper "" first-name)
-    (frp/behavior " ")
-    (frp/stepper "" last-name)))
-
 (def simple-data-binding
-  (m/<$> simple-data-binding-component full-name))
+  (m/<$> simple-data-binding-component helpers/full-name))
