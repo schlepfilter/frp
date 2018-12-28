@@ -66,6 +66,14 @@
 (defn data-binding-component
   [full-name* coll]
   [:div
+   [:h1 "TKO - Technical Knockout"]
+   [:p
+    "Inspired by "
+    [:a {:href "https://github.com/cwharris/rxjs-splash"}
+     "RxJS-Splash"]
+    " and "
+    [:a {:href "http://knockoutjs.com/"}
+     "Knockout.js"]]
    [full-name-component full-name*]
    (->> coll
         (s/setval s/BEFORE-ELEM click-component)
