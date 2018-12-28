@@ -13,7 +13,8 @@
   (m/<$> (comp (partial f/unparse (f/formatters :hour-minute-second))
                c/from-long
                deref
-               time/to-real-time) frp/time))
+               time/to-real-time)
+         frp/time))
 
 (def color-behavior
   (frp/stepper "#f88" color-event))
