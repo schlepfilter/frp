@@ -18,8 +18,8 @@
                 :display     "flex"
                 :padding     "0.313em"
                 :visibility  (aid/casep user*
-                                        empty? "hidden"
-                                        "visible")}}
+                               empty? "hidden"
+                               "visible")}}
    [:img {:src   (:avatar_url user*)
           :style {:border-radius "1.25em"
                   :height        "2.5em"
@@ -34,8 +34,8 @@
         :style    link-style}
     "x"]])
 
-(def grey
-  (helpers/get-color 0 0 0.93))
+(def intro-color
+  (helpers/get-grey 0.93))
 
 (def beginning
   (frp/event 0))
@@ -95,8 +95,8 @@
             (map get-user-component
                  users*
                  closings)
-            [:div {:style {:border (str "0.125em solid " grey)}}
-             [:div {:style {:background-color grey
+            [:div {:style {:border (str "0.125em solid " intro-color)}}
+             [:div {:style {:background-color intro-color
                             :padding          "0.313em"}}
               [:h2 {:style {:display "inline-block"}}
                "Who to follow"]

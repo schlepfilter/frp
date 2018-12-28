@@ -82,7 +82,7 @@
 (defn autocomplete-search-component
   ;TODO display suggestions
   [query-input* suggestion-list*]
-  [:div {:style {:background (helpers/get-color 0 0 0.94)
+  [:div {:style {:background (helpers/get-grey 0.94)
                  :padding    5}}
    [:section {:style section-style}
     [:label {:style label-style}
@@ -108,7 +108,7 @@
   (helpers/get-color (/ 29 72) 0.66 0.74))
 
 (def border
-  (str "1px solid " (helpers/get-color 0 0 0.8)))
+  (str "1px solid " (helpers/get-grey 0.8)))
 
 (defn suggestion-list-component
   [suggested* suggestions* number*]
@@ -130,7 +130,7 @@
     (concat [:ul {:style    {:background    "white"
                              :border        border
                              :border-bottom "0px"
-                             :box-shadow    (->> (helpers/get-color 0 0 0.863)
+                             :box-shadow    (->> (helpers/get-grey 0.863)
                                                  (str "0px 4px 4px "))
                              :display       (if suggested*
                                               "block"
