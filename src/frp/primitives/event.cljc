@@ -2,9 +2,7 @@
 (ns ^:figwheel-always frp.primitives.event
   (:refer-clojure :exclude [transduce])
   (:require [cljs.analyzer.api :as ana-api]
-            #?(:cljs [cljs.reader :as reader])
             [clojure.set :as set]
-            #?(:cljs [goog.object :as object])
             [aid.core :as aid]
             [aid.unit :as unit]
             [cats.core :as m]
@@ -15,44 +13,23 @@
                       [clj-time.core :as t]
                       [clj-time.periodic :as periodic]])
             [com.rpl.specter :as s]
-            [linked.core :as linked]
             [loom.alg :as alg]
             [loom.graph :as graph]
             [frp.helpers :as helpers]
+            [frp.primitives.net :as net]
             [frp.protocols :as entity-protocols]
             [frp.time :as time]
             [frp.tuple :as tuple])
   #?(:cljs (:require-macros [frp.primitives.event :refer [get-namespaces]]))
   #?(:clj (:import [clojure.lang IDeref IFn])))
 
-(declare context)
-
-(def initial-network
-  {:dependency (graph/digraph)
-   :function   (linked/map)
-   :occs       (linked/map)
-   :time       time/epoch})
-
-(def network-state
-  (atom initial-network))
+(declare get-context)
 
 (defn get-occs
-  [id network]
-  (-> network
+  [entity-id net]
+  (-> net
       :occs
-      id))
-
-(def get-new-time
-  #(let [current (time/now)]
-     (aid/case-eval %
-       current (recur %)
-       current)))
-
-(def get-times
-  ;TODO don't lose a millisecond
-  #((juxt identity
-          get-new-time)
-     (time/now)))
+      entity-id))
 
 (declare event?)
 
@@ -67,24 +44,17 @@
            %))
 
 (aid/defcurried set-occs
-  [occs id network]
-  (s/transform [:occs id]
+  [occs entity-id net]
+  (s/transform [:occs entity-id]
                (comp (partial s/setval* s/END occs)
                      ;Doing garbage collection is visibly faster.
                      garbage-collect)
-               network))
+               net))
 
-(def call-functions
-  (aid/flip (partial reduce (aid/flip aid/funcall))))
-
-(def call-functions!
-  #(call-functions (interleave % (repeat (partial reset! network-state)))
-                   @network-state))
-
-(defn modify-network!
-  [occ id network]
+(defn modify-net!
+  [occ net-id entity-id net]
   ;TODO advance
-  (->> network
+  (->> net
        :dependency
        ;Taking a subgraph seems faster.
        ;(tufte/add-basic-println-handler! {})
@@ -98,7 +68,7 @@
        ;
        ;If a subgraph is taken, it's faster.
        ;
-       ;{:id :invoke, :n-calls 5, :min "216ms", :max "349ms", :mad "39.04ms", :mean "251.4ms", :time% 39, :time "1.26s "}
+       ;{:entity-id :invoke, :n-calls 5, :min "216ms", :max "349ms", :mad "39.04ms", :mean "251.4ms", :time% 39, :time "1.26s "}
        ;
        ;Clock Time: (100%) 3.25s
        ;Accounted Time: (39%) 1.26s
@@ -106,57 +76,21 @@
        ;
        ;If a subgraph is not taken, it's slower.
        ;
-       ;{:id :invoke, :n-calls 5, :min "347ms", :max "578ms", :mad "69.44ms", :mean "414.2ms", :time% 54, :time "2.07s "}
+       ;{:entity-id :invoke, :n-calls 5, :min "347ms", :max "578ms", :mad "69.44ms", :mean "414.2ms", :time% 54, :time "2.07s "}
        ;
        ;Clock Time: (100%) 3.85s
        ;Accounted Time: (54%) 2.07s
        ;nil
        ((aid/build graph/subgraph
                    identity
-                   (partial (aid/flip alg/bf-traverse) id)))
+                   (partial (aid/flip alg/bf-traverse) entity-id)))
        alg/topsort
-       (mapcat (:modifications network))
+       (mapcat (:modifications net))
        (concat [(partial s/setval* [:modified s/MAP-VALS] false)
-                ;TODO clear cache
                 (partial s/setval* :time (tuple/fst occ))
-                (set-occs [occ] id)
-                (partial s/setval* [:modified id] true)])
-       call-functions!))
-
-(def run-effects!*
-  (comp call-functions!
-        :invocations
-        (partial s/setval* :effective false)
-        call-functions!
-        :effects
-        (partial s/setval* :effective true)
-        (partial s/setval* :invocations [])))
-
-(def run-effects!
-  #(run-effects!* @network-state))
-
-(defmacro get-namespaces
-  []
-  (->> (try (ana-api/all-ns)
-            #?(:clj (catch NullPointerException _ [])))
-       (map str)
-       vec))
-
-(defn get-alias-id
-  [x]
-  #?(:cljs (->> x
-                (map symbol)
-                (filter find-ns)
-                (mapcat ns-interns*)
-                (map second)
-                (filter (comp event?
-                              deref))
-                (mapcat (juxt (comp keyword
-                                    (partial (aid/flip subs) 2)
-                                    str)
-                              (comp :id
-                                    deref)))
-                (apply hash-map))))
+                (set-occs [occ] entity-id)
+                (partial s/setval* [:modified entity-id] true)])
+       (net/call-functions! net-id)))
 
 (def initial-reloading
   {})
@@ -164,158 +98,147 @@
 (defonce reloading-state
   (atom initial-reloading))
 
-(defn invoke**
-  [id a]
-  (let [[past current] (get-times)]
-    (modify-network! (tuple/tuple past a) id @network-state)
-    (run-effects!)
-    (swap! network-state (partial s/setval* :time current))
-    (run-effects!)))
+(aid/defcurried invoke**
+  [net-id entity-id a]
+  (->> @net/universe-state
+       net-id
+       (modify-net! (-> (time/now)
+                        net/get-new-time
+                        (tuple/tuple a))
+                    net-id
+                    entity-id))
+  (net/run-effects-twice! net-id))
 
 (def debugging
   #?(:clj  false
      :cljs goog/DEBUG))
 
-(defn invoke*
-  [id a]
-  (when (:active @network-state)
-    (if (:effective @network-state)
-      (swap! network-state
+(aid/defcurried invoke*
+  [net-id entity-id a]
+  (when (-> @net/universe-state
+            net-id
+            :active)
+    (if (-> @net/universe-state
+            net-id
+            ((aid/build or
+                        :effective
+                        (comp (partial = time/epoch)
+                              :time))))
+      (swap! net/universe-state
              (partial s/setval*
-                      [:invocations s/AFTER-ELEM]
-                      (partial invoke* id a)))
+                      [net-id :invocations s/AFTER-ELEM]
+                      #(invoke* net-id entity-id a)))
+      ;TODO make debugging compatible with multiple nets
       (do (if debugging
             (swap! reloading-state
-                   (partial s/setval* [:id-invocations s/AFTER-ELEM] [id a])))
-          (invoke** id a)))))
+                   (partial s/setval*
+                            [:entity-id-invocations s/AFTER-ELEM]
+                            [entity-id a])))
+          (invoke** net-id entity-id a)))))
 
 (defrecord Event
-  [id]
+  [net-id entity-id]
   cats-protocols/Contextual
   (-get-context [_]
     ;If context is inlined, the following error seems to occur.
     ;java.lang.LinkageError: loader (instance of clojure/lang/DynamicClassLoader): attempted duplicate class definition for name: "nodp/helpers/primitives/event/Event"
-    context)
+    (get-context net-id))
   IFn
   ;TODO implement applyTo
   (#?(:clj  invoke
       :cljs -invoke) [_]
-    (invoke* id unit/unit))
+    (invoke* net-id entity-id unit/unit))
   (#?(:clj  invoke
       :cljs -invoke) [_ a]
-    (invoke* id a))
+    (invoke* net-id entity-id a))
   entity-protocols/Entity
   (-get-keyword [_]
     :event)
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
-    (get-occs id @network-state))
+    (->> @net/universe-state
+         net-id
+         (get-occs entity-id)))
   cats-protocols/Printable
   (-repr [_]
-    (str "#[event " id "]")))
+    (str "#[event " net-id " " entity-id "]")))
 
 (util/make-printable Event)
 
 (def event?
   (partial instance? Event))
 
-(def parse-keyword
-  (comp #?(:clj  read-string
-           :cljs reader/read-string)
-        name))
-
-(def get-last-key
-  (comp key
-        last))
-
-(def parse-last-key
-  (comp parse-keyword
-        get-last-key))
-
-(def get-id-number
-  #(aid/casep %
-     empty? 0
-     (comp number?
-           parse-last-key)
-     (-> %
-         parse-last-key
-         inc)
-     (->> %
-          get-last-key
-          (dissoc %)
-          recur)))
-
-(def get-id
-  ;TODO return uuid for production
-  (comp keyword
-        str
-        get-id-number
-        aid/funcall))
-
 (defn event**
-  [id fs]
+  [net-id entity-id fs]
   ;TODO add a node to dependency
   (->> fs
-       (map ((aid/curry 3 (aid/flip aid/funcall)) id))
-       (cons (set-occs [] id))
-       call-functions!)
-  (Event. id))
+       (map ((aid/curry 3 (aid/flip aid/funcall)) entity-id))
+       (cons (set-occs [] entity-id))
+       (net/call-functions! net-id))
+  (Event. net-id entity-id))
 
-(def event*
-  #(event** (get-id :occs @network-state) %))
+(aid/defcurried event*
+  [net-id fs]
+  (event** net-id
+           (->> @net/universe-state
+                net-id
+                :occs
+                net/get-id)
+           fs))
 
 (def get-unit
   (partial tuple/tuple time/epoch))
 
 (aid/defcurried add-edge
-  [parent-id child-id network]
+  [parent-id child-id net]
   (s/transform :dependency
                (partial (aid/flip graph/add-edges)
                         [parent-id child-id])
-               network))
+               net))
 
 (defn get-latests
-  [id network]
-  (->> network
-       (get-occs id)
-       (filter (comp (partial = (:time network))
+  [entity-id net]
+  (->> net
+       (get-occs entity-id)
+       (filter (comp (partial = (:time net))
                      tuple/fst))))
 
 (defn get-occs-or-latests
-  [initial id network]
+  [initial entity-id net]
   ((if initial
      get-occs
      get-latests)
-    id
-    network))
+    entity-id
+    net))
 
 (aid/defcurried modify-<$>
-  [f! parent-id initial child-id network]
+  [f! net-id parent-id initial child-id net]
   ;TODO refactor
-  (set-occs (->> network
-                 (get-occs-or-latests initial parent-id)
-                 (mapv (partial m/<$> f!)))
+  (set-occs (net/with-net (net/->Net net-id)
+                          (->> net
+                               (get-occs-or-latests initial parent-id)
+                               (mapv (partial m/<$> f!))))
             child-id
-            @network-state))
+            (net-id @net/universe-state)))
 
 (defn make-call-once
-  [id modify!]
-  (aid/if-else (comp id
+  [entity-id modify!]
+  (aid/if-else (comp entity-id
                      :modified)
                modify!))
 
 (defn set-modification
-  [id modify! network]
-  (s/setval [:modifications id]
-            [(make-call-once id modify!)
-             (partial s/setval* [:modified id] true)]
-            network))
+  [entity-id modify! net]
+  (s/setval [:modifications entity-id]
+            [(make-call-once entity-id modify!)
+             (partial s/setval* [:modified entity-id] true)]
+            net))
 
 (defn make-set-modification-modification
   [modify!]
-  [(fn [id network]
-     (set-modification id (modify! false id) network))
+  [(fn [entity-id net]
+     (set-modification entity-id (modify! false entity-id) net))
    (modify! true)])
 
 (def snth
@@ -323,53 +246,54 @@
         (partial repeat 2)))
 
 (defn insert-modification
-  [modify! id network]
-  (s/setval [:modifications id (-> network
-                                   :modifications
-                                   id
-                                   count
-                                   (- 2)
-                                   snth)]
-            [(make-call-once id modify!)]
-            network))
+  [modify! entity-id net]
+  (s/setval [:modifications entity-id (-> net
+                                          :modifications
+                                          entity-id
+                                          count
+                                          (- 2)
+                                          snth)]
+            [(make-call-once entity-id modify!)]
+            net))
 
 (aid/defcurried insert-merge-sync
-  [parent-id child-id network]
+  [parent-id child-id net]
   (insert-modification #(set-occs (get-latests parent-id %) child-id %)
                        child-id
-                       network))
+                       net))
 
 (defn delay-time-occs
   [t occs]
   (map (partial m/<*> (tuple/tuple t identity)) occs))
 
 (aid/defcurried delay-sync
-  [parent-id child-id network]
-  (->> network
+  [parent-id child-id net]
+  (->> net
        (get-occs parent-id)
        (run! #(->> %
                    tuple/fst
-                   ((set [time/epoch (:time network)]))
+                   ((set [time/epoch (:time net)]))
                    assert)))
-  (set-occs (->> network
+  (set-occs (->> net
                  (get-occs parent-id)
-                 (delay-time-occs (:time network)))
+                 (delay-time-occs (:time net)))
             child-id
-            network))
+            net))
 
 (aid/defcurried modify-join
-  [parent-id initial child-id network]
-  (->> network
+  [net-id parent-id initial child-id net]
+  (->> net
        (get-occs-or-latests initial parent-id)
        (map (comp (aid/curriedfn [parent-id* _]
-                                 (call-functions! ((juxt add-edge
-                                                         insert-merge-sync
-                                                         delay-sync)
-                                                    parent-id*
-                                                    child-id)))
-                  :id
+                                 (net/call-functions! net-id
+                                                      ((juxt add-edge
+                                                             insert-merge-sync
+                                                             delay-sync)
+                                                        parent-id*
+                                                        child-id)))
+                  :entity-id
                   tuple/snd))
-       call-functions!))
+       (net/call-functions! net-id)))
 
 (defn merge-one
   [parent merged]
@@ -391,53 +315,82 @@
   (merge-occs* []))
 
 (aid/defcurried modify-<>
-  [left-id right-id initial child-id network]
-  (set-occs (merge-occs (get-occs-or-latests initial left-id network)
-                        (get-occs-or-latests initial right-id network))
+  [left-id right-id initial child-id net]
+  (set-occs (merge-occs (get-occs-or-latests initial left-id net)
+                        (get-occs-or-latests initial right-id net))
             child-id
-            network))
+            net))
+
+(defn pure*
+  [net-id a]
+  (->> a
+       get-unit
+       vector
+       set-occs
+       vector
+       (event* net-id)))
 
 (def pure
-  (comp event*
-        vector
-        set-occs
-        vector
-        get-unit))
+  #(pure* net/*net-id* %))
+
+(def mempty*
+  (partial (aid/flip event*) []))
 
 (def mempty
-  #(event* []))
+  #(mempty* net/*net-id*))
 
-(def context
-  (helpers/reify-monad (fn [f! fa]
-                         (->> fa
-                              :id
-                              (modify-<$> f!)
-                              make-set-modification-modification
-                              (cons (add-edge (:id fa)))
-                              event*))
-                       pure
-                       #(->> (modify-join (:id %))
-                             make-set-modification-modification
-                             (cons (add-edge (:id %)))
-                             event*)
-                       cats-protocols/Semigroup
-                       (-mappend [_ left-event right-event]
-                                 (-> (modify-<> (:id left-event)
-                                                (:id right-event))
-                                     make-set-modification-modification
-                                     (concat (map (comp add-edge
-                                                        :id)
-                                                  [left-event right-event]))
-                                     event*))
-                       ;TODO delete Monoid
-                       cats-protocols/Monoid
-                       (-mempty [_]
-                                (mempty))))
+(defn get-context
+  [net-id]
+  (reify
+    entity-protocols/Entity
+    (-get-net-id [_]
+      net-id)
+    cats-protocols/Context
+    cats-protocols/Functor
+    (-fmap [_ f! fa]
+      (->> fa
+           ((aid/build (modify-<$> f!)
+                       :net-id
+                       :entity-id))
+           make-set-modification-modification
+           (cons (add-edge (:entity-id fa)))
+           (event* (:net-id fa))))
+    cats-protocols/Applicative
+    (-pure [context a]
+      (pure* (entity-protocols/-get-net-id context) a))
+    (-fapply [_ fab fa]
+      (aid/ap fab fa))
+    cats-protocols/Monad
+    (-mreturn [context a]
+      (cats-protocols/-pure context a))
+    (-mbind [_ ma f!]
+      (let [mb (m/<$> f! ma)]
+        (->> mb
+             ((aid/build modify-join
+                         :net-id
+                         :entity-id))
+             make-set-modification-modification
+             (cons (add-edge (:entity-id mb)))
+             (event* (:net-id mb)))))
+    cats-protocols/Semigroup
+    (-mappend [_ left-event right-event]
+      (->> [left-event right-event]
+           (map (comp add-edge
+                      :entity-id))
+           (concat
+             (make-set-modification-modification
+               (modify-<> (:entity-id left-event)
+                          (:entity-id right-event))))
+           (event* (:net-id left-event))))
+    ;TODO delete Monoid
+    cats-protocols/Monoid
+    (-mempty [context]
+      (mempty* (entity-protocols/-get-net-id context)))))
 
 (defn get-elements
-  [step! id initial network]
-  (->> network
-       (get-occs-or-latests initial id)
+  [step! entity-id initial net]
+  (->> net
+       (get-occs-or-latests initial entity-id)
        (map (partial s/transform* :snd (comp unreduced
                                              (partial step! aid/nothing))))
        (filter (comp maybe/just?
@@ -452,11 +405,11 @@
       last))
 
 (aid/defcurried get-accumulator
-  [f! init id network reduction element]
+  [f! init entity-id net reduction element]
   (s/setval s/AFTER-ELEM
             ((aid/lift-a f!)
               (get-transduction init
-                                (get-occs id network)
+                                (get-occs entity-id net)
                                 reduction)
               element)
             reduction))
@@ -466,15 +419,15 @@
   #(let [step! (% (comp maybe/just
                         second
                         vector))]
-     (aid/curriedfn [f! init parent-id initial child-id network]
-                    (set-occs (reduce (get-accumulator f! init child-id network)
+     (aid/curriedfn [f! init net-id parent-id initial child-id net]
+                    (set-occs (reduce (get-accumulator f! init child-id net)
                                       []
                                       (get-elements step!
                                                     parent-id
                                                     initial
-                                                    network))
+                                                    net))
                               child-id
-                              @network-state))))
+                              (net-id @net/universe-state)))))
 
 (defn transduce
   ([xform f e]
@@ -483,16 +436,18 @@
     ;TODO refactor
     ;TODO consider cases where f has side effects
    (->> e
-        :id
-        ((make-modify-transduce xform) f init)
+        ((aid/build ((make-modify-transduce xform) f init)
+                    :net-id
+                    :entity-id))
         make-set-modification-modification
-        (cons (add-edge (:id e)))
-        event*)))
+        (cons (add-edge (:entity-id e)))
+        (event* (:net-id e)))))
 
 (defn snapshot
-  [e b]
-  (m/<$> (fn [x]
-           [x @b])
+  [e & bs]
+  (m/<$> #(->> bs
+               (map deref)
+               (cons %))
          e))
 
 #?(:clj (defn get-periods
@@ -503,41 +458,65 @@
                (periodic/periodic-seq (t/now))
                rest)))
 
-(defn handle
-  [_]
-  (when (:active @network-state)
-    (->> (time/now)
-         get-new-time
-         (partial s/setval* :time)
-         (swap! network-state))
-    (run-effects!)))
+(def handle
+  #(when (-> @net/universe-state
+             %
+             :active)
+     (->> (time/now)
+          net/get-new-time
+          (partial s/setval* [% :time])
+          (swap! net/universe-state))
+     (net/run-effects-twice! %)))
 
-(def append-cancellation
-  (aid/curry 2 (partial s/setval* [:cancellations s/AFTER-ELEM])))
+(aid/defcurried append-cancellation
+  [net-id f! universe]
+  (s/setval [net-id :cancellations s/AFTER-ELEM] f! universe))
 
 (def positive-infinity
   #?(:clj  Double/POSITIVE_INFINITY
      :cljs js/Number.POSITIVE_INFINITY))
 
+(def run-universe-effects!
+  #(->> @net/universe-state
+        keys
+        (run! %)))
+
+(defn run-effects-once!
+  [net-id]
+  (net/set-effective net-id true)
+  (net/run-effects!* net-id)
+  (net/set-effective net-id false))
+
 (defn activate*
   [rate]
-  (->> (aid/case-eval rate
-         positive-infinity aid/nop
-         #?(:clj  (-> rate
-                      get-periods
-                      (chime/chime-at handle))
-            :cljs (->> (js/setInterval handle rate)
-                       (partial js/clearInterval))))
-       append-cancellation
-       (swap! network-state))
-  (swap! network-state (partial s/setval* :active true))
-  (run-effects!)
+  (swap!
+    net/universe-state
+    (fn [universe]
+      (->>
+        universe
+        keys
+        (reduce
+          (fn [reduction element]
+            (append-cancellation element
+                                 (aid/case-eval rate
+                                   positive-infinity aid/nop
+                                   #?(:clj
+                                      (chime/chime-at (get-periods rate)
+                                                      (fn [_]
+                                                        (handle element)))
+                                      :cljs
+                                      (partial js/clearInterval
+                                               (js/setInterval (partial handle
+                                                                        element)
+                                                               rate))))
+                                 reduction))
+          universe))))
+  (swap! net/universe-state (partial s/setval* [s/MAP-VALS :active] true))
+  (run-universe-effects! run-effects-once!)
   (time/start)
-  (->> (time/now)
-       get-new-time
-       (partial s/setval* :time)
-       (swap! network-state))
-  (run-effects!))
+  (swap! net/universe-state
+         (partial s/setval* [s/MAP-VALS :time] (net/get-new-time (time/now))))
+  (run-universe-effects! net/run-effects-twice!))
 
 (aid/defcurried effect
   [f x]
@@ -547,32 +526,55 @@
 (defn reload*
   [alias-id]
   (if debugging
-    (swap! reloading-state
-           (comp (effect (comp (partial run!
-                                        (comp (partial apply invoke**)
-                                              (partial s/transform*
-                                                       s/FIRST
-                                                       alias-id)))
-                               :alias-invocations))
-                 (partial s/setval* :id-invocations [])
-                 (partial s/setval* :id alias-id)
-                 #(s/setval [:alias-invocations s/END]
-                            (->> %
-                                 :id-invocations
-                                 (filter (comp (-> %
-                                                   :id
-                                                   set/map-invert)
-                                               first))
-                                 (s/transform [s/ALL s/FIRST]
-                                              (-> %
-                                                  :id
-                                                  set/map-invert)))
-                            %)))))
+    (swap!
+      reloading-state
+      (comp (effect (comp (partial run!
+                                   (comp (partial apply
+                                                  (invoke** net/initial-net-id))
+                                         (partial s/transform*
+                                                  s/FIRST
+                                                  alias-id)))
+                          :alias-invocations))
+            (partial s/setval* :entity-id-invocations [])
+            (partial s/setval* :entity-id alias-id)
+            #(s/setval [:alias-invocations s/END]
+                       (->> %
+                            :entity-id-invocations
+                            (filter (comp (-> %
+                                              :entity-id
+                                              set/map-invert)
+                                          first))
+                            (s/transform [s/ALL s/FIRST]
+                                         (-> %
+                                             :entity-id
+                                             set/map-invert)))
+                       %)))))
+
+#?(:cljs (def get-alias-id
+           (comp (partial apply hash-map)
+                 (partial mapcat (juxt (comp keyword
+                                             (partial (aid/flip subs) 2)
+                                             str)
+                                       (comp :entity-id
+                                             deref)))
+                 (partial filter (comp event?
+                                       deref))
+                 (partial map second)
+                 (partial mapcat ns-interns*)
+                 (partial filter find-ns)
+                 (partial map symbol))))
 
 (def reload
   #?(:clj  aid/nop
      :cljs (comp reload*
                  get-alias-id)))
+
+(defmacro get-namespaces
+  []
+  (->> (try (ana-api/all-ns)
+            #?(:clj (catch NullPointerException _ [])))
+       (map str)
+       vec))
 
 (defmacro activate
   ([]

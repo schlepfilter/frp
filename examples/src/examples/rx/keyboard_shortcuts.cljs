@@ -51,6 +51,6 @@
        (frp/stepper {})
        (m/<$> keyboard-shortcuts-component)))
 
-(frp/on (fn [registration*]
-          (js/Mousetrap.bind registration* #(trigger registration*)))
-        registration)
+(frp/run (fn [registration*]
+           (js/Mousetrap.bind registration* #(trigger registration*)))
+         registration)

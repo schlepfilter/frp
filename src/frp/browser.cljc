@@ -7,7 +7,8 @@
                        [oops.core :refer [oget+]]])
             [frp.derived :as derived]
             [frp.primitives.behavior :as behavior]
-            [frp.primitives.event :as event])
+            [frp.primitives.event :as event]
+            [frp.primitives.net :as net])
   #?(:cljs (:require-macros frp.browser)))
 
 (defn make-redef-event
@@ -18,14 +19,15 @@
 (def get-event
   (comp (event/effect (comp behavior/register!
                             make-redef-event))
-        event/->Event))
+        (partial event/->Event net/initial-net-id)))
 
 (defn add-remove-listener
   [target event-type listener]
   #?@(:cljs
       [(.addEventListener target event-type listener)
-       (swap! event/network-state
-              (event/append-cancellation (fn [_]
+       (swap! net/universe-state
+              (event/append-cancellation net/initial-net-id
+                                         (fn [_]
                                            (.removeEventListener target
                                                                  event-type
                                                                  listener))))]))
@@ -40,10 +42,10 @@
   #?(:cljs
      (behavior/register!
        #(add-remove-listener (oget+ js/window (-> e
-                                                  :id
+                                                  :entity-id
                                                   get-property-name))
                              (-> e
-                                 :id
+                                 :entity-id
                                  name)
                              (comp e
                                    f))))
@@ -68,11 +70,10 @@
 
 (defn get-behavior
   [f k]
-  #?(:cljs
-     (->> k
-          behavior/->Behavior
-          (event/effect (comp behavior/register!
-                              (make-redef-behavior f k))))))
+  #?(:cljs (->> k
+                (behavior/->Behavior net/initial-net-id)
+                (event/effect (comp behavior/register!
+                                    (make-redef-behavior f k))))))
 
 (def get-caller-keyword
   #(->> %

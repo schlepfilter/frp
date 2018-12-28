@@ -9,34 +9,36 @@
 
 (frp/defe typing addition toggle undo redo view-event)
 
-(aid/defcurried transfer*
-  [apath f m]
-  (s/setval apath (f m) m))
-
 (def todo
-  (frp/snapshot (->> typing
-                     (frp/stepper "")
-                     ;TODO snapshot addition and time at the same time
-                     (frp/snapshot addition)
-                     (m/<$> last)
-                     (core/remove empty?))
-                frp/time))
+  (->> typing
+       (frp/stepper "")
+       (frp/snapshot addition frp/time)
+       (m/<$> rest)
+       (core/remove (comp empty?
+                          last))))
+
+(def size
+  10)
 
 (def todos
-  ((aid/lift-a (fn [additions m]
-                 (map (transfer* s/AFTER-ELEM (comp m
-                                                    last))
-                      additions)))
-    (->> todo
-         core/vector
-         (frp/stepper []))
-    (->> todo
-         (m/<$> last)
-         (m/<> toggle)
-         (core/group-by identity)
-         (m/<$> (partial s/transform* s/MAP-VALS (comp odd?
-                                                       count)))
-         (frp/stepper {}))))
+  (frp/undoable size
+                undo
+                redo
+                [todo toggle]
+                ((aid/lift-a (fn [additions m]
+                               (map (aid/transfer* s/AFTER-ELEM (comp m
+                                                                      first))
+                                    additions)))
+                  (->> todo
+                       core/vector
+                       (frp/stepper []))
+                  (->> todo
+                       (m/<$> first)
+                       (m/<> toggle)
+                       (core/group-by identity)
+                       (m/<$> (partial s/transform* s/MAP-VALS (comp odd?
+                                                                     count)))
+                       (frp/stepper {})))))
 
 (def view-behavior
   (frp/stepper :all view-event))
@@ -62,7 +64,7 @@
         name))
 
 (defn todo-component
-  [[s t active]]
+  [[t s active]]
   [:li {:on-click #(toggle t)}
    (if active
      s
@@ -107,6 +109,6 @@
 (def todos-with-undo
   ((aid/lift-a todos-with-undo-component) visible-todos view-behavior))
 
-(frp/on (comp aid/funcall
-              :prevent-default)
-        window/submit)
+(frp/run (comp aid/funcall
+               :prevent-default)
+         window/submit)

@@ -28,9 +28,6 @@
 (def stepper
   behavior/stepper)
 
-(def time-transform
-  behavior/time-transform)
-
 (def transduce
   event/transduce)
 
@@ -43,12 +40,16 @@
   ([rate]
    `(event/activate ~rate)))
 
-(def on
-  io/on)
+(def run
+  io/run)
 
 (defmacro transparent
   [expr]
   `(derived/transparent ~expr))
+
+(defmacro undoable
+  [& more]
+  `(derived/undoable ~@more))
 
 (def accum
   derived/accum)

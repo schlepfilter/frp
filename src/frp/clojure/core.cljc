@@ -1,6 +1,7 @@
 (ns frp.clojure.core
   (:refer-clojure :exclude [+
                             count
+                            dedupe
                             distinct
                             drop
                             filter
@@ -17,7 +18,8 @@
             [aid.unit :as unit]
             [cats.core :as m]
             [com.rpl.specter :as s]
-            [frp.primitives.event :as event]))
+            [frp.primitives.event :as event]
+            [frp.primitives.net :as net]))
 
 (defn reduce
   ([f e]
@@ -32,7 +34,9 @@
                           :start       true})
         (m/<$> :event-value)))
   ([f x e]
-   (event/transduce (core/drop 0) f x e)))
+   (m/<> (net/with-net e
+                       (event/pure x))
+         (event/transduce (core/drop 0) f x e))))
 
 (def reduce*
   (comp second
@@ -107,3 +111,6 @@
 
 (def vector
   (partial reduce core/conj []))
+
+(def dedupe
+  (partial event/transduce (core/dedupe) reduce*))

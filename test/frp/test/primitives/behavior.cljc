@@ -33,7 +33,9 @@
      f (test-helpers/function test-helpers/any-equal)]
     (let [fmapped-behavior (m/<$> f input-behavior)]
       (frp/activate)
-      (= @fmapped-behavior (f @input-behavior)))))
+      (->> @input-behavior
+           f
+           (= @fmapped-behavior)))))
 
 (clojure-test/defspec pure-identity
   test-helpers/cljc-num-tests
@@ -73,7 +75,7 @@
 (clojure-test/defspec join-identity
   test-helpers/cljc-num-tests
   (test-helpers/set-up-for-all
-    [[inner-behaviors outer-behavior calls] (gen/no-shrink join-generator)]
+    [[inner-behaviors outer-behavior calls] join-generator]
     (let [joined-behavior (m/join outer-behavior)]
       (frp/activate)
       (test-helpers/run-calls! calls)
@@ -93,4 +95,4 @@
                                  (run! e as)
                                  (= @b (last occurrences)))))
 
-;TODO test time-transform
+;TODO test applicative
