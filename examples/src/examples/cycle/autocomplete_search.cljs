@@ -30,13 +30,14 @@
   (m/<> (aid/<$ true response) (aid/<$ false enter)))
 
 (def relative-number
-  (->> (m/<> (->> key-down
+  (->> response
+       (aid/<$ (constantly 0))
+       (m/<> (->> key-down
                   (core/filter (partial = "ArrowDown"))
                   (aid/<$ inc))
              (->> key-down
                   (core/filter (partial = "ArrowUp"))
-                  (aid/<$ dec))
-             (aid/<$ (constantly 0) response))
+                  (aid/<$ dec)))
        (frp/accum 0)))
 
 (def suggestions
