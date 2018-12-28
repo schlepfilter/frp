@@ -458,16 +458,15 @@
                (periodic/periodic-seq (t/now))
                rest)))
 
-(aid/defcurried handle
-  [net-id _]
-  (when (-> @net/universe-state
-            net-id
-            :active)
-    (->> (time/now)
-         net/get-new-time
-         (partial s/setval* [net-id :time])
-         (swap! net/universe-state))
-    (net/run-effects-twice! net-id)))
+(def handle
+  #(when (-> @net/universe-state
+             %
+             :active)
+     (->> (time/now)
+          net/get-new-time
+          (partial s/setval* [% :time])
+          (swap! net/universe-state))
+     (net/run-effects-twice! %)))
 
 (aid/defcurried append-cancellation
   [net-id f! universe]
@@ -496,19 +495,22 @@
       (->>
         universe
         keys
-        (reduce (fn [reduction element]
-                  (append-cancellation element
-                                       (aid/case-eval rate
-                                         positive-infinity aid/nop
-                                         (#?(:clj
-                                             (partial chime/chime-at
-                                                      (get-periods rate))
-                                             :cljs
-                                             #(partial js/clearInterval
-                                                       (js/setInterval % rate)))
-                                           (handle element)))
-                                       reduction))
-                universe))))
+        (reduce
+          (fn [reduction element]
+            (append-cancellation element
+                                 (aid/case-eval rate
+                                   positive-infinity aid/nop
+                                   #?(:clj
+                                      (chime/chime-at (get-periods rate)
+                                                      (fn [_]
+                                                        (handle element)))
+                                      :cljs
+                                      (partial js/clearInterval
+                                               (js/setInterval (partial handle
+                                                                        element)
+                                                               rate))))
+                                 reduction))
+          universe))))
   (swap! net/universe-state (partial s/setval* [s/MAP-VALS :active] true))
   (run-universe-effects! run-effects-once!)
   (time/start)
