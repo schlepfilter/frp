@@ -72,6 +72,4 @@
         vec)])
 
 (def data-binding
-  ((aid/lift-a data-binding-component)
-    helpers/full-name
-    click-difference))
+  ((aid/lift-a data-binding-component) helpers/full-name click-difference))
