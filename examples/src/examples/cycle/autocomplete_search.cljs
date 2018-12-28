@@ -108,7 +108,9 @@
   (helpers/get-color (/ 29 72) 0.66 0.74))
 
 (def border
-  (str "1px solid " (helpers/get-grey 0.8)))
+  (->> 0.8
+       helpers/get-grey
+       (str "1px solid ")))
 
 (defn suggestion-list-component
   [suggested* suggestions* number*]
@@ -130,7 +132,8 @@
     (concat [:ul {:style    {:background    "white"
                              :border        border
                              :border-bottom "0px"
-                             :box-shadow    (->> (helpers/get-grey 0.863)
+                             :box-shadow    (->> 0.863
+                                                 helpers/get-grey
                                                  (str "0px 4px 4px "))
                              :display       (if suggested*
                                               "block"
