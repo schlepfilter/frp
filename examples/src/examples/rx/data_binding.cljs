@@ -14,7 +14,7 @@
 (def initial-click-difference
   [0 0])
 
-(def click-difference
+(def counter-difference
   (->> frp/time
        (m/<$> deref)
        (frp/snapshot counter)
@@ -53,7 +53,7 @@
    [:div "Full Name"]
    [:div full-name*]])
 
-(defn click-component
+(defn counter-component
   [counter* difference]
   [:div
    [:button {:on-click #(click)}
@@ -76,8 +76,8 @@
      "Knockout.js"]]
    [full-name-component full-name*]
    (->> coll
-        (s/setval s/BEFORE-ELEM click-component)
+        (s/setval s/BEFORE-ELEM counter-component)
         vec)])
 
 (def data-binding
-  ((aid/lift-a data-binding-component) helpers/full-name click-difference))
+  ((aid/lift-a data-binding-component) helpers/full-name counter-difference))
