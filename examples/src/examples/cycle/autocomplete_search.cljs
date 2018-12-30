@@ -129,7 +129,6 @@
     valid-number))
 
 (defn autocomplete-search-component
-  ;TODO display suggestions
   [query-input* suggestion-list*]
   [:div {:style {:background (helpers/get-grey 0.94)
                  :padding    5}}
