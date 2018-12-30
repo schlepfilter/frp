@@ -67,7 +67,6 @@
            :on-key-down #(-> %
                              .-key
                              key-down)
-           :type        "text"
            :style       {:width "100%"}
            :value       query*}])
 
