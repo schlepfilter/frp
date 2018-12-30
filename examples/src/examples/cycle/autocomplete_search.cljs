@@ -118,7 +118,6 @@
                       [:li {:on-click       #(completion x)
                             :on-mouse-enter #(relative-number index)
                             :style          {:border-bottom border
-                                             :list-style    "none"
                                              :padding       "3px 0px 3px 8px"}}
                        x]))
        (aid/if-else empty?
