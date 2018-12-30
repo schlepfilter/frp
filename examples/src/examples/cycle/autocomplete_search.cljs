@@ -78,24 +78,6 @@
 (def section-style
   {:margin-bottom 10})
 
-(defn autocomplete-search-component
-  ;TODO display suggestions
-  [query-input* suggestion-list*]
-  [:div {:style {:background (helpers/get-grey 0.94)
-                 :padding    5}}
-   [:section {:style section-style}
-    [:label {:style label-style}
-     "Query:"]
-    [:div {:style {:display  "inline-block"
-                   :position "relative"
-                   :width    300}}
-     query-input*
-     suggestion-list*]]
-   [:section {:style section-style}
-    [:label {:style label-style}
-     "Some field:"]
-    [:input {:type "text"}]]])
-
 (def query
   (->> (m/<> typing completion)
        (frp/stepper "")))
@@ -145,6 +127,24 @@
     (frp/stepper false suggested)
     suggestions
     valid-number))
+
+(defn autocomplete-search-component
+  ;TODO display suggestions
+  [query-input* suggestion-list*]
+  [:div {:style {:background (helpers/get-grey 0.94)
+                 :padding    5}}
+   [:section {:style section-style}
+    [:label {:style label-style}
+     "Query:"]
+    [:div {:style {:display  "inline-block"
+                   :position "relative"
+                   :width    300}}
+     query-input*
+     suggestion-list*]]
+   [:section {:style section-style}
+    [:label {:style label-style}
+     "Some field:"]
+    [:input {:type "text"}]]])
 
 (def autocomplete-search
   ((aid/lift-a autocomplete-search-component) query-input suggestion-list))
