@@ -127,8 +127,7 @@
                              (fn [[_ m s]]
                                [:li (s/setval [:style :background] green m)
                                 s])))
-       (concat [:ul {:style    {:background    "white"
-                                :border        border
+       (concat [:ul {:style    {:border        border
                                 :border-bottom "0px"
                                 :box-shadow    (->> 0.863
                                                     helpers/get-grey
