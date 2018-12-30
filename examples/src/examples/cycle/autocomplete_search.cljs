@@ -136,8 +136,7 @@
                                                  "none")
                                 :margin        0
                                 :padding       0
-                                :position      "absolute"
-                                :width         "100%"}
+                                :position      "absolute"}
                      :on-click #(suggested false)}])
        vec))
 
