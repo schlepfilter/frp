@@ -78,6 +78,6 @@
    counter-difference*])
 
 (def data-binding
-  ((aid/lift-a data-binding-component)
-    (m/<$> full-name-component helpers/full-name)
-    (m/<$> counter-component counter-difference)))
+  (frp/transparent
+    (data-binding-component (full-name-component helpers/full-name)
+                            (counter-component counter-difference))))
