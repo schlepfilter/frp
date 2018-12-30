@@ -54,7 +54,7 @@
    [:div full-name*]])
 
 (defn counter-component
-  [counter* difference]
+  [[counter* difference]]
   [:div
    [:button {:on-click #(click)}
     "click"]
@@ -64,7 +64,7 @@
    [:div difference]])
 
 (defn data-binding-component
-  [full-name* coll]
+  [full-name* counter-difference*]
   [:div
    [:h1 "TKO - Technical Knockout"]
    [:p
@@ -74,10 +74,10 @@
     " and "
     [:a {:href "http://knockoutjs.com/"}
      "Knockout.js"]]
-   [full-name-component full-name*]
-   (->> coll
-        (s/setval s/BEFORE-ELEM counter-component)
-        vec)])
+   full-name*
+   counter-difference*])
 
 (def data-binding
-  ((aid/lift-a data-binding-component) helpers/full-name counter-difference))
+  ((aid/lift-a data-binding-component)
+    (m/<$> full-name-component helpers/full-name)
+    (m/<$> counter-component counter-difference)))
