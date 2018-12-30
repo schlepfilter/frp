@@ -55,7 +55,12 @@
 
 (def completion
   (->> valid-number
-       ((aid/lift-a nth) suggestions)
+       ((aid/lift-a (comp (aid/if-then-else (comp empty?
+                                                  first)
+                                            (constantly "")
+                                            (partial apply nth))
+                          vector))
+         suggestions)
        (frp/snapshot enter)
        (m/<$> second)))
 
