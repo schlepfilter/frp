@@ -59,6 +59,10 @@
        (frp/snapshot enter)
        (m/<$> second)))
 
+(def query
+  (->> (m/<> typing completion)
+       (frp/stepper "")))
+
 (defn query-input-component
   [query*]
   [:input {:on-change   #(-> %
@@ -69,21 +73,6 @@
                              key-down)
            :style       {:width "100%"}
            :value       query*}])
-
-(def label-style
-  {:display    "inline-block"
-   :text-align "right"
-   :width      100})
-
-(def section-style
-  {:margin-bottom 10})
-
-(def query
-  (->> (m/<> typing completion)
-       (frp/stepper "")))
-
-(def query-input
-  (m/<$> query-input-component query))
 
 (def green
   (helpers/get-color (/ 29 72) 0.66 0.74))
@@ -122,11 +111,13 @@
                      :on-click #(suggested false)}])
        vec))
 
-(def suggestion-list
-  ((aid/lift-a suggestion-list-component)
-    (frp/stepper false suggested)
-    suggestions
-    valid-number))
+(def label-style
+  {:display    "inline-block"
+   :text-align "right"
+   :width      100})
+
+(def section-style
+  {:margin-bottom 10})
 
 (defn autocomplete-search-component
   [query-input* suggestion-list*]
@@ -144,6 +135,15 @@
     [:label {:style label-style}
      "Some field:"]
     [:input {:type "text"}]]])
+
+(def query-input
+  (m/<$> query-input-component query))
+
+(def suggestion-list
+  ((aid/lift-a suggestion-list-component)
+    (frp/stepper false suggested)
+    suggestions
+    valid-number))
 
 (def autocomplete-search
   ((aid/lift-a autocomplete-search-component) query-input suggestion-list))
