@@ -63,7 +63,7 @@
   (->> (m/<> typing completion)
        (frp/stepper "")))
 
-(defn query-input-component
+(defn query-component
   [query*]
   [:input {:on-change   #(-> %
                              .-target.value
@@ -82,7 +82,7 @@
        helpers/get-grey
        (str "1px solid ")))
 
-(defn suggestion-list-component
+(defn suggestions-component
   [suggested* suggestions* number*]
   (->> suggestions*
        (map-indexed (fn [index x]
@@ -138,14 +138,10 @@
      "Some field:"]
     [:input {:type "text"}]]])
 
-(def query-input
-  (m/<$> query-input-component query))
-
-(def suggestion-list
-  ((aid/lift-a suggestion-list-component)
-    (frp/stepper false suggested)
-    suggestions
-    valid-number))
-
 (def autocomplete-search
-  ((aid/lift-a autocomplete-search-component) query-input suggestion-list))
+  ((aid/lift-a autocomplete-search-component)
+    (m/<$> query-component query)
+    ((aid/lift-a suggestions-component)
+      (frp/stepper false suggested)
+      suggestions
+      valid-number)))
