@@ -19,12 +19,11 @@
 (aid/defcurried measurement-component
   [m value]
   [:div (str (:label m) value (:unit m))
-   [:input (merge m
-                  {:on-change #(->> %
-                                    .-target.value
-                                    ((:event m)))
-                   :type      "range"
-                   :value     value})]])
+   [:input (merge m {:on-change #(->> %
+                                      .-target.value
+                                      ((:event m)))
+                     :type      "range"
+                     :value     value})]])
 
 (def weight-component
   (measurement-component {:event weight-event
