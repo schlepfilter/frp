@@ -13,8 +13,7 @@
                   :external-config      {:devtools/config {:features-to-install :all}}}
    :figwheel     true})
 
-(repl-api/start-figwheel!
-  {:build-ids  ["test"]
-   :all-builds [build]})
+(repl-api/start-figwheel! {:build-ids  ["test"]
+                           :all-builds [build]})
 
 (repl-api/cljs-repl)
