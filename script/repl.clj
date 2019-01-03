@@ -2,6 +2,7 @@
   (:require [figwheel-sidecar.repl-api :as repl-api]))
 
 (def build
+  ;TODO extract id
   {:id           "test"
    :source-paths ["src" "test"]
    :compiler     {:output-to            "dev-resources/public/js/main.js"
