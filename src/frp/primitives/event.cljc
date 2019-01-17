@@ -446,7 +446,7 @@
 (defn snapshot
   [e & bs]
   (m/<$> #(->> bs
-               (map deref)
+               (mapv deref)
                (cons %))
          e))
 
