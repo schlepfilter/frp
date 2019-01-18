@@ -14,6 +14,7 @@
                (partial bidi/match-route index/route))
          location/pathname))
 
+;TODO possibly don't call r/render to improve performance
 (frp/run (partial (aid/flip r/render) (js/document.getElementById "app")) app)
 
 (def rate
