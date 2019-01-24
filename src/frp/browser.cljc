@@ -16,8 +16,12 @@
   #(behavior/redef e
                    (derived/event)))
 
+(def funcall-register!
+  (juxt aid/funcall
+        behavior/register!))
+
 (def get-event
-  (comp (event/effect (comp behavior/register!
+  (comp (event/effect (comp funcall-register!
                             make-redef-event))
         (partial event/->Event net/initial-net-id)))
 
@@ -40,7 +44,7 @@
 (defn listen
   [f e]
   #?(:cljs
-     (behavior/register!
+     (funcall-register!
        #(add-remove-listener (oget+ js/window (-> e
                                                   :entity-id
                                                   get-property-name))
@@ -72,7 +76,7 @@
   [f k]
   #?(:cljs (->> k
                 (behavior/->Behavior net/initial-net-id)
-                (event/effect (comp behavior/register!
+                (event/effect (comp funcall-register!
                                     (make-redef-behavior f k))))))
 
 (def get-caller-keyword

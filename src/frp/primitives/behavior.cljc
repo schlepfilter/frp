@@ -213,3 +213,5 @@
   [a e]
   (behavior* (:net-id e)
              #(get-stepper-value a e % @net/universe-state)))
+
+(restart)
