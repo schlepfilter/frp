@@ -47,6 +47,14 @@
                          (partial map last)))
         vector))
 
+(clojure-test/defspec call-inactive-activate
+  test-helpers/cljc-num-tests
+  (test-helpers/set-up-for-all [as (gen/vector test-helpers/any-equal)]
+                               (let [e (frp/event)]
+                                 (run! e as)
+                                 (frp/activate)
+                                 (last-equal (map tuple/snd @e) as))))
+
 (clojure-test/defspec call-active
   test-helpers/cljc-num-tests
   (test-helpers/set-up-for-all [as (gen/vector test-helpers/any-equal)]

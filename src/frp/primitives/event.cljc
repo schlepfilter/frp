@@ -115,26 +115,24 @@
 
 (aid/defcurried invoke*
   [net-id entity-id a]
-  (when (-> @net/universe-state
-            net-id
-            :active)
-    (if (-> @net/universe-state
-            net-id
-            ((aid/build or
-                        :effective
-                        (comp (partial = time/epoch)
-                              :time))))
-      (swap! net/universe-state
-             (partial s/setval*
-                      [net-id :invocations s/AFTER-ELEM]
-                      #(invoke* net-id entity-id a)))
-      ;TODO make debugging compatible with multiple nets
-      (do (if debugging
-            (swap! reloading-state
-                   (partial s/setval*
-                            [:entity-id-invocations s/AFTER-ELEM]
-                            [entity-id a])))
-          (invoke** net-id entity-id a)))))
+  (if (-> @net/universe-state
+          net-id
+          ((aid/build or
+                      (complement :active)
+                      :effective
+                      (comp (partial = time/epoch)
+                            :time))))
+    (swap! net/universe-state
+           (partial s/setval*
+                    [net-id :invocations s/AFTER-ELEM]
+                    #(invoke* net-id entity-id a)))
+    ;TODO make debugging compatible with multiple nets
+    (do (if debugging
+          (swap! reloading-state
+                 (partial s/setval*
+                          [:entity-id-invocations s/AFTER-ELEM]
+                          [entity-id a])))
+        (invoke** net-id entity-id a))))
 
 (defrecord Event
   [net-id entity-id]
