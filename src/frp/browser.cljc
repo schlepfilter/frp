@@ -97,19 +97,23 @@
 (def memoized-keyword
   (memoize cuerdas/keyword))
 
-(defn convert
-  [x]
-  #?(:cljs (->> x
-                object/getKeys
-                ;Doing memoization is visibly faster.
-                (mapcat (juxt memoized-keyword
-                              #(case (-> x
-                                         (oget+ %)
-                                         goog/typeOf)
-                                 "function" (partial js-invoke x %)
-                                 (oget+ x %))))
-                (apply hash-map))))
+#?(:cljs (do (defn convert-keys
+               [x ks]
+               ;Doing memoization is visibly faster.
+               (->> ks
+                    (mapcat (juxt memoized-keyword
+                                  #(case (-> x
+                                             (oget+ %)
+                                             goog/typeOf)
+                                     "function" (partial js-invoke x %)
+                                     (oget+ x %))))
+                    (apply hash-map)))
+
+             (def convert-object
+               (aid/build convert-keys
+                          identity
+                          object/getKeys))))
 
 (defmacro make-convert-merge
   [x]
-  `#(merge (convert %) (convert ~x)))
+  `#(merge (convert-object %) (convert-object ~x)))
