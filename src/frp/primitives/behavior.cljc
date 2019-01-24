@@ -131,25 +131,22 @@
          (apply juxt aid/nop))))
 
 (aid/defcurried rename-id
-  [net-id to from universe]
-  (s/transform [net-id (->> [:dependency
-                             :function
-                             :modifications
-                             :modified
-                             :occs]
-                            (map s/must)
-                            (apply s/multi-path))]
+  [to from universe]
+  (s/transform [(:net-id to) (->> (aid/casep to
+                                    event/event? [:dependency
+                                                  :modifications
+                                                  :modified
+                                                  :occs]
+                                    [:function])
+                                  (map s/must)
+                                  (apply s/multi-path))]
                (partial (aid/flip set/rename-keys)
-                        {from to})
+                        (apply hash-map (map :entity-id [from to])))
                universe))
 
-(def rename-id!
+(def redef
   (comp (partial swap! net/universe-state)
         rename-id))
-
-(defn redef
-  [to from]
-  (rename-id! (:net-id to) (:entity-id to) (:entity-id from)))
 
 (def time
   (Behavior. net/initial-net-id ::time))
