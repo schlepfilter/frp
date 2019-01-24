@@ -119,7 +119,6 @@
           net-id
           ((aid/build or
                       (complement :active)
-                      :effective
                       (comp (partial = time/epoch)
                             :time))))
     (swap! net/universe-state
@@ -481,9 +480,9 @@
 
 (defn run-effects-once!
   [net-id]
-  (net/set-effective net-id true)
+  (net/set-active net-id false)
   (net/run-effects!* net-id)
-  (net/set-effective net-id false))
+  (net/set-active net-id true))
 
 (defn activate*
   [rate]
