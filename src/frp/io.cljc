@@ -31,9 +31,10 @@
     (fn [& more]
       (aid/case-eval more
         (:arguments @state) (:return @state)
-        (event/effect #(reset! state {:arguments more
-                                      :return    %})
-                      (apply f! more))))))
+        (->> more
+             (apply f!)
+             (event/effect #(reset! state {:arguments more
+                                           :return    %})))))))
 
 (aid/defcurried run-behavior-effect!
   [f! b net]
