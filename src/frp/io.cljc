@@ -24,16 +24,20 @@
   [effect-id b net]
   (s/setval [:cache effect-id] (get-net-value b net) net))
 
+(defn memoize-one
+  [f!]
+  (let [state (atom {})]
+    (fn [& more]
+      (aid/case-eval more
+        (:arguments @state) (:return @state)
+        (event/effect #(reset! state {:arguments more
+                                      :return    %})
+                      (apply f! more))))))
+
 (aid/defcurried run-behavior-effect!
-  [effect-id f! b net]
-  ;TODO memoize f!
-  (aid/if-else (aid/build =
-                          identity
-                          (set-cache effect-id b))
-               (comp f!
-                     (get-net-value b))
-               net)
-  (set-cache effect-id b ((:net-id b) @net/universe-state)))
+  [f! b net]
+  (f! (get-net-value b net))
+  ((:net-id b) @net/universe-state))
 
 (defn run*
   [effect-id f! x]
@@ -41,9 +45,9 @@
          (partial s/setval*
                   [(:net-id x) :effect effect-id]
                   ((aid/casep x
-                     event/event? run-event-effect!
-                     (run-behavior-effect! effect-id))
-                    f! x))))
+                     event/event? (run-event-effect! f!)
+                     (run-behavior-effect! (memoize-one f!)))
+                    x))))
 
 (defn run
   [f! x]
