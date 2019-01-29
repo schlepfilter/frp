@@ -26,6 +26,7 @@
 
 (aid/defcurried run-behavior-effect!
   [effect-id f! b net]
+  ;TODO memoize f!
   (aid/if-else (aid/build =
                           identity
                           (set-cache effect-id b))
