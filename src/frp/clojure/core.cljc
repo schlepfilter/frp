@@ -7,6 +7,7 @@
                             filter
                             group-by
                             max
+                            merge
                             merge-with
                             min
                             partition
@@ -114,3 +115,7 @@
 
 (def dedupe
   (partial event/transduce (core/dedupe) reduce*))
+
+(def merge
+  (partial reduce core/merge))
+

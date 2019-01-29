@@ -3,10 +3,7 @@
   (:require [frp.derived :as derived]
             [frp.io :as io]
             [frp.primitives.behavior :as behavior]
-            [frp.primitives.event :as event]
-    ;TODO don't require browser namespaces
-            #?@(:cljs [[frp.document]
-                       [frp.location]]))
+            [frp.primitives.event :as event])
   #?(:cljs (:require-macros frp.core)))
 
 (def restart
@@ -56,6 +53,3 @@
 
 (def switcher
   derived/switcher)
-
-;TODO move this expression to behavior
-(restart)

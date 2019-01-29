@@ -16,8 +16,12 @@
   #(behavior/redef e
                    (derived/event)))
 
+(def funcall-register!
+  (juxt aid/funcall
+        behavior/register!))
+
 (def get-event
-  (comp (event/effect (comp behavior/register!
+  (comp (event/effect (comp funcall-register!
                             make-redef-event))
         (partial event/->Event net/initial-net-id)))
 
@@ -40,7 +44,7 @@
 (defn listen
   [f e]
   #?(:cljs
-     (behavior/register!
+     (funcall-register!
        #(add-remove-listener (oget+ js/window (-> e
                                                   :entity-id
                                                   get-property-name))
@@ -72,7 +76,7 @@
   [f k]
   #?(:cljs (->> k
                 (behavior/->Behavior net/initial-net-id)
-                (event/effect (comp behavior/register!
+                (event/effect (comp funcall-register!
                                     (make-redef-behavior f k))))))
 
 (def get-caller-keyword
@@ -97,19 +101,23 @@
 (def memoized-keyword
   (memoize cuerdas/keyword))
 
-(defn convert
-  [x]
-  #?(:cljs (->> x
-                object/getKeys
-                ;Doing memoization is visibly faster.
-                (mapcat (juxt memoized-keyword
-                              #(case (-> x
-                                         (oget+ %)
-                                         goog/typeOf)
-                                 "function" (partial js-invoke x %)
-                                 (oget+ x %))))
-                (apply hash-map))))
+#?(:cljs (do (defn convert-keys
+               [x ks]
+               ;Doing memoization is visibly faster.
+               (->> ks
+                    (mapcat (juxt memoized-keyword
+                                  #(case (-> x
+                                             (oget+ %)
+                                             goog/typeOf)
+                                     "function" (partial js-invoke x %)
+                                     (oget+ x %))))
+                    (apply hash-map)))
+
+             (def convert-object
+               (aid/build convert-keys
+                          identity
+                          object/getKeys))))
 
 (defmacro make-convert-merge
   [x]
-  `#(merge (convert %) (convert ~x)))
+  `#(merge (convert-object %) (convert-object ~x)))

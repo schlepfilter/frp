@@ -50,9 +50,9 @@
        vals
        (call-functions! net-id)))
 
-(defn set-effective
+(defn set-active
   [net-id x]
-  (swap! universe-state (partial s/setval* [net-id :effective] x)))
+  (swap! universe-state (partial s/setval* [net-id :active] x)))
 
 (defn run-invocations
   [net-id]
@@ -77,12 +77,12 @@
 
 (defn run-effects-twice!
   [net-id]
-  (set-effective net-id true)
+  (set-active net-id false)
   (run-effects!* net-id)
   (swap! universe-state
          (partial s/setval* [net-id :time] (get-new-time (time/now))))
   (run-effects!* net-id)
-  (set-effective net-id false)
+  (set-active net-id true)
   (run-invocations net-id))
 
 ;TODO rename this function as invoke*

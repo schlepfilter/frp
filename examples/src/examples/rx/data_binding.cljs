@@ -1,10 +1,10 @@
 (ns examples.rx.data-binding
   (:require [aid.core :as aid]
+            [cats.core :as m]
             [com.rpl.specter :as s]
             [frp.clojure.core :as core]
             [frp.core :as frp]
-            [examples.helpers :as helpers]
-            [cats.core :as m]))
+            [examples.helpers :as helpers]))
 
 (frp/defe click)
 
@@ -14,7 +14,7 @@
 (def initial-click-difference
   [0 0])
 
-(def click-difference
+(def counter-difference
   (->> frp/time
        (m/<$> deref)
        (frp/snapshot counter)
@@ -53,8 +53,8 @@
    [:div "Full Name"]
    [:div full-name*]])
 
-(defn click-component
-  [counter* difference]
+(defn counter-component
+  [[counter* difference]]
   [:div
    [:button {:on-click #(click)}
     "click"]
@@ -64,7 +64,7 @@
    [:div difference]])
 
 (defn data-binding-component
-  [full-name* coll]
+  [full-name* counter-difference*]
   [:div
    [:h1 "TKO - Technical Knockout"]
    [:p
@@ -74,10 +74,10 @@
     " and "
     [:a {:href "http://knockoutjs.com/"}
      "Knockout.js"]]
-   [full-name-component full-name*]
-   (->> coll
-        (s/setval s/BEFORE-ELEM click-component)
-        vec)])
+   full-name*
+   counter-difference*])
 
 (def data-binding
-  ((aid/lift-a data-binding-component) helpers/full-name click-difference))
+  (frp/transparent
+    (data-binding-component (full-name-component helpers/full-name)
+                            (counter-component counter-difference))))

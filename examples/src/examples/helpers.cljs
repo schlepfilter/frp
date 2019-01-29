@@ -8,6 +8,9 @@
         col/as-css
         col/hsla))
 
+(def get-grey
+  (partial get-color 0 0))
+
 (frp/defe first-name last-name)
 
 (def full-name

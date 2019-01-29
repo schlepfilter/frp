@@ -2,6 +2,7 @@
   (:require [figwheel-sidecar.repl-api :as repl-api]))
 
 (def build
+  ;TODO extract id
   {:id           "test"
    :source-paths ["src" "test"]
    :compiler     {:output-to            "dev-resources/public/js/main.js"
@@ -12,8 +13,7 @@
                   :external-config      {:devtools/config {:features-to-install :all}}}
    :figwheel     true})
 
-(repl-api/start-figwheel!
-  {:build-ids  ["test"]
-   :all-builds [build]})
+(repl-api/start-figwheel! {:build-ids  ["test"]
+                           :all-builds [build]})
 
 (repl-api/cljs-repl)

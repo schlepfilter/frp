@@ -24,11 +24,11 @@
   200)
 
 (defn drag-n-drop-component
-  [origin* height]
+  [origin*]
   [:div {:on-drag-over #(.preventDefault %)
          :style        {:position "absolute"
                         :top      0
-                        :height   height
+                        :height   "100%"
                         :width    "100%"}}
    [:div {:draggable true
           :style     (merge origin*
@@ -45,4 +45,4 @@
    [:p "Example to show coordinating events to perform drag and drop"]])
 
 (def drag-n-drop
-  ((aid/lift-a drag-n-drop-component) origin window/inner-height))
+  (m/<$> drag-n-drop-component origin))
