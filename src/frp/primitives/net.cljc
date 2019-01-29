@@ -42,13 +42,12 @@
                             repeat
                             (interleave fs)))))
 
-(defn run-effects!*
-  [net-id]
-  (->> @universe-state
-       net-id
-       :effect
-       vals
-       (call-functions! net-id)))
+(def run-effects!*
+  #(->> @universe-state
+        %
+        :effect
+        vals
+        (call-functions! %)))
 
 (defn set-active
   [net-id x]
