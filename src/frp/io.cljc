@@ -26,6 +26,7 @@
 
 (defn memoize-one
   [f!]
+  ;TODO use core.memoize when core.memoize supports ClojureScript
   (let [state (atom {})]
     (fn [& more]
       (aid/case-eval more
