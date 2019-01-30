@@ -51,6 +51,22 @@
                      garbage-collect)
                net))
 
+(def call-functions
+  (aid/flip (partial reduce (aid/flip aid/funcall))))
+
+(aid/defcurried call-functions!
+  [net-id fs]
+  (->> @net/universe-state
+       net-id
+       (call-functions (->> (comp net-id
+                                  (partial swap!
+                                           net/universe-state)
+                                  (partial (aid/curry 3
+                                                      s/setval*)
+                                           net-id))
+                            repeat
+                            (interleave fs)))))
+
 (defn modify-net!
   [occ net-id entity-id net]
   ;TODO advance
@@ -90,7 +106,7 @@
                 (partial s/setval* :time (tuple/fst occ))
                 (set-occs [occ] entity-id)
                 (partial s/setval* [:modified entity-id] true)])
-       (net/call-functions! net-id)))
+       (call-functions! net-id)))
 
 (def initial-reloading
   {})
@@ -172,7 +188,7 @@
   (->> fs
        (map ((aid/curry 3 (aid/flip aid/funcall)) entity-id))
        (cons (set-occs [] entity-id))
-       (net/call-functions! net-id))
+       (call-functions! net-id))
   (Event. net-id entity-id))
 
 (aid/defcurried event*
@@ -282,7 +298,7 @@
   (->> net
        (get-occs-or-latests initial parent-id)
        (map (comp (aid/curriedfn [parent-id* _]
-                                 (net/call-functions! net-id
+                                 (call-functions! net-id
                                                       ((juxt add-edge
                                                              insert-merge-sync
                                                              delay-sync)
@@ -290,7 +306,7 @@
                                                         child-id)))
                   :entity-id
                   tuple/snd))
-       (net/call-functions! net-id)))
+       (call-functions! net-id)))
 
 (defn merge-one
   [parent merged]

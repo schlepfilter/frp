@@ -26,22 +26,6 @@
 (def universe-state
   (atom initial-universe))
 
-(def call-functions
-  (aid/flip (partial reduce (aid/flip aid/funcall))))
-
-(aid/defcurried call-functions!
-  [net-id fs]
-  (->> @universe-state
-       net-id
-       (call-functions (->> (comp net-id
-                                  (partial swap!
-                                           universe-state)
-                                  (partial (aid/curry 3
-                                                      s/setval*)
-                                           net-id))
-                            repeat
-                            (interleave fs)))))
-
 (def juxt*
   (comp (aid/if-then-else empty?
                           (constantly (constantly []))
