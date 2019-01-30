@@ -42,12 +42,19 @@
                             repeat
                             (interleave fs)))))
 
+(def juxt*
+  (comp (aid/if-then-else empty?
+                          (constantly (constantly []))
+                          (partial apply juxt))
+        vector))
+
 (def run-effects!*
-  #(->> @universe-state
-        %
-        :effect
-        vals
-        (call-functions! %)))
+  #((->> @universe-state
+         %
+         :effect
+         vals
+         (apply juxt*))
+     (% @universe-state)))
 
 (defn set-active
   [net-id x]

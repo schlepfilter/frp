@@ -12,17 +12,11 @@
   (->> net
        (event/get-latests (:entity-id e))
        (run! (comp f!
-                   tuple/snd)))
-  ;TODO extract a function
-  ((:net-id e) @net/universe-state))
+                   tuple/snd))))
 
 (aid/defcurried get-net-value
   [b net]
   (behavior/get-value b (:time net) net))
-
-(aid/defcurried set-cache
-  [effect-id b net]
-  (s/setval [:cache effect-id] (get-net-value b net) net))
 
 (defn memoize-one
   [f!]
@@ -38,8 +32,9 @@
 
 (aid/defcurried run-behavior-effect!
   [f! b net]
-  (f! (get-net-value b net))
-  ((:net-id b) @net/universe-state))
+  (->> net
+       (get-net-value b)
+       f!))
 
 (defn run*
   [effect-id f! x]
