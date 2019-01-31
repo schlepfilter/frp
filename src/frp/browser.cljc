@@ -102,7 +102,7 @@
   (memoize cuerdas/keyword))
 
 #?(:cljs (do (defn convert-keys
-               [x ks]
+               [ks x]
                ;Doing memoization is visibly faster.
                (->> ks
                     (mapcat (juxt memoized-keyword
@@ -115,8 +115,8 @@
 
              (def convert-object
                (aid/build convert-keys
-                          identity
-                          object/getKeys))))
+                          object/getKeys
+                          identity))))
 
 (defmacro make-convert-merge
   [x]
