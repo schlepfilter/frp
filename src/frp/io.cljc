@@ -12,27 +12,29 @@
   (->> net
        (event/get-latests (:entity-id e))
        (run! (comp f!
-                   tuple/snd)))
-  ;TODO extract a function
-  ((:net-id e) @net/universe-state))
+                   tuple/snd))))
 
 (aid/defcurried get-net-value
   [b net]
   (behavior/get-value b (:time net) net))
 
-(aid/defcurried set-cache
-  [effect-id b net]
-  (s/setval [:cache effect-id] (get-net-value b net) net))
+(defn memoize-one
+  [f!]
+  ;TODO use core.memoize when core.memoize supports ClojureScript
+  (let [state (atom {})]
+    (fn [& more]
+      (aid/case-eval more
+        (:arguments @state) (:return @state)
+        (->> more
+             (apply f!)
+             (event/effect #(reset! state {:arguments more
+                                           :return    %})))))))
 
 (aid/defcurried run-behavior-effect!
-  [effect-id f! b net]
-  (aid/if-else (aid/build =
-                          identity
-                          (set-cache effect-id b))
-               (comp f!
-                     (get-net-value b))
-               net)
-  (set-cache effect-id b ((:net-id b) @net/universe-state)))
+  [f! b net]
+  (->> net
+       (get-net-value b)
+       f!))
 
 (defn run*
   [effect-id f! x]
@@ -40,9 +42,9 @@
          (partial s/setval*
                   [(:net-id x) :effect effect-id]
                   ((aid/casep x
-                     event/event? run-event-effect!
-                     (run-behavior-effect! effect-id))
-                    f! x))))
+                     event/event? (run-event-effect! f!)
+                     (run-behavior-effect! (memoize-one f!)))
+                    x))))
 
 (defn run
   [f! x]

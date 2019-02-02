@@ -76,12 +76,13 @@
 ;#object[RangeError RangeError: Maximum call stack size exceeded]
 (browser/defevent resize
   #(merge (browser/convert-object %)
-          (browser/convert-keys js/window #{"innerHeight"
-                                            "innerWidth"
-                                            "outerHeight"
-                                            "outerWidth"
-                                            "scrollX"
-                                            "scrollY"})))
+          (browser/convert-keys #{"innerHeight"
+                                  "innerWidth"
+                                  "outerHeight"
+                                  "outerWidth"
+                                  "scrollX"
+                                  "scrollY"}
+                                js/window)))
 
 (browser/defevent scroll
   browser/convert-object)
