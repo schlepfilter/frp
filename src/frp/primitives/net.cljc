@@ -18,6 +18,7 @@
   {:dependency (graph/digraph)
    :function   (linked/map)
    :occs       (linked/map)
+   :effect     (linked/map)
    :time       time/epoch})
 
 (def initial-universe
