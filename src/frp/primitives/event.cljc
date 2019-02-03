@@ -140,7 +140,7 @@
     (swap! net/universe-state
            (partial s/setval*
                     [net-id :invocations s/AFTER-ELEM]
-                    #(invoke* net-id entity-id a)))
+                    #(invoke** net-id entity-id a)))
     ;TODO make debugging compatible with multiple nets
     (do (if debugging
           (swap! reloading-state
