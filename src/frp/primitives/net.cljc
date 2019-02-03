@@ -45,20 +45,19 @@
   [net-id x]
   (swap! universe-state (partial s/setval* [net-id :active] x)))
 
-(defn run-invocations
-  [net-id]
-  (when-not (-> @universe-state
-                net-id
-                :invocations
-                empty?)
-    (let [f! (-> @universe-state
-                 net-id
+(def run-invocations
+  #(when-not (-> @universe-state
+                 %
                  :invocations
-                 first)]
-      (swap! universe-state
-             (partial s/transform* [net-id :invocations] rest))
-      (f!))
-    (recur net-id)))
+                 empty?)
+     (let [f! (-> @universe-state
+                  %
+                  :invocations
+                  first)]
+       (swap! universe-state
+              (partial s/transform* [% :invocations] rest))
+       (f!))
+     (recur %)))
 
 (def get-new-time
   #(let [current (time/now)]

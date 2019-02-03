@@ -140,7 +140,7 @@
     (swap! net/universe-state
            (partial s/setval*
                     [net-id :invocations s/AFTER-ELEM]
-                    #(invoke* net-id entity-id a)))
+                    #(invoke** net-id entity-id a)))
     ;TODO make debugging compatible with multiple nets
     (do (if debugging
           (swap! reloading-state
@@ -299,11 +299,11 @@
        (get-occs-or-latests initial parent-id)
        (map (comp (aid/curriedfn [parent-id* _]
                                  (call-functions! net-id
-                                                      ((juxt add-edge
-                                                             insert-merge-sync
-                                                             delay-sync)
-                                                        parent-id*
-                                                        child-id)))
+                                                  ((juxt add-edge
+                                                         insert-merge-sync
+                                                         delay-sync)
+                                                    parent-id*
+                                                    child-id)))
                   :entity-id
                   tuple/snd))
        (call-functions! net-id)))
