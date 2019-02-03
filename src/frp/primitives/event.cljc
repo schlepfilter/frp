@@ -299,11 +299,11 @@
        (get-occs-or-latests initial parent-id)
        (map (comp (aid/curriedfn [parent-id* _]
                                  (call-functions! net-id
-                                                      ((juxt add-edge
-                                                             insert-merge-sync
-                                                             delay-sync)
-                                                        parent-id*
-                                                        child-id)))
+                                                  ((juxt add-edge
+                                                         insert-merge-sync
+                                                         delay-sync)
+                                                    parent-id*
+                                                    child-id)))
                   :entity-id
                   tuple/snd))
        (call-functions! net-id)))
