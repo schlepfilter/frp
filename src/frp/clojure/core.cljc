@@ -118,4 +118,3 @@
 
 (def merge
   (partial reduce core/merge))
-
