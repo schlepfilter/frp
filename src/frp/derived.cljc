@@ -235,8 +235,9 @@
 
 #?(:clj
    (defmacro undoable
-     ;TODO make actions optional for Clojure
-     ;TODO make actions optional for ClojureScript when ClojureScript supports dynamic macro expansion with advanced optimizations
+     ;TODO add reset as a parameter
+     ;TODO delete actions for Clojure
+     ;TODO delete actions for ClojureScript when ClojureScript supports dynamic macro expansion with advanced optimizations
      ;TODO deal with the arity in a function
      ;When expr is an event, with-undo doesn't go back to the state where there is no occurrence.
      ([undo actions expr]
