@@ -180,10 +180,10 @@
   [history size undo redo initial-result inner-result]
   (let [net (event)
         outer-result (event)]
-    (->> inner-result
-         (io/run (fn [x]
-                   (outer-result x)
-                   (net @history))))
+    (io/run (fn [x]
+              (outer-result x)
+              (net @history))
+            inner-result)
     (->> net
          (get-undo-redo size undo redo)
          (io/run history))
