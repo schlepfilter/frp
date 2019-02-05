@@ -81,8 +81,7 @@
   (when (-> @universe-state
             net-id
             (not= x))
-    (swap! universe-state (comp (partial s/setval* [net-id :cache] s/NONE)
-                                (partial s/setval* net-id x)))
+    (swap! universe-state (partial s/setval* net-id x))
     (run-effects-twice! net-id)))
 
 (defrecord Net
