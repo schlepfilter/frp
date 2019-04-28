@@ -15,3 +15,6 @@
 
 (def GET
   (request ajax/GET))
+
+(def POST
+  (request ajax/POST))
