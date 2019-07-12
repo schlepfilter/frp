@@ -147,12 +147,6 @@ The demo for this is listed as "intro" at https://nodpexamples.github.io in case
 
 ![GitHub Who to follow suggestions box](WhoToFollow.png)
 
-## Programming with a graph
-
-We'll build the suggestion box by defining events and behaviors in terms of other events and behaviors.  If you think of events and behaviors as nodes, we are programming with a graph of connected events and behaviors in mind.  Conceptually, we will build a graph like this:
-
-![Graph](img/Graph.png)
-
 ## Request and response
 
 **How do you approach this problem with FRP?**  Well, to start with, (almost) everything can be an event or behavior.  That's the FRP mantra.  Let's start with the easiest feature: "on startup, load 3 accounts data from the API".  There is nothing special here.  This is simply about (1) sending a request, (2) getting a response, and (3) rendering the response.  So let's go ahead and represent our request as an event.  At first this will feel like overkill, but we need to start from the basics, right?
