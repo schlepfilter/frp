@@ -8,7 +8,10 @@
             [examples.cycle.checkbox :as checkbox]
             [examples.cycle.counter :as counter]
             [examples.cycle.http-search-github :as http-search-github]
+            [examples.cycle.nested-folders :as nested-folders]
             [examples.intro :as intro]
+            [examples.re-frame.simple :as simple]
+            [examples.rx.data-binding :as data-binding]
             [examples.rx.drag-n-drop :as drag-n-drop]
             [examples.rx.keyboard-shortcuts :as keyboard-shortcuts]
             [examples.rx.letter-count :as letter-count]
@@ -20,13 +23,16 @@
    :bmi-naive           bmi-naive/bmi-naive
    :checkbox            checkbox/checkbox
    :counter             counter/counter
+   :data-binding        data-binding/data-binding
    :drag-n-drop         drag-n-drop/drag-n-drop
    :http-search-github  http-search-github/http-search-github
    :intro               intro/intro
    :keyboard-shortcuts  keyboard-shortcuts/keyboard-shortcuts
    :letter-count        letter-count/letter-count
+   :nested-folders      nested-folders/nested-folders
+   :simple              simple/simple
    :simple-data-binding simple-data-binding/simple-data-binding
-   :todos-with-undo  todos-with-undo/todos-with-undo})
+   :todos-with-undo     todos-with-undo/todos-with-undo})
 
 (def route-keywords
   (keys route-function))

@@ -1,85 +1,97 @@
 (ns frp.window
   (:refer-clojure :exclude [drop])
-  (:require [frp.browser :as browser :include-macros true]))
+  (:require [frp.browser :as browser]))
 
 (browser/defevent blur
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent click
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent contextmenu
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent copy
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent cut
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent dragend
-  browser/convert)
+  browser/convert-object)
 
 ;Defining dragover is visiliby slower possibly because it fires every few milliseconds.
 ;(browser/defevent dragover
 ;  convert)
 
 (browser/defevent dragleave
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent dragstart
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent drop
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent focus
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent input
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent keydown
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent keypress
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent keyup
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent paste
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent pointerdown
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent pointermove
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent pointerout
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent pointerover
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent pointerup
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent popstate
   (browser/make-convert-merge js/location))
 
+;The following definition gives an error.
+;(browser/defevent resize
+;  (browser/make-convert-merge js/window))
+;@resize
+;#object[RangeError RangeError: Maximum call stack size exceeded]
 (browser/defevent resize
-  (browser/make-convert-merge js/window))
+  #(merge (browser/convert-object %)
+          (browser/convert-keys #{"innerHeight"
+                                  "innerWidth"
+                                  "outerHeight"
+                                  "outerWidth"
+                                  "scrollX"
+                                  "scrollY"}
+                                js/window)))
 
 (browser/defevent scroll
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent submit
-  browser/convert)
+  browser/convert-object)
 
 (browser/defevent wheel
-  browser/convert)
+  browser/convert-object)
 
 (browser/defbehavior inner-height
   resize)

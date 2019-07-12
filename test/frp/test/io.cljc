@@ -12,8 +12,7 @@
             [frp.core :as frp]
             [frp.tuple :as tuple]
             [frp.test.helpers :as helpers :include-macros true]
-            #?(:clj
-               [riddley.walk :as walk]))
+            #?(:clj [riddley.walk :as walk]))
   #?(:cljs (:require-macros [frp.test.io :refer [with-exitv]])))
 
 #?(:clj (defmacro with-exitv
@@ -39,6 +38,7 @@
                    b)
        as)))
 
+;TODO test cases where another event is invoked during running effects
 (clojure-test/defspec event-on
   helpers/cljc-num-tests
   (helpers/set-up-for-all
@@ -47,7 +47,7 @@
     (= (vec (concat (map tuple/snd @e)
                     as))
        (with-exitv exit
-                   (frp/on exit e)
+                   (frp/run exit e)
                    (frp/activate)
                    (run! e as)))))
 
@@ -63,6 +63,6 @@
                                       (map tuple/snd @e))
                               as)))
          (with-exitv exit
-                     (frp/on exit b)
+                     (frp/run exit b)
                      (frp/activate)
                      (run! e as))))))

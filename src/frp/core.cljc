@@ -1,18 +1,20 @@
 (ns frp.core
   (:refer-clojure :exclude [stepper time transduce])
-  (:require [frp.derived :as derived :include-macros true]
+  (:require [frp.derived :as derived]
             [frp.io :as io]
             [frp.primitives.behavior :as behavior]
-            [frp.primitives.event :as event]
-    ;TODO don't require browser namespaces
-            #?@(:cljs [[frp.document]
-                       [frp.location]])))
+            [frp.primitives.event :as event])
+  #?(:cljs (:require-macros frp.core)))
 
 (def restart
   behavior/restart)
 
 (def event
   derived/event)
+
+(defmacro defe
+  [& names]
+  `(derived/defe ~@names))
 
 (def behavior
   derived/behavior)
@@ -22,9 +24,6 @@
 
 (def stepper
   behavior/stepper)
-
-(def time-transform
-  behavior/time-transform)
 
 (def transduce
   event/transduce)
@@ -38,18 +37,19 @@
   ([rate]
    `(event/activate ~rate)))
 
-(def on
-  io/on)
+(def run
+  io/run)
 
 (defmacro transparent
   [expr]
   `(derived/transparent ~expr))
+
+(defmacro undoable
+  [& more]
+  `(derived/undoable ~@more))
 
 (def accum
   derived/accum)
 
 (def switcher
   derived/switcher)
-
-;TODO move this expression to behavior
-(restart)

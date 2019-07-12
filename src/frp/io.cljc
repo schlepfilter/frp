@@ -1,56 +1,56 @@
 ;primitives.event and io namespaces are separated to limit the impact of :refer-clojure :exclude for transduce
 (ns frp.io
-  (:require [aid.core :as aid :include-macros true]
-            [cats.monad.maybe :as maybe]
-            [com.rpl.specter :as s :include-macros true]
-            [frp.derived :as derived]
+  (:require [aid.core :as aid]
+            [com.rpl.specter :as s]
             [frp.primitives.behavior :as behavior]
             [frp.primitives.event :as event]
-            [frp.protocols :as protocols]
-            [frp.tuple :as tuple])
-  #?(:cljs (:require-macros [frp.io :refer [defcurriedmethod]])))
+            [frp.primitives.net :as net]
+            [frp.tuple :as tuple]))
 
-(defmulti get-effect (comp protocols/-get-keyword
-                           second
-                           vector))
-;This definition of get-effect! produces the following failure in :advanced.
-;Reloading Clojure file "/nodp/hfdp/observer/synchronization.clj" failed.
-;clojure.lang.Compiler$CompilerException: java.lang.IllegalArgumentException: No method in multimethod 'get-effect!' for dispatch value
-;(defmulti get-effect! (comp helpers/infer
-;                            second
-;                            vector))
+(aid/defcurried run-event-effect!
+  [f! e net]
+  (->> net
+       (event/get-latests (:entity-id e))
+       (run! (comp f!
+                   tuple/snd))))
 
-(defmacro defcurriedmethod
-  [multifn dispatch-val bindings & body]
-  `(aid/defpfmethod ~multifn ~dispatch-val
-                    (aid/curry ~(count bindings) (fn ~bindings
-                                                   ~@body))))
+(aid/defcurried get-net-value
+  [b net]
+  (behavior/get-value b (:time net) net))
 
-(defcurriedmethod get-effect :event
-                  [f! e network]
-                  (run! (comp f!
-                              tuple/snd)
-                        (event/get-latests (:id e) network))
-                  network)
+(defn memoize-one
+  [f!]
+  ;TODO use core.memoize when core.memoize supports ClojureScript
+  (let [state (atom {})]
+    (fn [& more]
+      (aid/case-eval more
+        (:arguments @state) (:return @state)
+        (->> more
+             (apply f!)
+             (event/effect #(reset! state {:arguments more
+                                           :return    %})))))))
 
-(aid/defcurried get-network-value
-  [b network]
-  (behavior/get-value b (:time network) network))
+(aid/defcurried run-behavior-effect!
+  [f! b net]
+  (->> net
+       (get-net-value b)
+       f!))
 
-(defn set-cache
-  [b network]
-  (s/setval [:cache (:id b)] (get-network-value b network) network))
+(defn run*
+  [effect-id f! x]
+  (swap! net/universe-state
+         (partial s/setval*
+                  [(:net-id x) :effect effect-id]
+                  ((aid/casep x
+                     event/event? (run-event-effect! f!)
+                     (run-behavior-effect! (memoize-one f!)))
+                    x))))
 
-(defcurriedmethod
-  get-effect :behavior
-  [f! b network]
-  (->> network
-       (set-cache b)
-       (event/effect (aid/if-else (partial = network)
-                                  (comp f!
-                                        (get-network-value b))))))
-
-(def on
-  (comp (partial swap! event/network-state)
-        ((aid/curry 3 s/setval*) [:effects s/AFTER-ELEM])
-        get-effect))
+(defn run
+  [f! x]
+  (run* (->> @net/universe-state
+             ((:net-id x))
+             :effect
+             net/get-id)
+        f!
+        x))

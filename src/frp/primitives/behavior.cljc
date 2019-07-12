@@ -7,120 +7,149 @@
             [cats.protocols :as cats-protocols]
             [cats.util :as util]
             [com.rpl.specter :as s]
-            [frp.helpers :as helpers :include-macros true]
             [frp.primitives.event :as event]
+            [frp.primitives.net :as net]
             [frp.protocols :as entity-protocols]
             [frp.tuple :as tuple])
   #?(:clj (:import [clojure.lang IDeref])))
 
-(declare context)
+(declare get-context)
 
 (defrecord Behavior
-  [id]
+  ;TODO rename id as behavior-id
+  [net-id entity-id]
   cats-protocols/Contextual
   (-get-context [_]
-    context)
+    (get-context net-id))
   entity-protocols/Entity
   (-get-keyword [_]
     :behavior)
   IDeref
   (#?(:clj  deref
       :cljs -deref) [_]
-    ((m/<*> (comp id
-                  :function)
-            :time)
-      @event/network-state))
+    (->> @net/universe-state
+         net-id
+         ((m/<*> (comp entity-id
+                       :function)
+                 :time))))
   cats-protocols/Printable
   (-repr [_]
-    (str "#[behavior " id "]")))
+    (str "#[behavior " net-id " " entity-id "]")))
 
 (util/make-printable Behavior)
 
 (defn behavior**
-  [id f]
-  (swap! event/network-state (partial s/setval* [:function id] f))
-  (Behavior. id))
+  [net-id entity-id f]
+  (swap! net/universe-state (partial s/setval* [net-id
+                                                :function
+                                                entity-id]
+                                     f))
+  (Behavior. net-id entity-id))
 
-(def behavior*
-  #(behavior** (event/get-id :function @event/network-state) %))
+(aid/defcurried behavior*
+  [net-id f]
+  (behavior** net-id
+              (->> @net/universe-state
+                   net-id
+                   :function
+                   net/get-id)
+              f))
 
 (defn get-function
-  [b network]
-  ((:id b) (:function network)))
+  [b net]
+  (->> net
+       :function
+       ((:entity-id b))))
 
 (defn get-value
-  [b t network]
-  ((get-function b network) t))
+  [b t net]
+  ((get-function b net) t))
+
+(defn get-universe-value
+  [b t universe]
+  (->> universe
+       ((:net-id b))
+       (get-value b t)))
+
+(defn pure*
+  [net-id f]
+  (->> f
+       constantly
+       (behavior* net-id)))
 
 (def pure
-  (comp behavior*
-        constantly))
+  #(pure* net/*net-id* %))
 
 (defn join
   [b]
-  (behavior* #(-> b
-                  (get-value % @event/network-state)
-                  (get-value % @event/network-state))))
+  (behavior* (:net-id b)
+             #(-> b
+                  (get-value % ((:net-id b) @net/universe-state))
+                  (get-value % ((:net-id b) @net/universe-state)))))
 
 ;Calling ap in -fapply is visibly slower.
 ;(def context
 ;  (helpers/reify-monad (fn [f fa]
 ;                         (behavior* #(-> fa
-;                                         (get-value % @event/network-state)
+;                                         (get-value % @event/net-state)
 ;                                         f)))
 ;                       pure
 ;                       (fn [f]
 ;                         (behavior* #(-> f
-;                                         (get-value % @event/network-state)
-;                                         (get-value % @event/network-state))))))
-(def context
+;                                         (get-value % @event/net-state)
+;                                         (get-value % @event/net-state))))))
+(defn get-context
+  [net-id]
   (reify
+    entity-protocols/Entity
+    (-get-net-id [_]
+      net-id)
     cats-protocols/Context
     cats-protocols/Functor
-    (-fmap [_ f fa]
-      (behavior* #(-> fa
-                      (get-value % @event/network-state)
-                      f)))
+    (-fmap [_ f! fa]
+      (behavior* (:net-id fa)
+                 #(-> fa
+                      (get-universe-value % @net/universe-state)
+                      f!)))
     cats-protocols/Applicative
-    (-pure [_ v]
-      (pure v))
+    (-pure [context* a]
+      (pure* (entity-protocols/-get-net-id context*) a))
     (-fapply [_ fab fa]
-      (behavior* #((get-value fab % @event/network-state)
-                    (get-value fa % @event/network-state))))
+      (behavior* (:net-id fab)
+                 #((get-universe-value fab % @net/universe-state)
+                    (get-universe-value fa % @net/universe-state))))
     cats-protocols/Monad
-    (-mreturn [_ a]
-      (pure a))
-    (-mbind [_ ma f]
-      (join (m/<$> f ma)))))
+    (-mreturn [context* a]
+      (cats-protocols/-pure context* a))
+    (-mbind [_ ma f!]
+      (join (m/<$> f! ma)))))
 
 (def stop
-  #((->> @event/network-state
+  #((->> @net/universe-state
+         vals
          :cancellations
          (apply juxt aid/nop))))
 
-(def rename-id
-  (comp ((aid/curry 3 s/transform*) (->> [:dependency
-                                          :function
-                                          :modifications
-                                          :modified
-                                          :occs]
-                                         (map s/must)
-                                         (apply s/multi-path)))
-        (aid/flip (aid/curry 2 set/rename-keys))
-        (partial apply array-map)
-        reverse
-        vector))
+(aid/defcurried rename-id
+  [to from universe]
+  (s/transform [(:net-id to) (->> (aid/casep to
+                                    event/event? [:dependency
+                                                  :modifications
+                                                  :modified
+                                                  :occs]
+                                    [:function])
+                                  (map s/must)
+                                  (apply s/multi-path))]
+               (partial (aid/flip set/rename-keys)
+                        (apply hash-map (map :entity-id [from to])))
+               universe))
 
-(def rename-id!
-  (comp (partial swap! event/network-state)
+(def redef
+  (comp (partial swap! net/universe-state)
         rename-id))
 
-(defn redef
-  [to from]
-  (rename-id! (:id to) (:id from)))
-
 (def time
-  (Behavior. ::time))
+  (Behavior. net/initial-net-id ::time))
 
 ;TODO only use registry for debugging
 (def registry
@@ -132,9 +161,9 @@
 
 (defn start
   []
-  (reset! event/network-state event/initial-network)
+  (reset! net/universe-state net/initial-universe)
   (redef time
-         (behavior* identity))
+         (behavior* net/initial-net-id identity))
   (run! aid/funcall @registry))
 
 (def restart
@@ -171,9 +200,10 @@
 ;       default))
 
 (defn get-stepper-value
-  [a e t network]
-  (->> network
-       (event/get-occs (:id e))
+  [a e t universe]
+  (->> universe
+       ((:net-id e))
+       (event/get-occs (:entity-id e))
        (last-pred (event/get-unit a) (comp (partial > @t)
                                            deref
                                            tuple/fst))
@@ -181,20 +211,7 @@
 
 (defn stepper
   [a e]
-  (behavior* #(get-stepper-value a e % @event/network-state)))
+  (behavior* (:net-id e)
+             #(get-stepper-value a e % @net/universe-state)))
 
-(defn get-time-transform-function
-  ;TODO refactor
-  [any-behavior time-behavior network]
-  (comp (get-function any-behavior network)
-        (get-function time-behavior network)))
-
-(defn time-transform
-  ;TODO throw an error if any-behavior is created directly or indirectly by stepper
-  ;TODO refactor
-  [any-behavior time-behavior]
-  (behavior* (get-time-transform-function any-behavior
-                                          time-behavior
-                                          @event/network-state)))
-
-;TODO implement calculus after a Clojure/ClojureScript library for symbolic computation is released
+(restart)

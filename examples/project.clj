@@ -3,7 +3,6 @@
                  [org.clojure/clojurescript "1.10.439"]
                  [aid "0.1.2"]
                  [bidi "2.1.4"]
-                 [cljs-ajax "0.8.0"]
                  [cljsjs/mousetrap "1.5.3-0"]
                  [frp "0.1.3"]
                  [reagent "0.8.1"]

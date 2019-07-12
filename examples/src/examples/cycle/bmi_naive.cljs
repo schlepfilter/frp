@@ -1,12 +1,8 @@
 (ns examples.cycle.bmi-naive
-  (:require [aid.core :as aid :include-macros true]
-            [frp.core :as frp :include-macros true]))
+  (:require [aid.core :as aid]
+            [frp.core :as frp]))
 
-(def weight-event
-  (frp/event))
-
-(def height-event
-  (frp/event))
+(frp/defe weight-event height-event)
 
 (def weight-behavior
   (frp/stepper 70 weight-event))
@@ -20,29 +16,28 @@
       int
       frp/transparent))
 
-(aid/defcurried get-measurement-component
+(aid/defcurried measurement-component
   [m value]
   [:div (str (:label m) value (:unit m))
-   [:input (merge m
-                  {:on-change #(->> %
-                                    .-target.value
-                                    ((:event m)))
-                   :type      "range"
-                   :value     value})]])
+   [:input (merge m {:on-change #(->> %
+                                      .-target.value
+                                      ((:event m)))
+                     :type      "range"
+                     :value     value})]])
 
 (def weight-component
-  (get-measurement-component {:event weight-event
-                              :label "Weight "
-                              :max   140
-                              :min   40
-                              :unit  "kg"}))
+  (measurement-component {:event weight-event
+                          :label "Weight "
+                          :max   140
+                          :min   40
+                          :unit  "kg"}))
 
 (def height-component
-  (get-measurement-component {:event height-event
-                              :label "Height "
-                              :max   210
-                              :min   140
-                              :unit  "cm"}))
+  (measurement-component {:event height-event
+                          :label "Height "
+                          :max   210
+                          :min   140
+                          :unit  "cm"}))
 
 (def bmi-component
   (partial vector :h2 "BMI is "))

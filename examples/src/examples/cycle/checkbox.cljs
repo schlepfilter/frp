@@ -3,8 +3,7 @@
             [frp.clojure.core :as core]
             [frp.core :as frp]))
 
-(def check
-  (frp/event))
+(frp/defe check)
 
 (def checked
   (->> check
