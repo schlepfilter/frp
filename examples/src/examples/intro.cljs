@@ -84,10 +84,10 @@
   (->> {}
        (repeat user-number)
        response)
-  (->> (js/Math.random)
-       (* 500)
-       int
-       beginning))
+  (-> (js/Math.random)
+      (* 500)
+      int
+      beginning))
 
 (defn intro-component
   [users*]
