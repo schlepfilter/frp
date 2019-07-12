@@ -16,7 +16,7 @@ But that only begs the question.
 
 In a way, this isn't anything new. Event buses or your typical click events are really events, on which you can observe and do some side effects. FRP is that idea on steroids. You are able to create events of anything, not just from click and hover events. Events are cheap and ubiquitous, anything can be an event: user inputs, properties, caches, data structures, etc. For example imagine your Twitter feed would be an event in the same fashion that click events are. You can listen to that event and react accordingly.
 
-**On top of that, you are given an amazing toolbox of functions to combine, create and filter any of those events.** That's where the "functional" magic kicks in. An event can be used as an input to another one. Even multiple events can be used as an input to another one. You can __mappend__ two events to merge them. You can __filter__ an event to get another one that has only those events you are interested in. You can __fmap__ data values from one event to another new one.
+**On top of that, you are given an amazing toolbox of functions to combine, create and filter any of those events.** That's where the "functional" magic kicks in. An event can be used as an input to another one. Even multiple events can be used as an input to another one. You can `m/<>` (mappend) two events to merge them. You can `core/filter` an event to get another one that has only those events you are interested in. You can `m/<$>` (fmap) data values from one event to another new one.
 
 If events are so central to FRP, let's take a careful look at them, starting with our familiar "clicks on a button" event.
 
@@ -34,30 +34,29 @@ a, b, c, d are emitted values
 
 Since this feels so familiar already, let's do something new: we are going to create new click events transformed out of the original click event.
 
-Let's make a counter event that indicates how many times a button was clicked. In common FRP libraries, each event has many functions attached to it, such as `<$>`, `filter`, `reduce`, etc. When you call one of these functions, such as `(<$> f click-event)`, it returns a **new event** based on the click event. It does not modify the original click event in any way. This is a property called **immutability**, and it goes together with FRP events just like pancakes are good with syrup. This allows us to chain functions like `(reduce g (<$> f click-event))`, or with a threading macro,
+Let's make a counter event that indicates how many times a button was clicked. In common FRP libraries, each event has many functions attached to it, such as `m/<$>`, `core/filter`, `core/reduce`, etc. When you call one of these functions, such as `(m/<$> f click-event)`, it returns a **new event** based on the click event. It does not modify the original click event in any way. This is a property called **immutability**, and it goes together with FRP events just like pancakes are good with syrup. This allows us to chain functions like `(reduce g (m/<$> f click-event))`, or with a threading macro,
 
 ```clojure
-(->> click-event
-  (<$> f)
-  (reduce g))
+(def counter-event
+  (->> click-event
+       (m/<$> f)
+       (core/reduce g)))
 ```
-
-<!-- TODO add a graph -->
 
 ```
   click-event: ---c----c--c----c------c-->
-               vvvv <$> (c becomes 1) vvvv
+               vvv m/<$> (c becomes 1) vvv
                ---1----1--1----1------1-->
-               vvvvvvvvv reduce + vvvvvvvv
+               vvvvvv core/reduce + vvvvvv
 counter-event: ---1----2--3----4------5-->
 ```
 
-The `<$> f` replaces (into the new event) each occurrence value according to a function `f` you provide. In our case, we fmapped to the number 1 on each click. The `reduce g` aggregates all previous values on the event, producing value `(g accumulated current)`, where `g` was simply the add function in this example. Then, `counter-event` emits the total number of clicks whenever a click happens.
+The `m/<$> f` replaces (into the new event) each occurrence value according to a function `f` you provide. In our case, we fmapped to the number 1 on each click. The `core/reduce g` aggregates all previous values on the event, producing value `(g accumulated current)`, where `g` was simply the add function in this example. Then, `counter-event` emits the total number of clicks whenever a click happens.
 
 I hope you enjoy the beauty of this approach. This example is just the tip of the iceberg: you can apply the same operations on different kinds of events, for instance, on an event of API responses; on the other hand, there are many other functions available.
 
 #### "What are behaviors?"
-This isn't anything new, either. Behaviors are states, roughly speaking. A global app state or current time are really behaviors, on which you can observe and do some side effects. FRP is that idea on steroids. You are able to create behaviors of anything not just from current time and mouse positions. Behaviors are cheap and ubiquitous, anything can be a observer: user inputs, properties, caches, data structures, etc. For example imagine your Facebook relationship status would be a behavior in the same fashion that mouse positions are. You can listen to that behavior and react accordingly.
+This isn't anything new, either. Behaviors are states, roughly speaking. A global app state or current time are really behaviors, on which you can observe and do some side effects. FRP is that idea on steroids. You are able to create behaviors of anything not just from current time and mouse positions. Behaviors are cheap and ubiquitous, anything can be a behavior: user inputs, properties, caches, data structures, etc. For example imagine your Facebook relationship status would be a behavior in the same fashion that mouse positions are. You can listen to that behavior and react accordingly.
 
 If behaviors are so central to FRP, let's take a careful look at them.
 
@@ -90,41 +89,52 @@ So, what's the point of a behavior? One answer is that a behavior gives us more 
 We have two counter events. We want to combine those two to get their product. If those two events have occurrences at the same point in time, it's easy to combine them. We can just take a product of those two occurrences. But what if there's an occurrence for one event but not for the other?
 
 ```
-counter-1-event : -----1-----2--3------------->
-counter-2-event : -------1------2-------3----->
+counter-0-event : -----1-----2--3------------->
+counter-1-event : -------1------2-------3----->
 product-event   : -----?-?---?--6-------?----->
 ```
 
 The problem is that an event may or may not have a value at a point in time. This is where a behavior comes in handy. Because behaviors are defined on every point in time, it's straightforward to combine them.
 
-In our example, we first want to convert the event into behaviors using `stepper`. `(stepper default-value event)` returns a behavior, which is a function of time. This function either returns the last value of event occurrences or the default value if there's no event occurrence yet.
+In our example, we first want to convert the event into behaviors using `frp/stepper`. `(frp/stepper default-value event)` returns a behavior, which is a function of time. This function either returns the last value of event occurrences or the default value if there's no event occurrence yet.
 
-```
-counter-1-event        : -----1-----2--3------------->
-                         v(stepper 0 counter-1-event)v
-(counter-1-behavior t) : 0000001111112223333333333333>
+```clojure
+(def counter-0-behavior
+  (frp/stepper 0 counter-0-event))
 
-counter-2-event        : -------1------2-------3----->
-                         v(stepper 0 counter-1-event)v
-(counter-2-behavior t) : 0000000011111112222222233333>
+(def counter-1-behavior
+  (frp/stepper 0 counter-1-event))
 ```
 
-Now we are ready to compose two behaviors. * function works on numbers, but not on behaviors. In order to make * work on behaviors, we lift *. That's what (lift-a *) does.
+```
+counter-0-event    : -----1-----2--3------------->
+                     vvv event becomes behavior vv
+coutner-0-behavior : 0000001111112223333333333333>
+
+counter-1-event    : -------1------2-------3----->
+                     vvv event becomes behavior vv
+counter-1-behavior : 0000000011111112222222233333>
+```
+
+Now we are ready to compose two behaviors. * function works on numbers, but not on behaviors. In order to make * work on behaviors, we lift *. That's what (aid/lift-a *) does.
+
+```clojure
+(def product-behavior
+  ((aid/lift-a *) counter-0-event counter-1-event))
+```
 
 ```
-(counter-1-behavior t) : 0000001111112223333333333333>
-(counter-2-behavior t) : 0000000011111112222222233333>
-                         vvvv((lift-a *)          vvvv
-                         vvvv  counter-1-behavior vvvv
-                         vvvv  counter-2-behavior)vvvv
-(product-behavior t)   : 0000000011112226666666699999>
+counter-1-behavior : 0000001111112223333333333333>
+counter-2-behavior : 0000000011111112222222233333>
+                     vvvvvv multiply values vvvvvv
+product-behavior   : 0000000011112226666666699999>
 ```
 
 Non-FRP libraries can do similar things without explicitly using behaviors. FRP decomplects the complected and makes behaviors explicit.
 
 ## "Why should I consider adopting FRP?"
 
-FRP raises the level of abstraction of your code so you can focus on the interdependences of event occurrences that define the business logic, rather than having to constantly fiddle with a large amount of implementation details. Code in FRP will likely be more concise.
+FRP raises the level of abstraction of your code so you can focus on the interdependence of event occurrences that define the business logic, rather than having to constantly fiddle with a large amount of implementation details. Code in FRP will likely be more concise.
 
 The benefit is more evident in modern webapps and mobile apps that are highly interactive with a multitude of UI event occurrences related to data event occurrences. 10 years ago, interaction with web pages was basically about submitting a long form to the backend and performing simple rendering to the frontend. Apps have evolved to be more real-time: modifying a single form field can automatically trigger a save to the backend, "likes" to some content can be reflected in real time to other connected users, and so forth.
 
@@ -149,52 +159,90 @@ The demo for this is listed as "intro" at https://nodpexamples.github.io in case
 
 ## Request and response
 
-**How do you approach this problem with FRP?**  Well, to start with, (almost) everything can be an event or behavior. That's the FRP mantra. Let's start with the easiest feature: "on startup, load 3 accounts data from the API". There is nothing special here. This is simply about (1) sending a request, (2) getting a response, and (3) rendering the response. So let's go ahead and represent our request as an event. At first this will feel like overkill, but we need to start from the basics, right?
+**How do you approach this problem with FRP?**  Well, to start with, (almost) everything can be an event or behavior. That's the FRP mantra. Let's start with the easiest feature: "on startup, load 3 accounts data from the API". There is nothing special here. This is simply about (1) sending a request with parameters, (2) getting a response, and (3) rendering the response. So let's go ahead and represent our request parameters as an event. At first this will feel like overkill, but we need to start from the basics, right?
 
 On startup we need to do only one request, so if we model it as an event, it will be an event with only one occurrence. Later, we know we will have many requests happening, but for now, it is just one.
 
 ```
 --a------->
 
-Where a is the string 'https://api.github.com/users'
+Where a is the map '{:params {:since 0}}'
 ```
 
-This is an event of URLs that we want to request. Whenever a request occurs, it tells us two thing: when and what. "When" the request should be executed is when the event occurs. "What" should be requested is the occurrence's value: a string containing the URL.
+This is an event of parameters that we want to send a request with. Whenever an event of parameters occurs, it tells us two thing: when and what. "When" the request should be executed is when the event occurs. "What" should be requested is the occurrence's value: a map containing the parameters.
 
-To create such an event with an occurrence is very simple.
+To create such an event with a single occurrence is very simple.
 
 ```clojure
-(def request-event
-  (event "https://api.github.com/users"))
+(def parameters-event
+  (frp/event {:params {:since 0}}))
 ```
 
-But now, that is just an event of strings, doing no operation. So, we need to somehow make something happen when the event occurs. That's done by subscribing the event.
+But now, that is just an event of parameters, doing no operation. So, we need to somehow make something happen when the event occurs. 
+
+The one basic function that you should know by now is `m/<$>`, which takes each value of event A, applies f on it, and produces a value on event B. If we do that to our parameters and response events, we can map request parameters to response events.
 
 ```clojure
-(on (fn [request-url]
-      (GET request-url
-       {:handler ;...
-       }))
-    request-event)
+(m/<$> (partial GET endpoint) parameters-event)
 ```
 
-Notice we are using a [cljs-ajax](https://github.com/JulianBirch/cljs-ajax) Ajax callback (which we assume you should know already) to handle the asynchrony of the request operation. Because performing a request is impure, we want to do it with `on`, which is used for performing side effects. After performing the request, we want to feed the response back into an event.
+Then we will have created a event of events. Don't panic yet. It's an event where each occurrence is yet another event. You can think of it as pointers: each occurrence is a pointer to another event. In our example, each occurrence of parameters is mapped to a pointer to the event containing the corresponding response.
 
-What `{:handler response-event}` does is to feed response data into `response-event`. We can use an event as a callback function. This is pretty nice, and shows how events can be used to bridge the imperative world and FRP world.
+```clojure
+(def response-event
+  (m/=<< (partial GET endpoint) parameters-event))
+```
+
+An event of events for responses looks confusing, and doesn't seem to help us at all. We just want a simple event of responses, where occurrence is a map, not an 'event' of a map. Say hi to Mr. `m/=<<` (bind): a version of `m/<$>` (fmap) that "flattens" an event of events, by emitting on the "trunk" event everything that will occur on "branch" events. `m/=<<` is not a "fix" and events of events are not a bug, these are really the tools for dealing with asynchronous responses.
+
+Nice. And because the response event is defined according to the event of parameters, if we have later on more occurrences on the event of parameters, we will have the corresponding response occurrences on response event, as expected:
+
+```
+parameters-event: --a-----b--c------------|->
+response-event  : -----A--------B-----C---|->
+
+(lowercase is parameters, uppercase is its response)
+```
+
+Now that we finally have a response event, we can render the data we receive:
+
+```clojure
+(defn render
+  []
+  ; ...
+  )
+
+(frp/run render response-event)
+```
+
+Joining all the code until now, we have:
+
+```clojure
+(def parameters-event
+  (frp/event {:params {:since 0}}))
+
+(def response-event
+  (m/=<< (partial GET endpoint) parameters-event))
+  
+(defn render
+  []
+  ; ...
+  )
+
+(frp/run render response-event)
+```
 
 ## The refresh button
 
-Every time the refresh button is clicked, the request event should have an occurrence of a new URL, so that we can get a new response. We need to generate a random request. Random number generation is done outside of the FRP world because getting a random value is impure.
+Every time the refresh button is clicked, the event of parameters should have an occurrence of parameters, so that we can get a new response. We need to generate random parameters. Random number generation is done outside of the FRP world because getting a random value is impure.
 
-```
+```clojure
 (defn handle-click
   [event*]
   (.preventDefault event*)
-  (->> (js/Math.random)
-       (* 500)
-       int
-       (str endpoint "?since=")
-       request-event))
+  (parameters-event {:params {:since (-> (js/Math.random)
+                                         (* 500)
+                                         int)}}))
 
 ;handle-click function will be used in :on-click in a view component
 ```
@@ -203,19 +251,19 @@ Every time the refresh button is clicked, the request event should have an occur
 
 Until now, we have only touched a suggestion UI element on the rendering step that happens in the event's on. Now with the refresh button, we have a problem: when you click "refresh", the current 3 suggestions are not cleared right away. New suggestions come in only after a response has arrived. But to make the UI look nice, we need to clean out the current suggestions when clicks happen on the refresh.
 
-```
+```clojure
 (def user-number
   30)
 
 (defn handle-click
   [event*]
   (.preventDefault event*)
-  (response-event (repeat user-number {})) ;This line is added.
-  (->> (js/Math.random)
-       (* 500)
-       int
-       (str endpoint "?since=")
-       request-event))
+  (->> {}
+       (repeat user-number)
+       response)
+  (parameters-event {:params {:since (-> (js/Math.random)
+                                         (* 500)
+                                         int)}}))
 ```
 
 We are simply making response-event emit `(repeat user-number {})` occurrence. When rendering, we interpret `{}` as "no data", hence hiding its UI element.
@@ -236,35 +284,78 @@ Events are not intuitive to combine. So we first want to convert events to behav
        response-event: ------R----------->
 (response-behavior t): EEEEEEERRRRRRRRRRR>
 
-       closing-click-1-event: ------------c----->
-(closing-count-1-behavior t): 000000000000011111>
+       closing-click-0-event: ------------c----->
+(closing-count-0-behavior t): 000000000000011111>
 ```
 
-Now we can combine behaviors using `lift-a`. We can lift a function and call it on `response-behavior` and `closing-count-1-behavior`, so that whenever the 'close 1' button is clicked, we get the latest response emitted and produce a new value of user.
+Now we can combine behaviors using `lift-a`. We can lift a function and call it on `response-behavior` and `closing-count-0-behavior`, so that whenever the 'close 0' button is clicked, we get the latest response emitted and produce a new value of user.
 
-```
-(def user-1-behavior
-  ((lift-a (fn [response* & closing-count-1]
-                     (nth (cycle response*) closing-count-1)))
-    (stepper (repeat user-number {}) response)
-    closing-count-1-behavior))
+```clojure
+(def user-0-behavior
+  ((aid/lift-a (fn [response* & closing-count-0]
+                 (nth (cycle response*) closing-count-0)))
+    (frp/stepper (repeat user-number {}) response)
+    closing-count-0-behavior))
 ```
 
 ## Wrapping up
 And we're done. With some refactoring, the complete code for all this was:
 
 ```
-(def suggestion-number
-  3)
+(ns examples.intro
+  (:require [clojure.walk :as walk]
+            [aid.core :as aid]
+            [cats.core :as m]
+            [com.rpl.specter :as s]
+            [examples.helpers :as helpers]
+            [frp.ajax :refer [GET]]
+            [frp.clojure.core :as core]
+            [frp.core :as frp]))
+
+(def link-style
+  {:display     "inline-block"
+   :margin-left "0.313em"})
+
+(defn get-user-component
+  [user* click]
+  [:li {:style {:align-items "center"
+                :display     "flex"
+                :padding     "0.313em"
+                :visibility  (aid/casep user*
+                               empty? "hidden"
+                               "visible")}}
+   [:img {:src   (:avatar_url user*)
+          :style {:border-radius "1.25em"
+                  :height        "2.5em"
+                  :width         "2.5em"}}]
+   [:a {:href  (:html_url user*)
+        :style link-style}
+    (:login user*)]
+   [:a {:href     "#"
+        :on-click (fn [event*]
+                    (.preventDefault event*)
+                    (click))
+        :style    link-style}
+    "x"]])
+
+(def intro-color
+  (helpers/get-grey 0.93))
+
+(def beginning
+  (frp/event 0))
 
 (def endpoint
   "https://api.github.com/users")
 
-(def request
-  (frp/event endpoint))
-
 (def response
-  (frp/event))
+  (m/=<< (comp (partial GET endpoint)
+               (partial assoc-in
+                        {:handler walk/keywordize-keys}
+                        [:params :since]))
+         beginning))
+
+(def suggestion-number
+  3)
 
 (def closings
   (repeatedly suggestion-number frp/event))
@@ -282,63 +373,32 @@ And we're done. With some refactoring, the complete code for all this was:
        (quot user-number)
        (range 0 user-number)
        (map (fn [click-count offset]
-              (helpers/<$> (partial + offset) click-count))
+              (m/<$> (partial + offset) click-count))
             closing-counts)))
 
 (def users
-  (apply (helpers/lift-a (fn [response* & offset-counts*]
-                           (map (partial nth (cycle response*))
-                                offset-counts*)))
+  (apply (aid/lift-a (fn [response* & offset-counts*]
+                       (map (partial nth (cycle response*)) offset-counts*)))
          (frp/stepper (repeat user-number {}) response)
          offset-counts))
-
-(def link-style
-  {:display     "inline-block"
-   :margin-left "0.313em"})
-
-(defn get-user-component
-  [user* click]
-  [:li {:style {:align-items "center"
-                :display     "flex"
-                :padding     "0.313em"
-                :visibility  (helpers/casep user*
-                                            empty? "hidden"
-                                            "visible")}}
-   [:img {:src   (:avatar_url user*)
-          :style {:border-radius "1.25em"
-                  :height        "2.5em"
-                  :width         "2.5em"}}]
-   [:a {:href  (:html_url user*)
-        :style link-style}
-    (:login user*)]
-   [:a {:href     "#"
-        :on-click (fn [event*]
-                    (.preventDefault event*)
-                    (click unit/unit))
-        :style    link-style}
-    "x"]])
 
 (defn handle-click
   [event*]
   (.preventDefault event*)
-  (response (repeat user-number {}))
+  (->> {}
+       (repeat user-number)
+       response)
   (->> (js/Math.random)
        (* 500)
        int
-       (str endpoint "?since=")
-       request))
-
-(def grey
-  "hsl(0, 0%, 93%)")
+       beginning))
 
 (defn intro-component
   [users*]
   (s/setval s/END
-            (map get-user-component
-                 users*
-                 closings)
-            [:div {:style {:border (str "0.125em solid " grey)}}
-             [:div {:style {:background-color grey
+            (map get-user-component users* closings)
+            [:div {:style {:border (str "0.125em solid " intro-color)}}
+             [:div {:style {:background-color intro-color
                             :padding          "0.313em"}}
               [:h2 {:style {:display "inline-block"}}
                "Who to follow"]
@@ -348,18 +408,14 @@ And we're done. With some refactoring, the complete code for all this was:
                "refresh"]]]))
 
 (def intro
-  (helpers/<$> intro-component users))
-
-(frp/on (partial (helpers/flip GET) {:handler (comp response
-                                                    walk/keywordize-keys)})
-        request)
+  (m/<$> intro-component users))
 ```
 
 You can see this working example listed as "intro" at https://nodpexamples.github.io
 
 That piece of code is small but dense: it features management of multiple events and behaviors with proper separation of concerns and even caching of responses. The functional style made the code look more declarative than imperative. We are not giving a sequence of instructions to execute, but we are just telling what something is by defining relationships among events and behaviors. For instance, we told the computer that users is the `offset-counts` behavior combined with the `response` behavior.
 
-Notice also the impressive absence of control flow elements such as `if`, `for` and `while`. Instead, we have event functions such as `filter`, `reduce`, `<>` and many more to control the flow of an event-driven program. This toolset of functions gives you more power in less code.
+Notice also the impressive absence of control flow elements such as `if`, `for` and `while`. Instead, we have event functions such as `m/<$>`, `m/=<<`, `core/count` and many more to control the flow of an event-driven program. This toolset of functions gives you more power in less code.
 
 <!-- TODO add "What comes next" section -->
 
