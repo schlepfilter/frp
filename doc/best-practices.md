@@ -4,11 +4,13 @@ When defining events without occurrences, I prefer `frp/defe` to `frp/event` bec
 
 ```clojure
 (frp/defe e)
+=> #'user/e
 ```
 
 ```clojure
 (def e
   (frp/event))
+=> #'user/e
 ```
 
 ## @ (deref)
