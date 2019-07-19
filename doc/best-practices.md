@@ -3,11 +3,11 @@
 When defining events without occurrences, I prefer `frp/defe` to `frp/event` because `frp/defe` is terser.
 
 ```clojure
+(require '[frp.core :as frp])
+
 (frp/defe e)
 => #'user/e
-```
 
-```clojure
 (def e
   (frp/event))
 => #'user/e
