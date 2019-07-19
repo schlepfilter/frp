@@ -1,3 +1,4 @@
+# Features
 frp is a functional reactive programming library. It has denotational semantics, provides the tools to avoid mutable state and provides events and behaviors as first-class objects. frp separates the pure from the impure, in that side effects are presumed to be isolated. The philosophy behind frp is that most parts of most reactive programs should be functional, and that programs that are more functional are more robust.
 
 ## Denotational semantics
