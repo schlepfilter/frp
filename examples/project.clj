@@ -1,7 +1,6 @@
 (defproject examples "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/clojurescript "1.10.439"]
-                 [aid "0.1.2"]
                  [bidi "2.1.4"]
                  [cljsjs/mousetrap "1.5.3-0"]
                  [frp "0.1.3"]
