@@ -99,10 +99,10 @@
 (browser/defbehavior inner-width
   resize)
 
-(browser/defbehavior outer-width
+(browser/defbehavior outer-height
   resize)
 
-(browser/defbehavior outer-height
+(browser/defbehavior outer-width
   resize)
 
 (browser/defbehavior scroll-x
