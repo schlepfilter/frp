@@ -11,9 +11,8 @@ By default, events retain all their occurrences for the convenience of debugging
 If I define an event or behavior that retains all its occurrences, its memory usage monotonically increases.
 
 ```clojure
-(require '[frp.core :as frp])
-
 (require '[frp.clojure.core :as core])
+(require '[frp.core :as frp])
 
 (frp/defe e0)
 

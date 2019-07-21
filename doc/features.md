@@ -15,11 +15,9 @@ Glitches produce incorrect state and wasteful recomputation. The denotational se
 
 (def e 
   (frp/event))
-=> #'user/e
 
 (def b
   (frp/behavior 0))
-=> #'user/b
 ```
 
 ## Immutability
