@@ -24,6 +24,9 @@ If I define an event or behavior that retains all its occurrences, its memory us
 (e0 0)
 
 (e0 1)
+
+@e1
+;=> (#[tuple #[time 0] []] #[tuple #[time 4] [0]] #[tuple #[time 6] [0 1]])
 ```
 
 This kind of memory usage increase is not specific to frp. If I keep adding values to a mutable collection, its memory usage monotonically increases.

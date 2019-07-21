@@ -1,6 +1,6 @@
 # Best Practices
-## frp/defe
-When defining events without occurrences, I prefer `frp/defe` to `frp/event` because `frp/defe` is terser.
+## frp.core/defe
+When defining events without occurrences, I prefer `defe` to `frp.core/event` because `defe` is terser.
 
 ```clojure
 (require '[frp.core :as frp])
@@ -10,6 +10,9 @@ When defining events without occurrences, I prefer `frp/defe` to `frp/event` bec
 (def e
   (frp/event))
 ```
+
+## cats.core/=<< (reverse bind)
+I prefer `=<<` to `cats.core/>>=` (bind) because the last argument of `=<<` is an event or a behavior like other functions. Consistent argument order often allows me to use `->>` in nested forms.
 
 ## @ (deref)
 I use `@` only for debugging because `@` is not part of the denotational semantics.
