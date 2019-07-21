@@ -11,6 +11,8 @@ Glitches produce incorrect state and wasteful recomputation. The denotational se
 `event` creates an event; `behavior` creates a behavior. They yield a value like any other -- you can store them in vars, pass them to functions etc.
 
 ```clojure
+(require '[frp.core :as frp])
+
 (def e 
   (frp/event))
 => #'user/e
