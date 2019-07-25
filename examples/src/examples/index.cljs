@@ -48,7 +48,7 @@
   [:a {:href     path
        :on-click (fn [event*]
                    (.preventDefault event*)
-                   (history/push-state {} {} path))}
+                   (history/push-state {} "" path))}
    [:li (subs path 1)]])
 
 (def index-component

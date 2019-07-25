@@ -1,36 +1,10 @@
 # examples
-
-FIXME: description
+[demos](https://frpexamples.github.io/)
 
 ## Installation
-
-Download from http://example.com/FIXME.
+Clone this repository.
 
 ## Usage
-
-FIXME: explanation
-
-    $ java -jar examples-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
-
-## License
-
-Copyright © 2017 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+1. In `examples`, Run `lein cljsbuild once prod`
+2. In `examples/resources/public`, run `python3 -m http.server`
+3. In a web browser, open `localhost:8000`
