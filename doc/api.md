@@ -7,9 +7,9 @@
 (frp/event)
 ;=> #[event :0 :0]
 ```
-The first keyword is the net id. The last keyword is the event id. I use these ids only for debugging.
+The first keyword is the net id of the event. The last keyword is the event id of the event. I use these ids only for debugging.
 
-If I call `event` with arguments, the event has occurrences at time 0.
+If I call `event` with arguments, the returned event has occurrences at time 0.
 ```clojure
 (def e
   (frp/event 0 1))
@@ -19,9 +19,9 @@ If I call `event` with arguments, the event has occurrences at time 0.
 ```
 I use `@` (deref) to see the occurrences only for debugging.
 
-The return value of a sequence of occurrences. The first value of an occurrence is the time of the occurrence. The second value is the value of the occurrence.
+The return value of `event` is a sequence of occurrences. The first value of an occurrence is the time of the occurrence. The second value is the value of the occurrence.
 
-If I call `event` with no argument, the event doesn't have any occurrence.
+If I call `event` with no arguments, the event doesn't have any occurrence.
 ```clojure
 (def e
   (frp/event))
@@ -29,9 +29,9 @@ If I call `event` with no argument, the event doesn't have any occurrence.
 @e
 ;=> ()
 ```
-I don't usually call `event` with no argument. Instead, I use `frp.core/defe`.
+I don't usually call `event` with no arguments. Instead, I use `frp.core/defe`.
 
-If I call an event with a value, the value becomes an occurrence at the time of calling the event.
+If I call an event with a value, the value becomes an occurrence at the time of creating the event.
 ```clojure
 (def e
   (frp/event 0))
@@ -40,12 +40,12 @@ If I call an event with a value, the value becomes an occurrence at the time of 
 ;=> (#[tuple #[time 0] 0])
 ```
 
-`event` with no argument is `mempty` in the denotational semantics.
+`event` with no arguments is `mempty` in the denotational semantics.
 
 `event` with one argument is `pure` in the denotational semantics.
 
 ## frp.core/defe
-`defe` creates events with no occurrences and binds the events to the argument symbols.
+`defe` creates events with no occurrences and binds the events to the symbols of the arguments.
 
 ```clojure
 (require '[frp.core :as frp])
@@ -77,7 +77,7 @@ I use `@` (deref) to see the current value only for debugging.
 `behavior` is `pure` in the denotational semantics.
 
 ## frp.core/time
-`time` is a behavior. Its current value is milliseconds since `activate` is called.
+`time` is a behavior. Its current value is milliseconds since `activate` was called.
 ```clojure
 (require '[frp.core :as frp])
 
@@ -137,7 +137,7 @@ I don't usually use `transduce`. Instead, I use `frp.clojure.core/reduce` and ot
 ```
 
 ## frp.core/snapshot
-`snapshot` captures the return values of behaviors at each time of occurrence of an event and puts the occurrence and the return values in a sequence.
+`snapshot` captures the return values of behaviors at the time of each occurrence of an event and puts the occurrence and the return values as a combined occurrence in a sequence.
 ```clojure
 (require '[frp.core :as frp])
 
@@ -204,7 +204,7 @@ Console:
 0
 0
 ```
-The side effect attached to an event gets called for each occurrence of the event even if the occurrence's value doesn't change.
+The side effect attached to an event gets called for each occurrence of the event even if the occurrences' values don't change.
 
 Code:
 ```clojure
@@ -229,7 +229,7 @@ Console:
 0
 1
 ```
-The side effect attached to a behavior gets called only when the return value of the behavior changes.
+The side effect attached to a behavior gets called when only when the return value of the behavior changes.
 
 ## frp.core/transparent
 `transparent` traverses the form recursively and turns arguments into events or behaviors and lifts functions.
@@ -246,9 +246,14 @@ The side effect attached to a behavior gets called only when the return value of
 ## frp.core/undoable
 `undoable` creates an undoable event or behavior.
 
-The last argument is the definition of the undoable event or behavior.
+```clojure
+(undoable undo actions expr)
+(undoable size undo expr)
+(undoable undo redo expr)
+(undoable size undo redo actions expr)
+```
+`size` is the size of the undo stack. `undo` is the undo event. `redo` is the redo event. `actions` is the sequence of events to undo for the undoable event. `expr` is the definition of the undoable event or behavior.
 
-The second to last argument is a sequence of events to undo for the undoable event.
 ```clojure
 (require '[frp.core :as frp])
 
@@ -276,7 +281,7 @@ The second to last argument is a sequence of events to undo for the undoable eve
 ```
 
 ## frp.core/accum
-`accum` takes an initial value and an event of functions as arguments and returns an event. The returned event's first occurrence is the return value of the first function applied to the initial value. The next occurrence is the return value of the next function applied to the previous occurrence.
+`accum` takes an initial value and an event of functions as arguments and returns an event. The first occurrence of the returned event is the return value of the event's first function in the event applied to the initial value. The next occurrence is the return value of the event's next function applied to the previous occurrence.
 
 ```clojure
 (frp/defe e0)
@@ -362,7 +367,7 @@ I use `restart` for debugging in Clojure. In ClojureScript, I don't use `restart
 ```
 
 ## cats.core/=<< (reverse bind)
-`=<<` maps a function on an event and combines the returned events into one event.
+`=<<` maps a function on an event and joins the returned events into one event.
 ```clojure
 (require '[cats.core :as m])
 (require '[frp.core :as frp])
@@ -384,7 +389,7 @@ I use `restart` for debugging in Clojure. In ClojureScript, I don't use `restart
 ;=> (#[tuple #[time 0] 0] #[tuple #[time 1618] 1])
 ```
 
-`=<<` maps a function on a behavior and combines the returned behaviors into one behavior.
+`=<<` maps a function on a behavior and joins the returned behaviors into one behavior.
 ```clojure
 (require '[cats.core :as m])
 (require '[frp.core :as frp])
