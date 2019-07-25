@@ -155,7 +155,7 @@ We can leave out the other features and buttons because they are minor. And inst
 
 The demo for this is listed as "intro" at https://nodpexamples.github.io in case you want to take a peak already.
 
-![GitHub Who to follow suggestions box](WhoToFollow.png)
+![GitHub Who to follow suggestions box](who-to-follow.png)
 
 ## Request and response
 
@@ -388,10 +388,10 @@ And we're done. With some refactoring, the complete code for all this was:
   (->> {}
        (repeat user-number)
        response)
-  (->> (js/Math.random)
-       (* 500)
-       int
-       beginning))
+  (-> (js/Math.random)
+      (* 500)
+      int
+      beginning))
 
 (defn intro-component
   [users*]

@@ -1,7 +1,6 @@
 # Rationale
 
 ## Why?
-
 Why did I write yet another reactive programming library?  Basically because I wanted:
 * A Lisp flavored Embedded Domain-specific Language
 * packaged via Standard Type Classes
