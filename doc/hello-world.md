@@ -36,7 +36,7 @@ I specify what side effect will be `run` when the `greeting` event occurs.
 ```clojure
 (frp/activate)
 ```
-I activate the `greeting` event. Without this, the side effect will not be run.
+I activate the `greeting` event. Without this, the side effect will not be `run`.
 
 ```clojure
 (greeting "hello world")
