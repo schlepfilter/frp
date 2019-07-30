@@ -400,6 +400,7 @@
     (-mempty [context]
       (mempty* (entity-protocols/-get-net-id context)))))
 
+;TODO replace transduce with filter as a primitive when Clojure supports non-strict evaluation
 (defn get-elements
   [step! entity-id initial net]
   (->> net
