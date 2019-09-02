@@ -14,6 +14,7 @@
                             partition
                             reduce
                             remove
+                            rest
                             take
                             vector])
   (:require [clojure.core :as core]
@@ -115,8 +116,12 @@
         (filter (comp (partial = n)
                       core/count)))))
 
+(def rest
+  (partial drop 1))
+
 (def vector
-  (partial reduce core/conj []))
+  (comp rest
+        (partial reduce core/conj [])))
 
 (def dedupe
   (partial event/transduce (core/dedupe) reduce*))
@@ -125,7 +130,7 @@
   (partial reduce core/merge))
 
 (def concat
-  (partial reduce core/concat []))
+  (partial reduce core/concat))
 
 (def take
   (make-n core/take))
