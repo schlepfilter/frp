@@ -1,4 +1,4 @@
-(defproject frp "0.1.3"
+(defproject frp "0.1.4"
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/clojurescript "1.10.439"]
                  [aid "0.1.2"]
