@@ -1,5 +1,6 @@
 (ns frp.clojure.core
   (:refer-clojure :exclude [+
+                            concat
                             count
                             dedupe
                             distinct
@@ -118,3 +119,6 @@
 
 (def merge
   (partial reduce core/merge))
+
+(def concat
+  (partial reduce core/concat []))
