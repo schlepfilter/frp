@@ -14,6 +14,7 @@
                             partition
                             reduce
                             remove
+                            take
                             vector])
   (:require [clojure.core :as core]
             [aid.core :as aid]
@@ -65,9 +66,12 @@
 (def count
   (partial event/transduce (map (constantly 1)) core/+))
 
-(defn drop
-  [n e]
-  (event/transduce (core/drop n) reduce* e))
+(def make-n
+  #(fn [n e]
+     (event/transduce (% n) reduce* e)))
+
+(def drop
+  (make-n core/drop))
 
 (defn merge-with
   [f e]
@@ -122,3 +126,6 @@
 
 (def concat
   (partial reduce core/concat []))
+
+(def take
+  (make-n core/take))
