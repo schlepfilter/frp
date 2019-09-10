@@ -16,6 +16,8 @@ Add the following to dependencies in project.clj.
 
 ### [Hello World](doc/hello-world.md) 
 
+### [The introduction to Functional Reactive Programming you've been missing](doc/intro.md) 
+
 ### [Examples](examples)
 
 ### [Demos](https://frpexamples.github.io/)
