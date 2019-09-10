@@ -1,5 +1,6 @@
 (ns frp.clojure.core
   (:refer-clojure :exclude [+
+                            concat
                             count
                             dedupe
                             distinct
@@ -13,6 +14,8 @@
                             partition
                             reduce
                             remove
+                            rest
+                            take
                             vector])
   (:require [clojure.core :as core]
             [aid.core :as aid]
@@ -64,9 +67,12 @@
 (def count
   (partial event/transduce (map (constantly 1)) core/+))
 
-(defn drop
-  [n e]
-  (event/transduce (core/drop n) reduce* e))
+(def make-n
+  #(fn [n e]
+     (event/transduce (% n) reduce* e)))
+
+(def drop
+  (make-n core/drop))
 
 (defn merge-with
   [f e]
@@ -110,11 +116,21 @@
         (filter (comp (partial = n)
                       core/count)))))
 
+(def rest
+  (partial drop 1))
+
 (def vector
-  (partial reduce core/conj []))
+  (comp rest
+        (partial reduce core/conj [])))
 
 (def dedupe
   (partial event/transduce (core/dedupe) reduce*))
 
 (def merge
   (partial reduce core/merge))
+
+(def concat
+  (partial reduce core/concat))
+
+(def take
+  (make-n core/take))
