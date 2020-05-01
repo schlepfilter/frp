@@ -1,6 +1,8 @@
 (defproject frp "0.1.4"
-  :dependencies [[org.clojure/clojure "1.10.0"]
-                 [org.clojure/clojurescript "1.10.439"]
+  :dependencies [[org.clojure/clojure "1.10.1"]
+                 ;TODO update clojurescript
+                 ;[org.clojure/clojurescript "1.10.597"] breaks tests
+                 [org.clojure/clojurescript "1.10.520"]
                  [aid "0.1.2"]
                  [aysylu/loom "1.0.2"]
                  [binaryage/oops "0.6.4"]
