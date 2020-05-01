@@ -1,5 +1,5 @@
 # frp
-frp is a funcitonal reactive programming library.
+frp is a functional reactive programming library.
 
 ## About
 

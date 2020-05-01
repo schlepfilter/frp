@@ -7,6 +7,7 @@
 
 (aid/defcurried request
   [f url option]
+  ;TODO make option optional
   (event/effect #(->> option
                       (merge {:handler identity})
                       (s/transform :handler (partial comp %))
