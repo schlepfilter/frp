@@ -25,6 +25,7 @@
             [frp.primitives.event :as event]
             [frp.primitives.net :as net]))
 
+;TODO make functions generic when ClojureScript supports :refer :all
 (defn reduce
   ([f e]
    (->> e
