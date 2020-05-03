@@ -61,9 +61,7 @@
        (call-functions (->> (comp net-id
                                   (partial swap!
                                            net/universe-state)
-                                  (partial (aid/curry 3
-                                                      s/setval*)
-                                           net-id))
+                                  (aid/curry 3 s/setval* net-id))
                             repeat
                             (interleave fs)))))
 
@@ -112,7 +110,7 @@
   {})
 
 (defonce reloading-state
-  (atom initial-reloading))
+         (atom initial-reloading))
 
 (aid/defcurried invoke**
   [net-id entity-id a]
@@ -186,7 +184,7 @@
   [net-id entity-id fs]
   ;TODO add a node to dependency
   (->> fs
-       (map ((aid/curry 3 (aid/flip aid/funcall)) entity-id))
+       (map (aid/curry 3 (aid/flip aid/funcall) entity-id))
        (cons (set-occs [] entity-id))
        (call-functions! net-id))
   (Event. net-id entity-id))
@@ -222,8 +220,8 @@
   ((if initial
      get-occs
      get-latests)
-    entity-id
-    net))
+   entity-id
+   net))
 
 (aid/defcurried modify-<$>
   [f! net-id parent-id initial child-id net]
@@ -302,8 +300,8 @@
                                                   ((juxt add-edge
                                                          insert-merge-sync
                                                          delay-sync)
-                                                    parent-id*
-                                                    child-id)))
+                                                   parent-id*
+                                                   child-id)))
                   :entity-id
                   tuple/snd))
        (call-functions! net-id)))
@@ -422,10 +420,10 @@
   [f! init entity-id net reduction element]
   (s/setval s/AFTER-ELEM
             ((aid/lift-a f!)
-              (get-transduction init
-                                (get-occs entity-id net)
-                                reduction)
-              element)
+             (get-transduction init
+                               (get-occs entity-id net)
+                               reduction)
+             element)
             reduction))
 
 (def make-modify-transduce
@@ -447,8 +445,8 @@
   ([xform f e]
    (transduce xform f (f) e))
   ([xform f init e]
-    ;TODO refactor
-    ;TODO consider cases where f has side effects
+   ;TODO refactor
+   ;TODO consider cases where f has side effects
    (->> e
         ((aid/build ((make-modify-transduce xform) f init)
                     :net-id

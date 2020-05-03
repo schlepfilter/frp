@@ -157,7 +157,7 @@
 
 (def register!
   (comp (partial swap! registry)
-        ((aid/curry 3 s/setval*) s/AFTER-ELEM)))
+        (aid/curry 3 s/setval* s/AFTER-ELEM)))
 
 (defn start
   []
