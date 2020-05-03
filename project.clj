@@ -4,6 +4,7 @@
                  ;[org.clojure/clojurescript "1.10.597"] breaks tests
                  [org.clojure/clojurescript "1.10.520"]
                  [aid "0.1.2"]
+                 ;TODO replace loom with another graph library
                  [aysylu/loom "1.0.2"]
                  [binaryage/oops "0.6.4"]
                  [cljs-ajax "0.8.0"]
